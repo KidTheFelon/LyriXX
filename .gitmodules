@@ -1,0 +1,3 @@
+[submodule "src-tauri/quickpoeter"]
+	path = src-tauri/quickpoeter
+	url = https://github.com/sitandr/quickpoeter_core.git
