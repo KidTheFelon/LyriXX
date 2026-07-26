@@ -70,6 +70,7 @@ impl RhymeEngine {
         let gs = GeneralSettings::default();
         let http = reqwest::Client::builder()
             .user_agent("LyriXX/0.2")
+            .timeout(std::time::Duration::from_secs(3))
             .build()
             .expect("Failed to create HTTP client");
         tracing::info!(elapsed_ms = start.elapsed().as_millis() as u64, "Rhyme dictionary loaded");
@@ -135,7 +136,7 @@ pub async fn get_rhymes(
             let guard = engine.lock().map_err(|e| format!("RhymeEngine mutex poisoned: {}", e))?;
             guard.as_ref().unwrap().http.clone()
         };
-        crate::english_rhyme::fetch_rhymes(&client, &input, max_results).await?
+        crate::english_rhyme::fetch_rhymes(&client, &input, max_results).await
     } else {
         let guard = engine.lock().map_err(|e| format!("RhymeEngine mutex poisoned: {}", e))?;
         let Some(rhyme_engine) = guard.as_ref() else {

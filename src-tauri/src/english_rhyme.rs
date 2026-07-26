@@ -19,34 +19,43 @@ pub async fn fetch_rhymes(
     client: &reqwest::Client,
     word: &str,
     max_results: u32,
-) -> Result<Vec<RhymeWord>, String> {
+) -> Vec<RhymeWord> {
     tracing::debug!(word, max_results, "english_rhyme: fetching from RhymeBrain");
-    let resp = client
+    let resp = match client
         .get(RHYMEBRAIN_URL)
         .query(&[("function", "getRhymes"), ("word", word)])
         .query(&[("maxResults", &max_results.to_string())])
         .send()
         .await
-        .map_err(|e| {
-            tracing::warn!(error = %e, word, "english_rhyme: request failed");
-            format!("RhymeBrain request failed: {}", e)
-        })?;
+    {
+        Ok(r) => r,
+        Err(e) => {
+            tracing::warn!(error = %e, word, "english_rhyme: request failed, returning empty");
+            return vec![];
+        }
+    };
 
     if !resp.status().is_success() {
         let status = resp.status();
-        tracing::warn!(%status, word, "english_rhyme: HTTP error");
-        return Err(format!("RhymeBrain HTTP {}", status));
+        tracing::warn!(%status, word, "english_rhyme: HTTP error, returning empty");
+        return vec![];
     }
 
-    let text = resp.text().await.map_err(|e| {
-        tracing::warn!(error = %e, word, "english_rhyme: failed to read response body");
-        format!("RhymeBrain read error: {}", e)
-    })?;
+    let text = match resp.text().await {
+        Ok(t) => t,
+        Err(e) => {
+            tracing::warn!(error = %e, word, "english_rhyme: failed to read response body");
+            return vec![];
+        }
+    };
 
-    let raw: Vec<RhymeBrainWord> = serde_json::from_str(&text).map_err(|e| {
-        tracing::warn!(error = %e, word, body_len = text.len(), "english_rhyme: failed to parse JSON");
-        format!("RhymeBrain parse error: {} — body: {}", e, &text[..text.len().min(200)])
-    })?;
+    let raw: Vec<RhymeBrainWord> = match serde_json::from_str(&text) {
+        Ok(v) => v,
+        Err(e) => {
+            tracing::warn!(error = %e, word, body_len = text.len(), "english_rhyme: failed to parse JSON");
+            return vec![];
+        }
+    };
 
     let results: Vec<RhymeWord> = raw
         .into_iter()
@@ -59,5 +68,5 @@ pub async fn fetch_rhymes(
         .collect();
 
     tracing::debug!(word, count = results.len(), "english_rhyme: results fetched");
-    Ok(results)
+    results
 }

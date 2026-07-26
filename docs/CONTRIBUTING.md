@@ -106,7 +106,6 @@ npm run tauri dev     # полный Tauri (требуется Rust toolchain + 
 ## Структура проекта
 
 ```
-lyrixx/
 ├── src/                          # Фронтенд (React + TS)
 │   ├── components/               #    20 UI-компонентов
 │   │   ├── SongList.tsx          #      список песен (поиск, pin, удаление)
@@ -203,7 +202,6 @@ lyrixx/
 ├── vite.config.ts                #      @/ алиас
 ├── vitest.config.ts
 ├── tsconfig.json                 #      strict, @/*, noUnusedLocals/Parameters
-├── eslint.config.js              #      JS + react-hooks + react-refresh
 ├── .prettierrc                   #      semi, no singleQuote, printWidth 100, LF
 └── package.json
 ```

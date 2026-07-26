@@ -26,7 +26,7 @@ Project root: repo root (`H:\GHP\lyrixx5/`). For full dev docs see `docs/CONTRIB
 - `src/components/Sidebar.tsx` — category sidebar: CRUD, context menu, portal menus
 - `src/components/SongList.tsx` — song list: search, debounce, pin/delete context menu
 - `src/components/SectionOutline.tsx` — drag-and-drop section navigator
-- `src/components/SettingsModal.tsx` — 6-tab settings modal: editor/interface/behavior/rhymes/tags/database
+- `src/components/SettingsModal.tsx` — 7-tab settings modal: editor/interface/behavior/rhymes/tags/database/shortcuts
 - `src/components/ConfirmModal.tsx` — generic confirm dialog, danger mode, focus trap
 - `src/components/ContextMenu.tsx` — portal-based right-click menu, keyboard nav
 - `src/components/TitleBar.tsx` — custom titlebar, Tauri drag region
@@ -39,7 +39,7 @@ Project root: repo root (`H:\GHP\lyrixx5/`). For full dev docs see `docs/CONTRIB
 - `src/components/ResizeHandle.tsx` — draggable column resize handle
 - `src/components/DebugMenu.tsx` — debug panel: backend logs, SQL queries, DB stats
 - `src/components/Icons.tsx` — SVG icon components
-- `src/components/settings/` — 15 files: UISection, EditorSection, BehaviorSection, RhymesSection, CustomTagsSection, DatabaseSection, shared
+- `src/components/settings/` — 8 files: UISection, EditorSection, BehaviorSection, RhymesSection, CustomTagsSection, DatabaseSection, ShortcutsSection, shared
 
 ### Hooks
 
@@ -97,7 +97,7 @@ Project root: repo root (`H:\GHP\lyrixx5/`). For full dev docs see `docs/CONTRIB
 - `src-tauri/src/main.rs` — entry point
 - `src-tauri/quickpoeter/` — vendored quickpoeter crate (Zaliznyak + word2vec rhyme engine)
 
-### CSS (18 files in `src/styles/`)
+### CSS (17 files in `src/styles/`)
 
 `src/styles/`: theme.css (light+dark), base.css, animations.css. `src/styles/layout/`: app.css, titlebar.css. `src/styles/navigation/`: sidebar.css. `src/styles/songs/`: song-list.css. `src/styles/editor/`: editor.css. `src/styles/components/`: modal.css, settings.css, toast.css, accessibility.css, icon-picker.css, context-menu.css, dropdown.css, debug-menu.css, resize-handle.css.
 
