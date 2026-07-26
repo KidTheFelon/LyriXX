@@ -1,6 +1,6 @@
 # LyriXX — songwriting notebook
 
-Tauri 2.11.5 + React 19.2.7 + TypeScript 7.0.2 + Vite 8.1.5. Fluent Design / WinUI 3 CSS. SQLite (rusqlite 0.31).
+Tauri 2.11.5 + React 19.2.7 + TypeScript 7.0.2 + Vite 8.1.5. Fluent Design / WinUI 3 CSS. SQLite (rusqlite 0.31). License: GPL-3.0.
 
 ## Commands
 
@@ -11,16 +11,15 @@ Tauri 2.11.5 + React 19.2.7 + TypeScript 7.0.2 + Vite 8.1.5. Fluent Design / Win
 | `npm run tauri dev`                       | Full Tauri dev (front + Rust)              |
 | `npm run tauri build`                     | Bundle (.msi/.exe)                         |
 | `npm run typecheck` / `npm run lint`      | `tsc --noEmit`                             |
-| `npm run lint:eslint`                     | ESLint (`src/**/*.{ts,tsx}`)               |
 | `npm run format` / `npm run format:check` | Prettier                                   |
 | `npm run test` / `npm run test:watch`     | vitest                                     |
 | `npm run prepare`                         | simple-git-hooks (postinstall)             |
 
-Project root: `lyrixx/`. For full dev docs see `docs/CONTRIBUTING.md`.
+Project root: repo root (`H:\GHP\lyrixx5/`). For full dev docs see `docs/CONTRIBUTING.md`.
 
 ## Key files
 
-### Components
+### Components (33 + 15 settings)
 
 - `src/components/TypewriterInput.tsx` — custom textarea, tag highlighting, autocomplete, rhyme popup
 - `src/components/SongEditor.tsx` — main editor: title/artist/category + lyrics + SectionOutline + rhymes
@@ -40,7 +39,7 @@ Project root: `lyrixx/`. For full dev docs see `docs/CONTRIBUTING.md`.
 - `src/components/ResizeHandle.tsx` — draggable column resize handle
 - `src/components/DebugMenu.tsx` — debug panel: backend logs, SQL queries, DB stats
 - `src/components/Icons.tsx` — SVG icon components
-- `src/components/settings/` — 7 files: UISection, EditorSection, BehaviorSection, RhymesSection, CustomTagsSection, DatabaseSection, shared
+- `src/components/settings/` — 15 files: UISection, EditorSection, BehaviorSection, RhymesSection, CustomTagsSection, DatabaseSection, shared
 
 ### Hooks
 
@@ -50,6 +49,7 @@ Project root: `lyrixx/`. For full dev docs see `docs/CONTRIBUTING.md`.
 - `src/hooks/useKeyboardShortcuts.ts` — Ctrl+N/F/Del
 - `src/hooks/useMicaEffect.ts` — Windows 11 Mica effect
 - `src/hooks/useDebounce.ts` — generic debounce
+- `src/hooks/useAppStore.ts` — app-level state
 
 ### Types
 
@@ -76,27 +76,44 @@ Project root: `lyrixx/`. For full dev docs see `docs/CONTRIBUTING.md`.
 - `src/utils/id.ts` — generateId (timestamp + random)
 - `src/constants.ts` — font sizes, animation durations, popup dimensions, rhyme thresholds
 
+### Editor
+
+- `src/editor/fluentTheme.ts` — CodeMirror Fluent Design theme
+- `src/editor/songLanguage.ts` — CodeMirror language support for song tags
+
 ### App
 
 - `src/App.tsx` — main app: all hooks, modals, portals, i18n, ErrorBoundary
 
-### Rust (src-tauri/src/)
+### Rust (src-tauri/src/) — 24 Tauri commands
 
-- `src-tauri/src/db.rs` — SQLite (rusqlite 0.31, bundled), migrations (LATEST_VERSION=1), **15 Tauri commands**: load_songs, save_song, delete_song, load_categories, save_category, delete_category, load_setting, save_setting, get_db_path_str, copy_file, clear_all_data, list_backups, delete_backup, restore_backup, get_db_file_info
-- `src-tauri/src/rhyme.rs` — RhymeEngine (quickpoeter: Zaliznyak + word2vec), get_rhymes, MAX_RHYME_RESULTS=50
+- `src-tauri/src/db.rs` — SQLite (rusqlite 0.31, bundled), migrations (LATEST_VERSION=1), **18 Tauri commands**: load_songs, save_song, delete_song, delete_songs, load_categories, save_category, delete_category, load_setting, save_setting, get_db_path_str, copy_file, write_text_file, clear_all_data, list_backups, delete_backup, restore_backup, get_db_file_info, check_db_recovery
+- `src-tauri/src/rhyme.rs` — RhymeEngine (quickpoeter: Zaliznyak + word2vec + RhymeBrain for English), get_rhymes, MAX_RHYME_RESULTS=50, LRU cache (256)
+- `src-tauri/src/english_rhyme.rs` — async RhymeBrain API for English rhymes
+- `src-tauri/src/lang_detect.rs` — cyrillic/latin language detection
 - `src-tauri/src/fonts.rs` — get_system_fonts: Windows registry font enumeration
 - `src-tauri/src/mica.rs` — Windows 11 Mica/Acrylic effect setup
-- `src-tauri/src/lib.rs` — Tauri Builder, 21 command handlers, splash→main transition, tracing/logging
+- `src-tauri/src/lib.rs` — Tauri Builder, 24 command handlers (incl. set_mica_theme, write_frontend_log, get_backend_logs, get_sql_queries, toggle_minimize_to_tray), splash→main transition, tracing/logging with LogLayer, SqlQueryLog, BackendLogBuffer, daily log rotation
 - `src-tauri/src/main.rs` — entry point
 - `src-tauri/quickpoeter/` — vendored quickpoeter crate (Zaliznyak + word2vec rhyme engine)
 
-### CSS (15+ files)
+### CSS (18 files in `src/styles/`)
 
-`styles/`: theme.css (light+dark), base.css, animations.css. `styles/layout/`: app.css, titlebar.css. `styles/navigation/`: sidebar.css. `styles/songs/`: song-list.css. `styles/editor/`: editor.css. `styles/components/`: modal.css, settings.css, toast.css, accessibility.css, icon-picker.css, context-menu.css, dropdown.css, debug-menu.css, resize-handle.css.
+`src/styles/`: theme.css (light+dark), base.css, animations.css. `src/styles/layout/`: app.css, titlebar.css. `src/styles/navigation/`: sidebar.css. `src/styles/songs/`: song-list.css. `src/styles/editor/`: editor.css. `src/styles/components/`: modal.css, settings.css, toast.css, accessibility.css, icon-picker.css, context-menu.css, dropdown.css, debug-menu.css, resize-handle.css.
 
-## Tests (7 files)
+## Tests (35 files)
 
-`useSongs.test.ts`, `useDebounce.test.ts`, `id.test.ts`, `charUtils.test.ts`, `TagAutocomplete.test.tsx`, `RhymePopup.test.tsx`, `SettingsModal.test.tsx`. Run: `npm run test`.
+### .test.ts (15)
+`constants.test.ts`, `fluentTheme.test.ts`, `songLanguage.test.ts`, `useSongs.test.ts`, `useDebounce.test.ts`, `useSettings.test.ts`, `useRhymes.test.ts`, `useKeyboardShortcuts.test.ts`, `translations.test.ts`, `storage.test.ts`, `window.test.ts`, `logger.test.ts`, `songTags.test.ts`, `charUtils.test.ts`, `id.test.ts`.
+
+### .test.tsx (20)
+`TypewriterInput.test.tsx`, `Toast.test.tsx`, `TagAutocomplete.test.tsx`, `SongList.test.tsx`, `Sidebar.test.tsx`, `ContextMenu.test.tsx`, `RhymePopup.test.tsx`, `DebugMenu.test.tsx`, `ConfirmModal.test.tsx`, `ResizeHandle.test.tsx`, `IconPicker.test.tsx`, `WinDropdown.test.tsx`, `SectionOutline.test.tsx`, `SongEditor.test.tsx`, `TitleBar.test.tsx`, `ErrorBoundary.test.tsx`, `App.test.tsx` + 7 settings tests.
+
+Run: `npm run test`.
+
+## CI
+
+GitHub Actions (windows-latest): `npm ci` → `typecheck` → `test` → `build`.
 
 ## Pre-commit
 
