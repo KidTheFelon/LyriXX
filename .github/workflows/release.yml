@@ -30,6 +30,7 @@ jobs:
       - run: npm ci --legacy-peer-deps
 
       - uses: tauri-apps/tauri-action@v0
+        id: tauri
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -38,3 +39,13 @@ jobs:
           releaseBody: "See [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/main/CHANGELOG.md) for details."
           releaseDraft: true
           prerelease: false
+
+      - name: Zip portable exe
+        shell: pwsh
+        run: |
+          Compress-Archive -Path "src-tauri/target/release/LyriXX.exe" -DestinationPath "LyriXX-${{ github.ref_name }}-portable.zip"
+
+      - name: Upload portable zip to release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release upload ${{ github.ref_name }} "LyriXX-${{ github.ref_name }}-portable.zip"
