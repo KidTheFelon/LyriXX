@@ -6,10 +6,6 @@ on:
   pull_request:
     branches: [main]
 
-defaults:
-  run:
-    working-directory: lyrixx
-
 jobs:
   check:
     runs-on: windows-latest
@@ -19,7 +15,6 @@ jobs:
         with:
           node-version: 22
           cache: npm
-          cache-dependency-path: lyrixx/package-lock.json
       - run: npm ci --legacy-peer-deps --ignore-scripts
       - run: npm run typecheck
       - run: npm run test
