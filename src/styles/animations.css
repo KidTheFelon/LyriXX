@@ -1,0 +1,329 @@
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+
+@keyframes overlayIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes overlayOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes modalIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes modalOut {
+  from {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.95) translateY(-4px);
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes win-dropdown-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes toastIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes toastOut {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(8px) scale(0.96);
+  }
+}
+
+.song-list-items {
+  position: relative;
+}
+
+.song-list-item {
+  animation: fadeIn 0.2s ease-out both;
+}
+
+.song-list-item:nth-child(1) {
+  animation-delay: 0ms;
+}
+.song-list-item:nth-child(2) {
+  animation-delay: 15ms;
+}
+.song-list-item:nth-child(3) {
+  animation-delay: 30ms;
+}
+.song-list-item:nth-child(4) {
+  animation-delay: 45ms;
+}
+.song-list-item:nth-child(5) {
+  animation-delay: 60ms;
+}
+.song-list-item:nth-child(n + 6) {
+  animation-delay: 75ms;
+}
+
+.song-list-item.exiting {
+  animation: fadeOut 0.15s ease-in forwards;
+}
+
+.sidebar-item-wrap {
+  animation: fadeIn 0.2s ease-out both;
+}
+
+.sidebar-item-wrap:nth-child(1) {
+  animation-delay: 0ms;
+}
+.sidebar-item-wrap:nth-child(2) {
+  animation-delay: 20ms;
+}
+.sidebar-item-wrap:nth-child(3) {
+  animation-delay: 40ms;
+}
+.sidebar-item-wrap:nth-child(4) {
+  animation-delay: 60ms;
+}
+.sidebar-item-wrap:nth-child(5) {
+  animation-delay: 80ms;
+}
+.sidebar-item-wrap:nth-child(n + 6) {
+  animation-delay: 100ms;
+}
+
+.sidebar-item-wrap.exiting {
+  animation: fadeOut 0.15s ease-in forwards;
+}
+
+.editor-tag-pill {
+  animation: tagPillIn 0.2s ease-out both;
+}
+
+@keyframes tagPillIn {
+  from {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.editor-tag-pill:nth-child(1) {
+  animation-delay: 0ms;
+}
+.editor-tag-pill:nth-child(2) {
+  animation-delay: 15ms;
+}
+.editor-tag-pill:nth-child(3) {
+  animation-delay: 30ms;
+}
+.editor-tag-pill:nth-child(4) {
+  animation-delay: 45ms;
+}
+.editor-tag-pill:nth-child(5) {
+  animation-delay: 60ms;
+}
+.editor-tag-pill:nth-child(6) {
+  animation-delay: 75ms;
+}
+.editor-tag-pill:nth-child(7) {
+  animation-delay: 90ms;
+}
+.editor-tag-pill:nth-child(8) {
+  animation-delay: 105ms;
+}
+.editor-tag-pill:nth-child(9) {
+  animation-delay: 120ms;
+}
+.editor-tag-pill:nth-child(10) {
+  animation-delay: 135ms;
+}
+.editor-tag-pill:nth-child(n + 11) {
+  animation-delay: 150ms;
+}
+
+.btn-add,
+.btn-collapse,
+.sidebar-item,
+.sidebar-item-action,
+.sidebar-add-cat-btn,
+.sidebar-settings-btn,
+.song-list-item-pin,
+.song-list-item-delete,
+.modal-btn,
+.search-clear {
+  transition:
+    background 0.12s ease-out,
+    color 0.12s ease-out,
+    transform 0.1s ease-out;
+}
+
+.btn-add:active,
+.btn-collapse:active,
+.sidebar-item:active,
+.sidebar-item-action:active,
+.sidebar-add-cat-btn:active,
+.sidebar-settings-btn:active,
+.song-list-item-pin:active,
+.song-list-item-delete:active,
+.modal-btn:active,
+.search-clear:active {
+  transform: scale(0.97);
+}
+
+.titlebar-btn {
+  transition:
+    background 0.1s ease-out,
+    color 0.1s ease-out,
+    transform 0.1s ease-out;
+}
+
+.titlebar-btn:active {
+  transform: scale(0.95);
+}
+
+.song-list-item > .song-list-item-pin.pinned {
+  transition:
+    opacity 0.15s ease-out,
+    color 0.15s ease-out,
+    background 0.15s ease-out,
+    transform 0.2s ease-out;
+}
+
+.song-list-item > .song-list-item-pin.pinned:active {
+  transform: scale(0.85);
+}
+
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--stroke-control);
+  border-top-color: var(--accent-default);
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+.spinner--small {
+  width: 14px;
+  height: 14px;
+  border-width: 1.5px;
+}
+
+@keyframes settingsTabIn {
+  from {
+    opacity: 0;
+    transform: translateX(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes settingsGroupIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes settingsTagIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes settingsConfirmSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

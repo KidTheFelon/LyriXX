@@ -1,0 +1,43 @@
+.icon-picker {
+  z-index: 200;
+  background: var(--bg-card-solid);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-flyout);
+  border: 1px solid var(--stroke-card);
+  padding: 8px;
+  max-height: 320px;
+  overflow-y: auto;
+  animation: win-dropdown-fade-in 0.15s ease-out;
+}
+
+.icon-picker-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 4px;
+}
+
+.icon-picker-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: var(--radius-control);
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition:
+    background 0.12s,
+    color 0.12s;
+}
+
+.icon-picker-item:hover {
+  background: var(--fill-subtle-hover);
+  color: var(--text-primary);
+}
+
+.icon-picker-item.active {
+  background: var(--accent-light);
+  color: var(--accent-default);
+}

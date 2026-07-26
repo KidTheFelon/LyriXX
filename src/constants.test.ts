@@ -1,0 +1,96 @@
+import { describe, it, expect } from "vitest";
+import {
+  FONT_SIZE_MIN,
+  FONT_SIZE_MAX,
+  EXIT_ANIM_MS,
+  SEARCH_DEBOUNCE_MS,
+  RHYME_DEBOUNCE_MS,
+  RHYME_SCORE_NORMALIZER,
+  RHYME_QUALITY_GOOD,
+  RHYME_QUALITY_FAIR,
+  TOAST_VISIBLE_DURATION_MS,
+  TOAST_CLOSE_ANIM_MS,
+  MODAL_ANIM_DURATION_MS,
+  NARROW_WIDTH,
+  DEFAULT_LINE_HEIGHT,
+  DEFAULT_FONT_SIZE,
+  CHAR_WIDTH_FACTOR,
+  GUTTER_CHAR_WIDTH,
+  GUTTER_PADDING,
+  AC_POPUP_MAX_HEIGHT,
+  AC_POPUP_MAX_WIDTH,
+  RHYME_POPUP_MAX_HEIGHT,
+  RHYME_POPUP_MAX_WIDTH,
+  RHYME_DOUBLED_MAX_HEIGHT,
+  RHYME_DOUBLED_MAX_WIDTH,
+  RHYME_BAR_MAX_WIDTH,
+  ICON_PICKER_WIDTH,
+  ICON_PICKER_HEIGHT,
+  ICON_PICKER_GAP,
+  DROPDOWN_ITEM_HEIGHT,
+  DROPDOWN_PADDING,
+} from "./constants";
+
+describe("constants", () => {
+  it("FONT_SIZE_MIN and FONT_SIZE_MAX are numbers", () => {
+    expect(typeof FONT_SIZE_MIN).toBe("number");
+    expect(typeof FONT_SIZE_MAX).toBe("number");
+  });
+
+  it("FONT_SIZE_MIN < FONT_SIZE_MAX", () => {
+    expect(FONT_SIZE_MIN).toBeLessThan(FONT_SIZE_MAX);
+  });
+
+  it("EXIT_ANIM_MS > 0", () => {
+    expect(EXIT_ANIM_MS).toBeGreaterThan(0);
+  });
+
+  it("RHYME_DEBOUNCE_MS < SEARCH_DEBOUNCE_MS", () => {
+    expect(RHYME_DEBOUNCE_MS).toBeLessThan(SEARCH_DEBOUNCE_MS);
+  });
+
+  it("RHYME_SCORE_NORMALIZER > 0", () => {
+    expect(RHYME_SCORE_NORMALIZER).toBeGreaterThan(0);
+  });
+
+  it("RHYME_QUALITY_GOOD > RHYME_QUALITY_FAIR", () => {
+    expect(RHYME_QUALITY_GOOD).toBeGreaterThan(RHYME_QUALITY_FAIR);
+  });
+
+  it("all expected constants are defined", () => {
+    const constants = [
+      FONT_SIZE_MIN,
+      FONT_SIZE_MAX,
+      EXIT_ANIM_MS,
+      SEARCH_DEBOUNCE_MS,
+      RHYME_DEBOUNCE_MS,
+      TOAST_VISIBLE_DURATION_MS,
+      TOAST_CLOSE_ANIM_MS,
+      MODAL_ANIM_DURATION_MS,
+      NARROW_WIDTH,
+      DEFAULT_LINE_HEIGHT,
+      DEFAULT_FONT_SIZE,
+      CHAR_WIDTH_FACTOR,
+      GUTTER_CHAR_WIDTH,
+      GUTTER_PADDING,
+      AC_POPUP_MAX_HEIGHT,
+      AC_POPUP_MAX_WIDTH,
+      RHYME_POPUP_MAX_HEIGHT,
+      RHYME_POPUP_MAX_WIDTH,
+      RHYME_DOUBLED_MAX_HEIGHT,
+      RHYME_DOUBLED_MAX_WIDTH,
+      RHYME_SCORE_NORMALIZER,
+      RHYME_QUALITY_GOOD,
+      RHYME_QUALITY_FAIR,
+      RHYME_BAR_MAX_WIDTH,
+      ICON_PICKER_WIDTH,
+      ICON_PICKER_HEIGHT,
+      ICON_PICKER_GAP,
+      DROPDOWN_ITEM_HEIGHT,
+      DROPDOWN_PADDING,
+    ];
+    for (const c of constants) {
+      expect(typeof c).toBe("number");
+    }
+  });
+});

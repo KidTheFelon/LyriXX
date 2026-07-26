@@ -1,0 +1,28 @@
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--bg-mica);
+  position: relative;
+}
+
+.app > * {
+  position: relative;
+  z-index: 1;
+}
+
+.app-body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  gap: 1px;
+}
+
+.app-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  color: var(--text-secondary);
+  font-size: 14px;
+}

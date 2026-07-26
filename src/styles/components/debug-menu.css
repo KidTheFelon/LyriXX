@@ -1,0 +1,442 @@
+.debug-modal {
+  width: 680px;
+  height: 520px;
+  min-width: 0;
+  max-width: none;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+}
+
+.debug-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.debug-tabs {
+  display: flex;
+  gap: 2px;
+  border-bottom: 1px solid var(--stroke-divider);
+  margin-bottom: 0;
+  flex-shrink: 0;
+}
+
+.debug-tab {
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 500;
+  font-family: var(--font-family-text);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition:
+    color 0.12s,
+    border-color 0.12s;
+}
+
+.debug-tab:hover {
+  color: var(--text-primary);
+}
+
+.debug-tab--active {
+  color: var(--accent-default);
+  border-bottom-color: var(--accent-default);
+}
+
+.debug-body {
+  flex: 1;
+  overflow-y: auto;
+  padding-top: 12px;
+}
+
+.debug-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.debug-row {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  padding: 4px 0;
+  border-bottom: 1px solid var(--stroke-divider);
+}
+
+.debug-row-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  min-width: 120px;
+  flex-shrink: 0;
+}
+
+.debug-row-value {
+  font-size: 12px;
+  color: var(--text-primary);
+  font-family: "Cascadia Code", "Consolas", monospace;
+  word-break: break-all;
+}
+
+.debug-json {
+  font-family: "Cascadia Code", "Consolas", monospace;
+  font-size: 11px;
+  line-height: 1.5;
+  background: var(--bg-layer);
+  border: 1px solid var(--stroke-divider);
+  border-radius: var(--radius-control);
+  padding: 10px 12px;
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-all;
+  margin: 0;
+  color: var(--text-primary);
+}
+
+.debug-logs-wrap {
+  height: 100%;
+}
+
+.debug-logs-toolbar {
+  display: flex;
+  gap: 2px;
+  margin-bottom: 8px;
+  flex-shrink: 0;
+}
+
+.debug-log-source {
+  color: var(--text-secondary);
+  flex-shrink: 0;
+  font-size: 10px;
+  font-weight: 600;
+  min-width: 18px;
+  text-align: center;
+  border-radius: var(--radius-control);
+  background: var(--fill-subtle);
+  padding: 0 3px;
+  line-height: 18px;
+}
+
+.debug-logs {
+  flex: 1;
+  overflow-y: auto;
+  background: var(--bg-layer);
+  border: 1px solid var(--stroke-divider);
+  border-radius: var(--radius-control);
+  padding: 8px;
+  font-family: "Cascadia Code", "Consolas", monospace;
+  font-size: 11px;
+  line-height: 1.6;
+  max-height: 320px;
+}
+
+.debug-logs-empty {
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.debug-log-line {
+  display: flex;
+  gap: 6px;
+  padding: 1px 0;
+}
+
+.debug-log-time {
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+
+.debug-log-level {
+  flex-shrink: 0;
+  font-weight: 600;
+  min-width: 42px;
+}
+
+.debug-log-debug .debug-log-level {
+  color: var(--text-secondary);
+}
+
+.debug-log-info .debug-log-level {
+  color: #0078d4;
+}
+
+.debug-log-warn .debug-log-level {
+  color: #f7630c;
+}
+
+.debug-log-error .debug-log-level {
+  color: var(--danger);
+}
+
+.debug-log-tag {
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+
+.debug-log-msg {
+  color: var(--text-primary);
+  word-break: break-all;
+}
+
+.debug-sql-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.debug-sql-line {
+  border-bottom: 1px solid var(--stroke-divider);
+  padding: 6px 0;
+}
+
+.debug-sql-line:last-child {
+  border-bottom: none;
+}
+
+.debug-sql-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.debug-sql-command {
+  font-weight: 600;
+  font-size: 11px;
+  color: var(--accent-default);
+  background: var(--fill-subtle);
+  border-radius: var(--radius-control);
+  padding: 0 6px;
+  line-height: 18px;
+}
+
+.debug-sql-duration {
+  font-size: 10px;
+  color: var(--text-secondary);
+  font-family: "Cascadia Code", "Consolas", monospace;
+}
+
+.debug-sql-status {
+  font-size: 10px;
+  font-weight: 600;
+  border-radius: var(--radius-control);
+  padding: 0 5px;
+  line-height: 18px;
+}
+
+.debug-sql-ok {
+  color: #0f7b0f;
+  background: rgba(15, 123, 15, 0.1);
+}
+
+.debug-sql-fail {
+  color: var(--danger);
+  background: var(--danger-bg);
+}
+
+.debug-sql-code {
+  font-family: "Cascadia Code", "Consolas", monospace;
+  font-size: 10px;
+  line-height: 1.4;
+  background: var(--bg-layer);
+  border: 1px solid var(--stroke-divider);
+  border-radius: var(--radius-control);
+  padding: 4px 8px;
+  margin: 0;
+  color: var(--text-primary);
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.debug-sql-error .debug-sql-header {
+  background: var(--danger-bg);
+}
+
+.debug-sql-error-msg {
+  font-family: "Cascadia Code", "Consolas", monospace;
+  font-size: 10px;
+  color: var(--danger);
+  padding: 2px 8px;
+}
+
+.debug-anim-toolbar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.debug-anim-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 12px;
+}
+
+.debug-anim-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.debug-anim-preview {
+  width: 100%;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-layer);
+  border: 1px solid var(--stroke-divider);
+  border-radius: var(--radius-control);
+  overflow: hidden;
+}
+
+.debug-anim-box {
+  width: 32px;
+  height: 32px;
+  background: var(--accent-default);
+  border-radius: var(--radius-control);
+  opacity: 0.8;
+}
+
+.debug-anim-name {
+  font-size: 10px;
+  font-family: "Cascadia Code", "Consolas", monospace;
+  color: var(--text-secondary);
+  text-align: center;
+  word-break: break-all;
+}
+
+.debug-actions {
+  gap: 16px;
+}
+
+.debug-actions-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--stroke-divider);
+}
+
+.debug-actions-group:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.debug-actions-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--accent-default);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 2px;
+}
+
+.debug-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  padding: 4px 0;
+}
+
+.debug-toggle input {
+  display: none;
+}
+
+.debug-toggle-track {
+  width: 36px;
+  height: 20px;
+  border-radius: 10px;
+  background: var(--fill-subtle);
+  border: 1px solid var(--stroke-divider);
+  position: relative;
+  transition:
+    background 0.15s,
+    border-color 0.15s;
+  flex-shrink: 0;
+}
+
+.debug-toggle-track::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--text-secondary);
+  transition:
+    transform 0.15s,
+    background 0.15s;
+}
+
+.debug-toggle input:checked + .debug-toggle-track {
+  background: var(--accent-default);
+  border-color: var(--accent-default);
+}
+
+.debug-toggle input:checked + .debug-toggle-track::after {
+  transform: translateX(16px);
+  background: #fff;
+}
+
+.debug-toggle-label {
+  font-size: 12px;
+  color: var(--text-primary);
+  user-select: none;
+}
+
+.debug-copy-btn {
+  align-self: flex-start;
+}
+
+.debug-copy-btn--ok {
+  background: #0f7b0f;
+  color: #fff;
+  border-color: #0f7b0f;
+}
+
+.debug-splash-wrap {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.debug-splash-frame {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.debug-splash-label {
+  font-size: 10px;
+  color: var(--text-secondary);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.debug-splash-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 160px;
+}
+
+.debug-splash-btns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.debug-splash-btns .modal-btn {
+  font-size: 11px;
+  padding: 4px 10px;
+}

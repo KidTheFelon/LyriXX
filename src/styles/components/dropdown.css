@@ -1,0 +1,106 @@
+.win-dropdown-trigger {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  min-width: 120px;
+  padding: 4px 8px;
+  border: 1px solid var(--stroke-control);
+  border-bottom: 2px solid var(--stroke-control-strong);
+  border-radius: var(--radius-control);
+  background: var(--bg-card-solid);
+  font-family: var(--font-family-text);
+  font-size: 12px;
+  color: var(--text-primary);
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.15s ease-out;
+}
+
+.win-dropdown-trigger:focus-visible {
+  border-bottom-color: var(--accent-default);
+}
+
+.win-dropdown-trigger.win-dropdown-missing {
+  border-bottom-color: var(--danger);
+}
+
+.win-dropdown-trigger[aria-expanded="true"] {
+  border-bottom-color: var(--accent-default);
+}
+
+.win-dropdown-text {
+  flex: 1;
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.win-dropdown-text.win-dropdown-placeholder {
+  color: var(--text-tertiary);
+}
+
+.win-dropdown-arrow {
+  flex-shrink: 0;
+  color: var(--text-secondary);
+  transition: transform 0.15s ease-out;
+}
+
+.win-dropdown-trigger[aria-expanded="true"] .win-dropdown-arrow {
+  transform: rotate(180deg);
+}
+
+.win-dropdown-flyout {
+  position: fixed;
+  background: var(--bg-card-solid);
+  border: 1px solid var(--stroke-card);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-flyout);
+  padding: 4px;
+  z-index: 200;
+  max-height: 220px;
+  overflow-y: auto;
+  animation: win-dropdown-fade-in 0.15s ease-out;
+}
+
+.win-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 5px 8px;
+  border: none;
+  border-radius: var(--radius-control);
+  background: transparent;
+  font-family: var(--font-family-text);
+  font-size: 12px;
+  color: var(--text-primary);
+  cursor: pointer;
+  text-align: left;
+  outline: none;
+}
+
+.win-dropdown-item:hover {
+  background: var(--fill-subtle-hover);
+}
+
+.win-dropdown-item:focus-visible {
+  background: var(--fill-subtle-hover);
+}
+
+.win-dropdown-item-selected {
+  background: var(--accent-light);
+  color: var(--accent-default);
+}
+
+.win-dropdown-check {
+  flex-shrink: 0;
+}
+
+.win-dropdown-item-label {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

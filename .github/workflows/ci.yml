@@ -1,0 +1,26 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+defaults:
+  run:
+    working-directory: lyrixx
+
+jobs:
+  check:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: lyrixx/package-lock.json
+      - run: npm ci --legacy-peer-deps --ignore-scripts
+      - run: npm run typecheck
+      - run: npm run test
+      - run: npm run build
