@@ -13,8 +13,13 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          submodules: recursive
+
+      - name: Init submodule
+        shell: bash
+        run: |
+          git submodule init src-tauri/quickpoeter
+          git config submodule.src-tauri/quickpoeter.url https://github.com/sitandr/quickpoeter_core.git
+          git submodule update --depth=1 src-tauri/quickpoeter
 
       - uses: actions/setup-node@v4
         with:
