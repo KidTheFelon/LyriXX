@@ -1,4 +1,7 @@
 import { StreamLanguage, type StreamParser } from "@codemirror/language";
+import { Tag } from "@lezer/highlight";
+
+const parenthesized = Tag.define();
 
 interface SongState {
   inTag: boolean;
@@ -12,7 +15,11 @@ const songParser: StreamParser<SongState> = {
       return "tagName";
     }
 
-    if (stream.match(/^[^\[\n]+/)) {
+    if (stream.match(/^\([^)]*\)/)) {
+      return "parenthesized";
+    }
+
+    if (stream.match(/^[^\[\(\n]+/)) {
       return null;
     }
 
@@ -28,7 +35,11 @@ const songParser: StreamParser<SongState> = {
 };
 
 export function songLanguage() {
-  return StreamLanguage.define(songParser);
+  return StreamLanguage.define({
+    tokenTable: { parenthesized },
+    ...songParser,
+  });
 }
 
+export { parenthesized };
 export type { SongState };

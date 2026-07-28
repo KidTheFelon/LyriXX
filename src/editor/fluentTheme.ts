@@ -1,9 +1,11 @@
 import { EditorView } from "@codemirror/view";
 import { HighlightStyle, syntaxHighlighting } from "@codemirror/language";
 import { tags } from "@lezer/highlight";
+import { parenthesized } from "./songLanguage";
 
 const fluentHighlightStyle = HighlightStyle.define([
   { tag: tags.content, color: "var(--text-primary)" },
+  { tag: parenthesized, color: "var(--text-tertiary)", fontStyle: "italic" },
 ]);
 
 export const fluentTheme = EditorView.theme({

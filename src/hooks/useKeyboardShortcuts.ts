@@ -14,8 +14,10 @@ export function useKeyboardShortcuts(shortcuts: KeyboardShortcutMap) {
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      const tag = (document.activeElement?.tagName || "").toLowerCase();
-      const isInput = tag === "input" || tag === "textarea" || tag === "select";
+      const el = document.activeElement;
+      const tag = (el?.tagName || "").toLowerCase();
+      const isInput =
+        tag === "input" || tag === "textarea" || tag === "select" || (el as HTMLElement)?.isContentEditable;
 
       if ((e.ctrlKey || e.metaKey) && e.key === "n" && !isInput) {
         e.preventDefault();
