@@ -97,9 +97,10 @@ function AppInner() {
               onUpdateCategoryIcon={store.updateCategoryIcon}
               onOpenSettings={() => store.setSettingsOpen(true)}
               onOpenDebug={() => store.setDebugOpen(true)}
-              categories={store.categories}
+              categories={store.sortedCategories}
               counts={store.counts}
               songsTotal={store.songs.length}
+              sidebarFontSize={store.settings.sidebarFontSize}
             />
           </ErrorBoundary>
           {!store.sidebarCollapsed && <ResizeHandle onResize={store.handleSidebarResize} />}
@@ -124,7 +125,7 @@ function AppInner() {
               <SongEditor
                 song={store.activeSong}
                 onUpdate={store.handleUpdate}
-                categories={store.categories}
+                categories={store.sortedCategories}
                 editorFontSize={store.settings.editorFontSize}
                 lineHeight={store.settings.lineHeight}
                 fontFamily={store.settings.fontFamily}
@@ -135,10 +136,14 @@ function AppInner() {
                 tabSize={store.settings.tabSize}
                 showLineNumbers={store.settings.showLineNumbers}
                 highlightCurrentLine={store.settings.highlightCurrentLine}
+                autocloseBrackets={store.settings.autocloseBrackets}
+                cursorStyle={store.settings.cursorStyle}
+                cursorBlinkRate={store.settings.cursorBlinkRate}
                 showSectionOutline={store.settings.showSectionOutline}
                 exportFormat={store.settings.exportFormat}
                 rhymeLang={store.settings.rhymeLang}
                 rhymeDepth={store.settings.rhymeDepth}
+                maxRhymeResults={store.settings.maxRhymeResults}
                 addToast={store.addToast}
               />
             </ErrorBoundary>
@@ -261,7 +266,7 @@ function AppInner() {
                 onClose={() => store.setDebugOpen(false)}
                 settings={store.settings}
                 songs={store.songs}
-                categories={store.categories}
+                categories={store.sortedCategories}
               />
             </ErrorBoundary>
           </ModalSuspense>,

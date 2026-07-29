@@ -28,9 +28,12 @@ export function useAppStore() {
   const [toasts, setToasts] = useState<ToastData[]>([]);
 
   const addToast = useCallback((message: string, type: ToastData["type"] = "error") => {
+    if (type === "error" && !settings.toastErrors) return;
+    if (type === "success" && !settings.toastSuccess) return;
+    if (type === "info" && !settings.toastAutosave) return;
     const id = crypto.randomUUID();
     setToasts((prev) => [...prev, { id, message, type }]);
-  }, []);
+  }, [settings.toastErrors, settings.toastSuccess, settings.toastAutosave]);
 
   const removeToast = useCallback((id: string) => {
     setToasts((prev) => prev.filter((t) => t.id !== id));
@@ -182,6 +185,23 @@ export function useAppStore() {
     document.documentElement.style.setProperty("--listpane-w", `${settings.songListWidth}px`);
   }, [settings.songListWidth]);
 
+  useEffect(() => {
+    const root = document.documentElement;
+    root.classList.toggle("no-animations", !settings.animationsEnabled || settings.reducedMotion);
+    root.classList.toggle("high-contrast", settings.highContrast);
+  }, [settings.animationsEnabled, settings.reducedMotion, settings.highContrast]);
+
+  useEffect(() => {
+    if (settings.transparency < 100) {
+      document.documentElement.style.setProperty(
+        "--window-transparency",
+        `${settings.transparency / 100}`,
+      );
+    } else {
+      document.documentElement.style.removeProperty("--window-transparency");
+    }
+  }, [settings.transparency]);
+
   const sidebarWidthRef = useRef(settings.sidebarWidth);
   sidebarWidthRef.current = settings.sidebarWidth;
   const songListWidthRef = useRef(settings.songListWidth);
@@ -210,8 +230,22 @@ export function useAppStore() {
       activeCategory === ALL_CATEGORY.id
         ? songs
         : songs.filter((s) => s.category === activeCategory);
-    return [...filtered].sort((a, b) => Number(b.pinned) - Number(a.pinned));
-  }, [songs, activeCategory]);
+    const pinned = filtered.filter((s) => s.pinned);
+    const unpinned = filtered.filter((s) => !s.pinned);
+
+    if (settings.sortSongsBy === "alphabetical") {
+      pinned.sort((a, b) => (a.title || a.artist || "").localeCompare(b.title || b.artist || ""));
+      unpinned.sort((a, b) => (a.title || a.artist || "").localeCompare(b.title || b.artist || ""));
+    } else if (settings.sortSongsBy === "manual") {
+      pinned.sort((a, b) => a.createdAt - b.createdAt);
+      unpinned.sort((a, b) => a.createdAt - b.createdAt);
+    } else {
+      pinned.sort((a, b) => b.updatedAt - a.updatedAt);
+      unpinned.sort((a, b) => b.updatedAt - a.updatedAt);
+    }
+
+    return [...pinned, ...unpinned];
+  }, [songs, activeCategory, settings.sortSongsBy]);
 
   const activeSong = useMemo(() => songs.find((s) => s.id === activeId) ?? null, [songs, activeId]);
 
@@ -227,6 +261,16 @@ export function useAppStore() {
     }
     return map;
   }, [songs, categories]);
+
+  const sortedCategories = useMemo(() => {
+    const sorted = [...categories];
+    if (settings.sortCategoriesBy === "alphabetical") {
+      sorted.sort((a, b) => a.label.localeCompare(b.label));
+    } else if (settings.sortCategoriesBy === "songCount") {
+      sorted.sort((a, b) => (counts[b.id] ?? 0) - (counts[a.id] ?? 0));
+    }
+    return sorted;
+  }, [categories, settings.sortCategoriesBy, counts]);
 
   useEffect(() => {
     if (
@@ -524,6 +568,7 @@ export function useAppStore() {
     songsReady,
     songs,
     categories,
+    sortedCategories,
     filteredByCategory,
     activeSong,
     deletingSong,

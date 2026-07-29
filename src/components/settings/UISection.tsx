@@ -1,5 +1,5 @@
 import { useRef } from "react";
-import type { ThemeMode } from "@/types/settings";
+import type { ThemeMode, TitleBarStyle } from "@/types/settings";
 import type { SettingsSectionProps } from "./shared";
 import { ToggleSetting, ButtonGroupSetting, SliderSetting } from "./shared";
 import { useTranslation } from "@/i18n";
@@ -15,6 +15,11 @@ export function UISection({ settings, onUpdate }: SettingsSectionProps) {
     { value: "system", label: t("systemTheme") },
     { value: "light", label: t("lightTheme") },
     { value: "dark", label: t("darkTheme") },
+  ];
+
+  const TITLE_BAR_STYLES: { value: TitleBarStyle; label: string }[] = [
+    { value: "custom", label: t("titleBarCustom") },
+    { value: "native", label: t("titleBarNative") },
   ];
 
   const LANGS = [
@@ -77,28 +82,11 @@ export function UISection({ settings, onUpdate }: SettingsSectionProps) {
         </div>
       </div>
 
-      <ToggleSetting
-        label={t("compactMode")}
-        checked={settings.compactMode}
-        onChange={(v) => onUpdate({ compactMode: v })}
-        onLabel={t("on")}
-        offLabel={t("off")}
-      />
-
-      <ToggleSetting
-        label={t("confirmDelete")}
-        checked={settings.confirmDelete}
-        onChange={(v) => onUpdate({ confirmDelete: v })}
-        onLabel={t("on")}
-        offLabel={t("off")}
-      />
-
-      <ToggleSetting
-        label={t("wordCountStatusBar")}
-        checked={settings.showWordCount}
-        onChange={(v) => onUpdate({ showWordCount: v })}
-        onLabel={t("on")}
-        offLabel={t("off")}
+      <ButtonGroupSetting
+        label={t("interfaceLanguage")}
+        value={settings.language}
+        options={LANGS}
+        onChange={(v) => onUpdate({ language: v })}
       />
 
       <ToggleSetting
@@ -119,11 +107,73 @@ export function UISection({ settings, onUpdate }: SettingsSectionProps) {
         onChange={(v) => onUpdate({ sidebarWidth: v })}
       />
 
+      <SliderSetting
+        label={t("sidebarFontSize")}
+        value={settings.sidebarFontSize}
+        min={10}
+        max={18}
+        step={1}
+        unit="px"
+        onChange={(v) => onUpdate({ sidebarFontSize: v })}
+      />
+
+      <SliderSetting
+        label={t("songListWidth")}
+        value={settings.songListWidth}
+        min={150}
+        max={500}
+        step={10}
+        unit="px"
+        onChange={(v) => onUpdate({ songListWidth: v })}
+      />
+
+      <ToggleSetting
+        label={t("compactMode")}
+        checked={settings.compactMode}
+        onChange={(v) => onUpdate({ compactMode: v })}
+        onLabel={t("on")}
+        offLabel={t("off")}
+      />
+
+      <ToggleSetting
+        label={t("animationsEnabled")}
+        checked={settings.animationsEnabled}
+        onChange={(v) => onUpdate({ animationsEnabled: v })}
+        onLabel={t("on")}
+        offLabel={t("off")}
+      />
+
+      <SliderSetting
+        label={t("transparency")}
+        value={settings.transparency}
+        min={50}
+        max={100}
+        step={1}
+        unit="%"
+        onChange={(v) => onUpdate({ transparency: v })}
+      />
+
       <ButtonGroupSetting
-        label={t("interfaceLanguage")}
-        value={settings.language}
-        options={LANGS}
-        onChange={(v) => onUpdate({ language: v })}
+        label={t("titleBarStyle")}
+        value={settings.titleBarStyle}
+        options={TITLE_BAR_STYLES}
+        onChange={(v) => onUpdate({ titleBarStyle: v })}
+      />
+
+      <ToggleSetting
+        label={t("confirmDelete")}
+        checked={settings.confirmDelete}
+        onChange={(v) => onUpdate({ confirmDelete: v })}
+        onLabel={t("on")}
+        offLabel={t("off")}
+      />
+
+      <ToggleSetting
+        label={t("wordCountStatusBar")}
+        checked={settings.showWordCount}
+        onChange={(v) => onUpdate({ showWordCount: v })}
+        onLabel={t("on")}
+        offLabel={t("off")}
       />
     </div>
   );

@@ -29,7 +29,7 @@ describe("useRhymes", () => {
   });
 
   it("clears state when word.length < 2", async () => {
-    vi.mocked(invoke).mockResolvedValue([{ word: "test", score: 1 }]);
+    vi.mocked(invoke).mockResolvedValue({ rhymes: [{ word: "test", score: 1 }], input_syllables: 1 });
     const { result } = renderHook(() => useRhymes());
 
     act(() => {
@@ -53,7 +53,7 @@ describe("useRhymes", () => {
   });
 
   it("calls invoke after debounce for valid word", async () => {
-    vi.mocked(invoke).mockResolvedValue([{ word: "дом", score: 0.5 }]);
+    vi.mocked(invoke).mockResolvedValue({ rhymes: [{ word: "дом", score: 0.5 }], input_syllables: 1 });
     const { result } = renderHook(() => useRhymes());
 
     act(() => {
@@ -73,7 +73,7 @@ describe("useRhymes", () => {
   });
 
   it("clearRhymes resets state", async () => {
-    vi.mocked(invoke).mockResolvedValue([{ word: "дом", score: 0.5 }]);
+    vi.mocked(invoke).mockResolvedValue({ rhymes: [{ word: "дом", score: 0.5 }], input_syllables: 1 });
     const { result } = renderHook(() => useRhymes());
 
     act(() => {

@@ -1,4 +1,4 @@
-import type { ExportFormat } from "@/types/settings";
+import type { ExportFormat, StartupAction, SortSongsBy, SortCategoriesBy } from "@/types/settings";
 import type { SettingsSectionProps } from "./shared";
 import { ButtonGroupSetting, SliderSetting, ToggleSetting } from "./shared";
 import { useTranslation } from "@/i18n";
@@ -11,6 +11,23 @@ const EXPORT_FORMATS: { value: ExportFormat; label: string }[] = [
 
 export function BehaviorSection({ settings, onUpdate }: SettingsSectionProps) {
   const { t } = useTranslation();
+
+  const STARTUP_ACTIONS: { value: StartupAction; label: string }[] = [
+    { value: "empty", label: t("startupEmpty") },
+    { value: "lastSong", label: t("startupLastSong") },
+  ];
+
+  const SORT_SONGS: { value: SortSongsBy; label: string }[] = [
+    { value: "date", label: t("sortDate") },
+    { value: "alphabetical", label: t("sortAlphabetical") },
+    { value: "manual", label: t("sortManual") },
+  ];
+
+  const SORT_CATEGORIES: { value: SortCategoriesBy; label: string }[] = [
+    { value: "alphabetical", label: t("sortAlphabetical") },
+    { value: "manual", label: t("sortManual") },
+    { value: "songCount", label: t("sortSongCount") },
+  ];
 
   return (
     <div className="settings-section">
@@ -26,13 +43,6 @@ export function BehaviorSection({ settings, onUpdate }: SettingsSectionProps) {
         onChange={(v) => onUpdate({ autoSaveDelay: v })}
       />
 
-      <ButtonGroupSetting
-        label={t("exportFormat")}
-        value={settings.exportFormat}
-        options={EXPORT_FORMATS}
-        onChange={(v) => onUpdate({ exportFormat: v })}
-      />
-
       <div className="settings-group">
         <label className="settings-label">{t("newSongTemplate")}</label>
         <textarea
@@ -44,12 +54,48 @@ export function BehaviorSection({ settings, onUpdate }: SettingsSectionProps) {
         />
       </div>
 
+      <ButtonGroupSetting
+        label={t("sortSongsBy")}
+        value={settings.sortSongsBy}
+        options={SORT_SONGS}
+        onChange={(v) => onUpdate({ sortSongsBy: v })}
+      />
+
+      <ButtonGroupSetting
+        label={t("sortCategoriesBy")}
+        value={settings.sortCategoriesBy}
+        options={SORT_CATEGORIES}
+        onChange={(v) => onUpdate({ sortCategoriesBy: v })}
+      />
+
+      <ButtonGroupSetting
+        label={t("startupAction")}
+        value={settings.startupAction}
+        options={STARTUP_ACTIONS}
+        onChange={(v) => onUpdate({ startupAction: v })}
+      />
+
+      <ToggleSetting
+        label={t("confirmOnClose")}
+        checked={settings.confirmOnClose}
+        onChange={(v) => onUpdate({ confirmOnClose: v })}
+        onLabel={t("on")}
+        offLabel={t("off")}
+      />
+
       <ToggleSetting
         label={t("minimizeToTray")}
         checked={settings.minimizeToTray}
         onChange={(v) => onUpdate({ minimizeToTray: v })}
         onLabel={t("on")}
         offLabel={t("off")}
+      />
+
+      <ButtonGroupSetting
+        label={t("exportFormat")}
+        value={settings.exportFormat}
+        options={EXPORT_FORMATS}
+        onChange={(v) => onUpdate({ exportFormat: v })}
       />
     </div>
   );

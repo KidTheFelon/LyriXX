@@ -9,8 +9,14 @@ export interface RhymeWord {
   syllables?: string;
 }
 
-export function useRhymes() {
+export interface RhymeResponse {
+  rhymes: RhymeWord[];
+  input_syllables: number | null;
+}
+
+export function useRhymes(maxResults?: number) {
   const [rhymes, setRhymes] = useState<RhymeWord[]>([]);
+  const [inputSyllables, setInputSyllables] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const [queryWord, setQueryWord] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -34,6 +40,7 @@ export function useRhymes() {
       if (word.length < 2) {
         logger.debug("Rhymes", `fetchRhymes: word too short (${word.length}), clearing`);
         setRhymes([]);
+        setInputSyllables(null);
         setQueryWord("");
         setError(null);
         return;
@@ -48,15 +55,17 @@ export function useRhymes() {
         setLoading(true);
         logger.debug("Rhymes", `fetchRhymes: ${word} (${detectedLang}) depth=${depth ?? 2}`);
         try {
-          const result = await invoke<RhymeWord[]>("get_rhymes", {
+          const response = await invoke<RhymeResponse>("get_rhymes", {
             word,
             lang: detectedLang,
             depth: depth ?? 2,
           });
-          setRhymes(result.sort((a, b) => a.score - b.score));
-          logger.debug("Rhymes", `found ${result.length} rhymes for ${word}`);
+          setRhymes(maxResults ? response.rhymes.slice(0, maxResults) : response.rhymes);
+          setInputSyllables(response.input_syllables);
+          logger.debug("Rhymes", `found ${response.rhymes.length} rhymes for ${word}`);
         } catch (e) {
           setRhymes([]);
+          setInputSyllables(null);
           setError(typeof e === "string" ? e : "Rhyme error");
           logger.error("Rhymes", `Failed to fetch rhymes for ${word}:`, e);
         } finally {
@@ -70,9 +79,10 @@ export function useRhymes() {
   const clearRhymes = useCallback(() => {
     logger.debug("Rhymes", "clearRhymes");
     setRhymes([]);
+    setInputSyllables(null);
     setQueryWord("");
     setError(null);
   }, []);
 
-  return { rhymes, loading, queryWord, error, fetchRhymes, clearRhymes };
+  return { rhymes, inputSyllables, loading, queryWord, error, fetchRhymes, clearRhymes };
 }

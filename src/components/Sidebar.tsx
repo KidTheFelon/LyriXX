@@ -24,6 +24,7 @@ interface SidebarProps {
   categories: CustomCategory[];
   counts: Record<string, number>;
   songsTotal: number;
+  sidebarFontSize?: number;
 }
 
 const ALL_ICON = (
@@ -58,6 +59,7 @@ export function Sidebar({
   categories,
   counts,
   songsTotal,
+  sidebarFontSize,
 }: SidebarProps) {
   const [adding, setAdding] = useState(false);
   const [renamingId, setRenamingId] = useState<string | null>(null);
@@ -142,7 +144,10 @@ export function Sidebar({
   const isAll = activeCategory === ALL_CATEGORY.id;
 
   return (
-    <nav className={`sidebar ${collapsed ? "sidebar--collapsed" : ""}`}>
+    <nav
+      className={`sidebar ${collapsed ? "sidebar--collapsed" : ""}`}
+      style={sidebarFontSize ? { fontSize: `${sidebarFontSize}px` } : undefined}
+    >
       <div className="sidebar-header">
         <div className="sidebar-header-row">
           <button

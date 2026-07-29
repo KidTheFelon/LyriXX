@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import type { CursorStyle } from "@/types/settings";
 import type { SettingsSectionProps } from "./shared";
 import { ToggleSetting, ButtonGroupSetting, SliderSetting } from "./shared";
 import { useTranslation } from "@/i18n";
@@ -44,28 +45,15 @@ export function EditorSection({ settings, onUpdate }: SettingsSectionProps) {
 
   const hasCustom = fonts.custom.length > 0;
 
+  const CURSOR_STYLES: { value: CursorStyle; label: string }[] = [
+    { value: "line", label: t("cursorStyleLine") },
+    { value: "block", label: t("cursorStyleBlock") },
+    { value: "underline", label: t("cursorStyleUnderline") },
+  ];
+
   return (
     <div className="settings-section">
       <div className="settings-section-title">{t("editor")}</div>
-
-      <SliderSetting
-        label={t("fontSize")}
-        value={settings.editorFontSize}
-        min={11}
-        max={24}
-        step={1}
-        unit="px"
-        onChange={(v) => onUpdate({ editorFontSize: v })}
-      />
-
-      <SliderSetting
-        label={t("lineSpacing")}
-        value={settings.lineHeight}
-        min={1.0}
-        max={2.5}
-        step={0.1}
-        onChange={(v) => onUpdate({ lineHeight: v })}
-      />
 
       <div className="settings-group">
         <label className="settings-label">{t("font")}</label>
@@ -93,6 +81,25 @@ export function EditorSection({ settings, onUpdate }: SettingsSectionProps) {
         </select>
       </div>
 
+      <SliderSetting
+        label={t("fontSize")}
+        value={settings.editorFontSize}
+        min={11}
+        max={24}
+        step={1}
+        unit="px"
+        onChange={(v) => onUpdate({ editorFontSize: v })}
+      />
+
+      <SliderSetting
+        label={t("lineSpacing")}
+        value={settings.lineHeight}
+        min={1.0}
+        max={2.5}
+        step={0.1}
+        onChange={(v) => onUpdate({ lineHeight: v })}
+      />
+
       <ButtonGroupSetting
         label={t("tabSize")}
         value={settings.tabSize}
@@ -104,14 +111,6 @@ export function EditorSection({ settings, onUpdate }: SettingsSectionProps) {
       />
 
       <ToggleSetting
-        label={t("spellCheck")}
-        checked={settings.spellCheck}
-        onChange={(v) => onUpdate({ spellCheck: v })}
-        onLabel={t("on")}
-        offLabel={t("off")}
-      />
-
-      <ToggleSetting
         label={t("wordWrap")}
         checked={settings.wordWrap}
         onChange={(v) => onUpdate({ wordWrap: v })}
@@ -120,9 +119,9 @@ export function EditorSection({ settings, onUpdate }: SettingsSectionProps) {
       />
 
       <ToggleSetting
-        label={t("lineNumbers")}
-        checked={settings.showLineNumbers}
-        onChange={(v) => onUpdate({ showLineNumbers: v })}
+        label={t("spellCheck")}
+        checked={settings.spellCheck}
+        onChange={(v) => onUpdate({ spellCheck: v })}
         onLabel={t("on")}
         offLabel={t("off")}
       />
@@ -136,11 +135,44 @@ export function EditorSection({ settings, onUpdate }: SettingsSectionProps) {
       />
 
       <ToggleSetting
+        label={t("lineNumbers")}
+        checked={settings.showLineNumbers}
+        onChange={(v) => onUpdate({ showLineNumbers: v })}
+        onLabel={t("on")}
+        offLabel={t("off")}
+      />
+
+      <ToggleSetting
         label={t("sectionOutline")}
         checked={settings.showSectionOutline}
         onChange={(v) => onUpdate({ showSectionOutline: v })}
         onLabel={t("on")}
         offLabel={t("off")}
+      />
+
+      <ToggleSetting
+        label={t("autocloseBrackets")}
+        checked={settings.autocloseBrackets}
+        onChange={(v) => onUpdate({ autocloseBrackets: v })}
+        onLabel={t("on")}
+        offLabel={t("off")}
+      />
+
+      <ButtonGroupSetting
+        label={t("cursorStyle")}
+        value={settings.cursorStyle}
+        options={CURSOR_STYLES}
+        onChange={(v) => onUpdate({ cursorStyle: v })}
+      />
+
+      <SliderSetting
+        label={t("cursorBlinkRate")}
+        value={settings.cursorBlinkRate}
+        min={0}
+        max={1200}
+        step={10}
+        unit={t("ms")}
+        onChange={(v) => onUpdate({ cursorBlinkRate: v })}
       />
     </div>
   );
