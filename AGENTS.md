@@ -19,7 +19,7 @@ Project root: repo root (`H:\GHP\lyrixx5/`). For full dev docs see `docs/CONTRIB
 
 ## Key files
 
-### Components (33 + 15 settings)
+### Components (20 non-test root + 8 settings)
 
 - `src/components/TypewriterInput.tsx` — custom textarea, tag highlighting, autocomplete, rhyme popup
 - `src/components/SongEditor.tsx` — main editor: title/artist/category + lyrics + SectionOutline + rhymes
@@ -39,6 +39,8 @@ Project root: repo root (`H:\GHP\lyrixx5/`). For full dev docs see `docs/CONTRIB
 - `src/components/ResizeHandle.tsx` — draggable column resize handle
 - `src/components/DebugMenu.tsx` — debug panel: backend logs, SQL queries, DB stats
 - `src/components/Icons.tsx` — SVG icon components
+- `src/components/MusicQuotes.tsx` — random music quotes display (108 quotes)
+- `src/components/RecoveryModal.tsx` — DB backup recovery modal: list/restore/delete backups
 - `src/components/settings/` — 8 files: UISection, EditorSection, BehaviorSection, RhymesSection, CustomTagsSection, DatabaseSection, ShortcutsSection, shared
 
 ### Hooks
@@ -69,6 +71,7 @@ Project root: repo root (`H:\GHP\lyrixx5/`). For full dev docs see `docs/CONTRIB
 - `src/services/storage.ts` — SongsDb interface + TauriDbService
 - `src/services/logger.ts` — debug/info/warn/error
 - `src/services/window.ts` — WindowAPI singleton: minimize/toggleMaximize/close
+- `src/services/clipboard.ts` — copyToClipboard with fallback
 
 ### Utils
 
@@ -80,20 +83,23 @@ Project root: repo root (`H:\GHP\lyrixx5/`). For full dev docs see `docs/CONTRIB
 
 - `src/editor/fluentTheme.ts` — CodeMirror Fluent Design theme
 - `src/editor/songLanguage.ts` — CodeMirror language support for song tags
+- `src/editor/SongLyricsEditor.tsx` — CodeMirror-based lyrics editor component
+- `src/editor/tagHighlight.ts` — tag color highlighting plugin for CodeMirror
+- `src/editor/tagCompletion.ts` — tag autocomplete plugin for CodeMirror
 
 ### App
 
 - `src/App.tsx` — main app: all hooks, modals, portals, i18n, ErrorBoundary
 
-### Rust (src-tauri/src/) — 24 Tauri commands
+### Rust (src-tauri/src/) — 25 Tauri commands
 
-- `src-tauri/src/db.rs` — SQLite (rusqlite 0.31, bundled), migrations (LATEST_VERSION=1), **18 Tauri commands**: load_songs, save_song, delete_song, delete_songs, load_categories, save_category, delete_category, load_setting, save_setting, get_db_path_str, copy_file, write_text_file, clear_all_data, list_backups, delete_backup, restore_backup, get_db_file_info, check_db_recovery
+- `src-tauri/src/db.rs` — SQLite (rusqlite 0.31, bundled), migrations (LATEST_VERSION=1), **20 Tauri commands**: load_songs, save_song, delete_song, delete_songs, load_categories, save_category, delete_category, load_setting, save_setting, get_db_path_str, copy_file, write_text_file, clear_all_data, list_backups, delete_backup, restore_backup, get_db_file_info, check_db_recovery
 - `src-tauri/src/rhyme.rs` — RhymeEngine (quickpoeter: Zaliznyak + word2vec + RhymeBrain for English), get_rhymes, MAX_RHYME_RESULTS=50, LRU cache (256)
 - `src-tauri/src/english_rhyme.rs` — async RhymeBrain API for English rhymes
 - `src-tauri/src/lang_detect.rs` — cyrillic/latin language detection
 - `src-tauri/src/fonts.rs` — get_system_fonts: Windows registry font enumeration
 - `src-tauri/src/mica.rs` — Windows 11 Mica/Acrylic effect setup
-- `src-tauri/src/lib.rs` — Tauri Builder, 24 command handlers (incl. set_mica_theme, write_frontend_log, get_backend_logs, get_sql_queries, toggle_minimize_to_tray), splash→main transition, tracing/logging with LogLayer, SqlQueryLog, BackendLogBuffer, daily log rotation
+- `src-tauri/src/lib.rs` — Tauri Builder, 25 command handlers (incl. set_mica_theme, write_frontend_log, get_backend_logs, get_sql_queries, toggle_minimize_to_tray), splash→main transition, tracing/logging with LogLayer, SqlQueryLog, BackendLogBuffer, daily log rotation
 - `src-tauri/src/main.rs` — entry point
 - `src-tauri/quickpoeter/` — vendored quickpoeter crate (Zaliznyak + word2vec rhyme engine)
 
@@ -107,7 +113,7 @@ Project root: repo root (`H:\GHP\lyrixx5/`). For full dev docs see `docs/CONTRIB
 `constants.test.ts`, `fluentTheme.test.ts`, `songLanguage.test.ts`, `useSongs.test.ts`, `useDebounce.test.ts`, `useSettings.test.ts`, `useRhymes.test.ts`, `useKeyboardShortcuts.test.ts`, `translations.test.ts`, `storage.test.ts`, `window.test.ts`, `logger.test.ts`, `songTags.test.ts`, `charUtils.test.ts`, `id.test.ts`.
 
 ### .test.tsx (20)
-`TypewriterInput.test.tsx`, `Toast.test.tsx`, `TagAutocomplete.test.tsx`, `SongList.test.tsx`, `Sidebar.test.tsx`, `ContextMenu.test.tsx`, `RhymePopup.test.tsx`, `DebugMenu.test.tsx`, `ConfirmModal.test.tsx`, `ResizeHandle.test.tsx`, `IconPicker.test.tsx`, `WinDropdown.test.tsx`, `SectionOutline.test.tsx`, `SongEditor.test.tsx`, `TitleBar.test.tsx`, `ErrorBoundary.test.tsx`, `App.test.tsx` + 7 settings tests.
+`TypewriterInput.test.tsx`, `Toast.test.tsx`, `TagAutocomplete.test.tsx`, `SongList.test.tsx`, `Sidebar.test.tsx`, `ContextMenu.test.tsx`, `RhymePopup.test.tsx`, `DebugMenu.test.tsx`, `ConfirmModal.test.tsx`, `ResizeHandle.test.tsx`, `IconPicker.test.tsx`, `WinDropdown.test.tsx`, `SectionOutline.test.tsx`, `SongEditor.test.tsx`, `TitleBar.test.tsx`, `ErrorBoundary.test.tsx`, `Icons.test.tsx`, `SettingsModal.test.tsx` + 7 settings tests.
 
 Run: `npm run test`.
 
@@ -118,3 +124,19 @@ GitHub Actions (windows-latest): `npm ci` → `typecheck` → `test` → `build`
 ## Pre-commit
 
 simple-git-hooks + lint-staged: `*.{ts,tsx}` → prettier + tsc, `*.{json,css,md}` → prettier.
+
+## Commit convention
+
+- Коммиты на **русском** языке, в **прошедшем времени**
+- Теги (`feat:`, `fix:`, `refactor:`, ...) — на **английском**
+- Название — общее, описание внутри — подробное (что изменилось, зачем, какие файлы)
+- Причина: changelog (release-please) подтягивает теги на английском, описание на русском для людей
+
+Пример:
+```
+feat: обновил синтаксис редактора
+
+- Изменил определение [tag] в songLanguage.ts
+- Добавил подсветку для новых тегов
+- Обновил тесты
+```
