@@ -67,7 +67,6 @@ interface SongLyricsEditorProps {
   rhymes?: RhymeWord[];
   rhymeLoading?: boolean;
   rhymeError?: string | null;
-  rhymeInputSyllables?: number | null;
   onRhymeRequest?: (word: string) => void;
   onRhymeDismiss?: () => void;
   onCopyWord?: (word: string) => void;
@@ -99,7 +98,6 @@ export const SongLyricsEditor = forwardRef<SongLyricsEditorHandle, SongLyricsEdi
       rhymes,
       rhymeLoading,
       rhymeError,
-      rhymeInputSyllables,
       onRhymeRequest,
       onRhymeDismiss,
       onCopyWord,
@@ -445,7 +443,6 @@ export const SongLyricsEditor = forwardRef<SongLyricsEditorHandle, SongLyricsEdi
             rhymes={rhymes ?? []}
             loading={rhymeLoading ?? false}
             error={rhymeError}
-            inputSyllables={rhymeInputSyllables ?? null}
             activeIndex={rhymeState.index}
             position={rhymeState.pos}
             onSelect={handleRhymeSelect}

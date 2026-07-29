@@ -69,7 +69,6 @@ export function SongEditor({
   const [canScrollRight, setCanScrollRight] = useState(false);
   const {
     rhymes,
-    inputSyllables: rhymeInputSyllables,
     loading: rhymeLoading,
     error: rhymeError,
     fetchRhymes,
@@ -416,7 +415,6 @@ export function SongEditor({
             rhymes={rhymes}
             rhymeLoading={rhymeLoading}
             rhymeError={rhymeError}
-            rhymeInputSyllables={rhymeInputSyllables}
             onRhymeRequest={handleRhymeRequest}
             onRhymeDismiss={clearRhymes}
             onCopyWord={handleCopyWord}
