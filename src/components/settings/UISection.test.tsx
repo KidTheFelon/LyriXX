@@ -36,6 +36,8 @@ const defaultSettings = {
   rhymeDepth: 2,
   autoBackup: true,
   maxBackups: 10,
+  minimizeToTray: true,
+  accentColor: "",
 };
 
 function renderSection() {

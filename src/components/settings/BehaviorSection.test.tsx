@@ -36,6 +36,7 @@ const defaultSettings = {
   rhymeDepth: 2,
   autoBackup: true,
   maxBackups: 10,
+  accentColor: "",
 };
 
 describe("BehaviorSection", () => {
