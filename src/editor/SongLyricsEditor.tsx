@@ -58,12 +58,16 @@ interface SongLyricsEditorProps {
   tabSize: number;
   showLineNumbers: boolean;
   highlightCurrentLine: boolean;
+  autocloseBrackets: boolean;
+  cursorStyle: string;
+  cursorBlinkRate: number;
   customTags: string[];
   allTags: SongTag[];
   lang: string;
   rhymes?: RhymeWord[];
   rhymeLoading?: boolean;
   rhymeError?: string | null;
+  rhymeInputSyllables?: number | null;
   onRhymeRequest?: (word: string) => void;
   onRhymeDismiss?: () => void;
   onCopyWord?: (word: string) => void;
@@ -86,12 +90,16 @@ export const SongLyricsEditor = forwardRef<SongLyricsEditorHandle, SongLyricsEdi
       tabSize,
       showLineNumbers,
       highlightCurrentLine,
+      autocloseBrackets,
+      cursorStyle,
+      cursorBlinkRate,
       customTags,
       allTags,
       lang,
       rhymes,
       rhymeLoading,
       rhymeError,
+      rhymeInputSyllables,
       onRhymeRequest,
       onRhymeDismiss,
       onCopyWord,
@@ -154,6 +162,8 @@ export const SongLyricsEditor = forwardRef<SongLyricsEditorHandle, SongLyricsEdi
     const dynamicCompartment = useRef(new Compartment());
     const placeholderCompartment = useRef(new Compartment());
     const tagHighlightCompartment = useRef(new Compartment());
+    const autocloseCompartment = useRef(new Compartment());
+    const cursorCompartment = useRef(new Compartment());
 
     useEffect(() => {
       if (!containerRef.current || viewRef.current) return;
@@ -242,10 +252,8 @@ export const SongLyricsEditor = forwardRef<SongLyricsEditorHandle, SongLyricsEdi
         crosshairCursor(),
         indentOnInput(),
         highlightSelectionMatches(),
-        closeBrackets(),
         history(),
         keymap.of([
-          ...closeBracketsKeymap,
           ...defaultKeymap,
           ...historyKeymap,
           indentWithTab,
@@ -298,12 +306,33 @@ export const SongLyricsEditor = forwardRef<SongLyricsEditorHandle, SongLyricsEdi
         EditorView.editorAttributes.of({ spellcheck: spellCheck ? "true" : "false" }),
       );
 
+      const autocloseExts: Extension[] = [];
+      if (autocloseBrackets) {
+        autocloseExts.push(closeBrackets());
+        autocloseExts.push(keymap.of([...closeBracketsKeymap]));
+      }
+
+      const blinkMs = cursorBlinkRate > 0 ? cursorBlinkRate : 999999;
+      const cursorStyleTheme = EditorView.theme({
+        ".cm-cursor, .cm-dropCursor": {
+          animation: cursorBlinkRate > 0 ? `blink ${blinkMs}ms step-end infinite` : "none",
+          ...(cursorStyle === "block"
+            ? { borderLeftWidth: "1em", borderLeftStyle: "solid", opacity: "0.7" }
+            : cursorStyle === "underline"
+              ? { borderLeftWidth: "1em", borderLeftStyle: "solid", opacity: "0.5" }
+              : {}),
+        },
+      });
+      const cursorExts: Extension[] = [cursorStyleTheme];
+
       const state = EditorState.create({
         doc: value,
         extensions: [
           ...baseExtensions,
           dynamicCompartment.current.of(dynamicExts),
           placeholderCompartment.current.of(cmPlaceholder(placeholder ?? "")),
+          autocloseCompartment.current.of(autocloseExts),
+          cursorCompartment.current.of(cursorExts),
         ],
       });
 
@@ -352,7 +381,16 @@ export const SongLyricsEditor = forwardRef<SongLyricsEditorHandle, SongLyricsEdi
       view.dispatch({
         effects: dynamicCompartment.current.reconfigure(dynamicExts),
       });
-    }, [showLineNumbers, highlightCurrentLine, wordWrap, tabSize, spellCheck, customTags, lang]);
+
+      const autocloseExts: Extension[] = [];
+      if (autocloseBrackets) {
+        autocloseExts.push(closeBrackets());
+        autocloseExts.push(keymap.of([...closeBracketsKeymap]));
+      }
+      view.dispatch({
+        effects: autocloseCompartment.current.reconfigure(autocloseExts),
+      });
+    }, [showLineNumbers, highlightCurrentLine, wordWrap, tabSize, spellCheck, customTags, lang, autocloseBrackets]);
 
     useEffect(() => {
       const view = viewRef.current;
@@ -407,6 +445,7 @@ export const SongLyricsEditor = forwardRef<SongLyricsEditorHandle, SongLyricsEdi
             rhymes={rhymes ?? []}
             loading={rhymeLoading ?? false}
             error={rhymeError}
+            inputSyllables={rhymeInputSyllables ?? null}
             activeIndex={rhymeState.index}
             position={rhymeState.pos}
             onSelect={handleRhymeSelect}

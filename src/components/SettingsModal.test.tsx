@@ -12,23 +12,42 @@ const defaultSettings: AppSettings = {
   tabSize: 2,
   showLineNumbers: true,
   highlightCurrentLine: true,
+  autocloseBrackets: true,
+  cursorStyle: "line",
+  cursorBlinkRate: 530,
   theme: "system",
   compactMode: false,
   confirmDelete: true,
   showWordCount: true,
+  showSectionOutline: true,
   sidebarDefaultOpen: true,
   sidebarWidth: 260,
+  sidebarFontSize: 13,
   songListWidth: 280,
+  animationsEnabled: true,
+  transparency: 100,
+  titleBarStyle: "custom",
   language: "ru",
   autoSaveDelay: 300,
   exportFormat: "txt",
   defaultSongTemplate: "[Куплет]\n\n\n[Припев]\n\n",
+  startupAction: "empty",
+  confirmOnClose: true,
+  sortSongsBy: "date",
+  sortCategoriesBy: "alphabetical",
   customTags: [],
   rhymeLang: "ru",
   rhymeDepth: 2,
+  maxRhymeResults: 50,
   autoBackup: true,
   maxBackups: 10,
+  minimizeToTray: true,
   accentColor: "",
+  reducedMotion: false,
+  highContrast: false,
+  toastAutosave: true,
+  toastErrors: true,
+  toastSuccess: true,
 };
 
 const mockBackupProps = {
@@ -80,6 +99,8 @@ describe("SettingsModal", () => {
     expect(texts).toContain("Рифмословарь");
     expect(texts).toContain("Пользовательские теги");
     expect(texts).toContain("База данных");
+    expect(texts).toContain("Доступность");
+    expect(texts).toContain("Уведомления");
   });
 
   it("switches tabs and shows corresponding section", () => {

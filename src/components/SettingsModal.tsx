@@ -6,11 +6,22 @@ import { BehaviorSection } from "./settings/BehaviorSection";
 import { RhymesSection } from "./settings/RhymesSection";
 import { CustomTagsSection } from "./settings/CustomTagsSection";
 import { DatabaseSection } from "./settings/DatabaseSection";
+import { AccessibilitySection } from "./settings/AccessibilitySection";
+import { NotificationsSection } from "./settings/NotificationsSection";
 import { ShortcutsSection } from "./settings/ShortcutsSection";
 import { useTranslation } from "@/i18n";
 import { MODAL_ANIM_DURATION_MS } from "@/constants";
 
-type TabId = "editor" | "interface" | "behavior" | "rhymes" | "tags" | "database" | "shortcuts";
+type TabId =
+  | "editor"
+  | "interface"
+  | "behavior"
+  | "rhymes"
+  | "tags"
+  | "database"
+  | "accessibility"
+  | "notifications"
+  | "shortcuts";
 
 interface BackupEntry {
   filename: string;
@@ -128,6 +139,8 @@ export function SettingsModal({
     { id: "rhymes", label: t("rhymeDict") },
     { id: "tags", label: t("customTags") },
     { id: "database", label: t("database") },
+    { id: "accessibility", label: t("accessibility") },
+    { id: "notifications", label: t("notifications") },
     { id: "shortcuts", label: t("shortcuts") },
   ];
 
@@ -191,6 +204,12 @@ export function SettingsModal({
                   onRestoreBackup={onRestoreBackup}
                   onDeleteBackup={onDeleteBackup}
                 />
+              )}
+              {activeTab === "accessibility" && (
+                <AccessibilitySection settings={settings} onUpdate={onUpdate} />
+              )}
+              {activeTab === "notifications" && (
+                <NotificationsSection settings={settings} onUpdate={onUpdate} />
               )}
               {activeTab === "shortcuts" && <ShortcutsSection />}
             </div>

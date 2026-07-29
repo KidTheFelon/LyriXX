@@ -28,10 +28,14 @@ interface SongEditorProps {
   tabSize: TabSize;
   showLineNumbers: boolean;
   highlightCurrentLine: boolean;
+  autocloseBrackets: boolean;
+  cursorStyle: string;
+  cursorBlinkRate: number;
   showSectionOutline: boolean;
   exportFormat: ExportFormat;
   rhymeLang: RhymeLang;
   rhymeDepth: number;
+  maxRhymeResults: number;
   addToast?: (message: string, type?: "error" | "success" | "info") => void;
 }
 
@@ -49,10 +53,14 @@ export function SongEditor({
   tabSize,
   showLineNumbers,
   highlightCurrentLine,
+  autocloseBrackets,
+  cursorStyle,
+  cursorBlinkRate,
   showSectionOutline,
   exportFormat,
   rhymeLang,
   rhymeDepth,
+  maxRhymeResults,
   addToast,
 }: SongEditorProps) {
   const editorRef = useRef<SongLyricsEditorHandle>(null);
@@ -61,11 +69,12 @@ export function SongEditor({
   const [canScrollRight, setCanScrollRight] = useState(false);
   const {
     rhymes,
+    inputSyllables: rhymeInputSyllables,
     loading: rhymeLoading,
     error: rhymeError,
     fetchRhymes,
     clearRhymes,
-  } = useRhymes();
+  } = useRhymes(maxRhymeResults);
   const { t, lang } = useTranslation();
   const locale = lang === "en" ? "en-US" : "ru-RU";
   const allTags = useMemo(() => buildAllTags(customTags, lang), [customTags, lang]);
@@ -400,10 +409,14 @@ export function SongEditor({
             lang={lang}
             showLineNumbers={showLineNumbers}
             highlightCurrentLine={highlightCurrentLine}
+            autocloseBrackets={autocloseBrackets}
+            cursorStyle={cursorStyle}
+            cursorBlinkRate={cursorBlinkRate}
             wordWrap={wordWrap}
             rhymes={rhymes}
             rhymeLoading={rhymeLoading}
             rhymeError={rhymeError}
+            rhymeInputSyllables={rhymeInputSyllables}
             onRhymeRequest={handleRhymeRequest}
             onRhymeDismiss={clearRhymes}
             onCopyWord={handleCopyWord}
