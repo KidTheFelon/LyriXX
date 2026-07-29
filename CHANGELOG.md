@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.3.0] — 2026-07-29
+
+### Added
+
+- Подсветка скобок `()` в редакторе (курсив, третичный цвет)
+- GitHub issue и PR шаблоны
+
+### Changed
+
+- `useKeyboardShortcuts`: учёт `contentEditable` элементов в проверке `isInput`
+- CSP отключён в `tauri.conf.json` для dev-режима
+- quickpoeter: очистка зависимостей, удалён dead code, фикс lifetime-ов
+- Версия: 0.2.0 → 0.3.0
+
 ## [0.2.0] — 2026-07-22
 
 ### Added
