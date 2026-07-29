@@ -14,6 +14,9 @@ jobs:
       TAG: ${{ github.event.release.tag_name }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
 
       - name: Init submodule
         shell: bash
@@ -50,3 +53,70 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: gh release upload ${{ env.TAG }} "LyriXX-${{ env.TAG }}-portable.zip"
+
+      - name: Generate changelog and update release body
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="${{ env.TAG }}"
+          REPO="${{ github.repository }}"
+
+          # Get previous tag
+          PREV_TAG=$(git tag --sort=-v:refname | grep -E '^v[0-9]' | sed -n '2p')
+
+          if [ -z "$PREV_TAG" ]; then
+            RANGE="HEAD"
+          else
+            RANGE="${PREV_TAG}..HEAD"
+          fi
+
+          # Build changelog
+          {
+            echo "## What's Changed"
+            echo ""
+
+            # Features
+            FEATS=$(git log "$RANGE" --pretty=format:"- %s (%h)" --grep="^feat" --no-merges 2>/dev/null || true)
+            if [ -n "$FEATS" ]; then
+              echo "### Features"
+              echo "$FEATS"
+              echo ""
+            fi
+
+            # Bug Fixes
+            FIXES=$(git log "$RANGE" --pretty=format:"- %s (%h)" --grep="^fix" --no-merges 2>/dev/null || true)
+            if [ -n "$FIXES" ]; then
+              echo "### Bug Fixes"
+              echo "$FIXES"
+              echo ""
+            fi
+
+            # Performance
+            PERFS=$(git log "$RANGE" --pretty=format:"- %s (%h)" --grep="^perf" --no-merges 2>/dev/null || true)
+            if [ -n "$PERFS" ]; then
+              echo "### Performance"
+              echo "$PERFS"
+              echo ""
+            fi
+
+            # Documentation
+            DOCS=$(git log "$RANGE" --pretty=format:"- %s (%h)" --grep="^docs" --no-merges 2>/dev/null || true)
+            if [ -n "$DOCS" ]; then
+              echo "### Documentation"
+              echo "$DOCS"
+              echo ""
+            fi
+
+            # Miscellaneous (chore)
+            CHORES=$(git log "$RANGE" --pretty=format:"- %s (%h)" --grep="^chore" --no-merges 2>/dev/null || true)
+            if [ -n "$CHORES" ]; then
+              echo "### Miscellaneous"
+              echo "$CHORES"
+              echo ""
+            fi
+
+            echo "**Full Changelog**: https://github.com/${REPO}/compare/${PREV_TAG}...${TAG}"
+          } > CHANGELOG_BODY.md
+
+          gh release edit "$TAG" --repo "$REPO" --notes-file CHANGELOG_BODY.md
