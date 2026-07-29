@@ -13,6 +13,27 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: googleapis/release-please-action@v4
+        id: release
         with:
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
+
+      - if: steps.release.outputs.pr
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ fromJSON(steps.release.outputs.pr).headRefName }}
+          fetch-depth: 0
+
+      - if: steps.release.outputs.pr
+        shell: bash
+        env:
+          PR_VERSION: ${{ fromJSON(steps.release.outputs.pr).version }}
+        run: |
+          if [ -n "$PR_VERSION" ]; then
+            sed -i "s/^version = \".*\"/version = \"$PR_VERSION\"/" src-tauri/Cargo.toml
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add src-tauri/Cargo.toml
+            git diff --cached --quiet || git commit -m "chore: bump Cargo.toml to $PR_VERSION"
+            git push
+          fi

@@ -14,7 +14,6 @@
         { "type": "refactor", "hidden": true }
       ],
       "extra-files": [
-        "src-tauri/Cargo.toml",
         "src-tauri/tauri.conf.json"
       ]
     }
