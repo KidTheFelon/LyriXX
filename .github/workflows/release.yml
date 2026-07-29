@@ -1,16 +1,17 @@
-name: Release
+name: Release Build
 
 on:
-  push:
-    tags:
-      - "v*"
+  release:
+    types: [published]
 
 permissions:
   contents: write
 
 jobs:
-  release:
+  build:
     runs-on: windows-latest
+    env:
+      TAG: ${{ github.event.release.tag_name }}
     steps:
       - uses: actions/checkout@v4
 
@@ -35,22 +36,17 @@ jobs:
       - run: npm ci --legacy-peer-deps
 
       - uses: tauri-apps/tauri-action@v0
-        id: tauri
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tagName: ${{ github.ref_name }}
-          releaseName: "LyriXX ${{ github.ref_name }}"
-          releaseBody: "See [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/main/CHANGELOG.md) for details."
-          releaseDraft: true
-          prerelease: false
+          releaseId: ${{ github.event.release.id }}
 
       - name: Zip portable exe
         shell: pwsh
         run: |
-          Compress-Archive -Path "src-tauri/target/release/LyriXX.exe" -DestinationPath "LyriXX-${{ github.ref_name }}-portable.zip"
+          Compress-Archive -Path "src-tauri/target/release/LyriXX.exe" -DestinationPath "LyriXX-${{ env.TAG }}-portable.zip"
 
       - name: Upload portable zip to release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release upload ${{ github.ref_name }} "LyriXX-${{ github.ref_name }}-portable.zip"
+        run: gh release upload ${{ env.TAG }} "LyriXX-${{ env.TAG }}-portable.zip"
