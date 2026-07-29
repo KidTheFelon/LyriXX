@@ -1,10 +1,15 @@
+import { useRef } from "react";
 import type { ThemeMode } from "@/types/settings";
 import type { SettingsSectionProps } from "./shared";
 import { ToggleSetting, ButtonGroupSetting, SliderSetting } from "./shared";
 import { useTranslation } from "@/i18n";
+import { ACCENT_PRESETS } from "@/utils/accentColors";
+
+const DEFAULT_ACCENT = "#005fb8";
 
 export function UISection({ settings, onUpdate }: SettingsSectionProps) {
   const { t } = useTranslation();
+  const pickerRef = useRef<HTMLInputElement>(null);
 
   const THEMES: { value: ThemeMode; label: string }[] = [
     { value: "system", label: t("systemTheme") },
@@ -17,6 +22,10 @@ export function UISection({ settings, onUpdate }: SettingsSectionProps) {
     { value: "en" as const, label: t("english") },
   ];
 
+  const currentAccent = settings.accentColor || "";
+  const isCustom = currentAccent !== "" && !ACCENT_PRESETS.some((p) => p.color === currentAccent);
+  const pickerValue = currentAccent || DEFAULT_ACCENT;
+
   return (
     <div className="settings-section">
       <div className="settings-section-title">{t("interface")}</div>
@@ -27,6 +36,46 @@ export function UISection({ settings, onUpdate }: SettingsSectionProps) {
         options={THEMES}
         onChange={(v) => onUpdate({ theme: v })}
       />
+
+      <div className="settings-group">
+        <label className="settings-label">{t("accentColor")}</label>
+        <div className="accent-color-grid">
+          <button
+            className={`accent-color-swatch accent-color-picker-btn ${isCustom ? "active" : ""}`}
+            onClick={() => pickerRef.current?.click()}
+            type="button"
+            title={t("accentPickColor")}
+          >
+            <input
+              ref={pickerRef}
+              type="color"
+              value={pickerValue}
+              onChange={(e) => onUpdate({ accentColor: e.target.value })}
+              className="accent-color-native-input"
+            />
+          </button>
+          {ACCENT_PRESETS.map((preset) => (
+            <button
+              key={preset.id}
+              className={`accent-color-swatch ${currentAccent === preset.color ? "active" : ""}`}
+              style={{ background: preset.color }}
+              onClick={() => onUpdate({ accentColor: preset.color })}
+              type="button"
+              title={preset.label}
+            />
+          ))}
+          {currentAccent !== "" && (
+            <button
+              className="accent-color-swatch accent-color-reset"
+              onClick={() => onUpdate({ accentColor: "" })}
+              type="button"
+              title={t("accentDefault")}
+            >
+              ✕
+            </button>
+          )}
+        </div>
+      </div>
 
       <ToggleSetting
         label={t("compactMode")}

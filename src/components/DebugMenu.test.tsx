@@ -48,6 +48,7 @@ const defaultSettings: AppSettings = {
   rhymeDepth: 2,
   autoBackup: true,
   maxBackups: 10,
+  accentColor: "",
 };
 
 const baseProps = {

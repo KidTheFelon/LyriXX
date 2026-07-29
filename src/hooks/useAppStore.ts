@@ -12,6 +12,7 @@ import { logger } from "@/services/logger";
 import type { ToastData } from "@/components/Toast";
 import { useTranslation } from "@/i18n";
 import { NARROW_WIDTH, FONT_SIZE_MIN, FONT_SIZE_MAX, EXIT_ANIM_MS } from "@/constants";
+import { generateAccentVariants, isAccentLight } from "@/utils/accentColors";
 
 const SIDEBAR_MIN = 220;
 const SIDEBAR_MAX = 500;
@@ -143,6 +144,30 @@ export function useAppStore() {
     const vals = vars.map((v) => `${v}=${cs.getPropertyValue(v).trim()}`);
     logger.info("Theme", `Changed to "${theme}" | ${vals.join(" | ")}`);
   }, [settings.theme]);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    if (!settings.accentColor) {
+      root.style.removeProperty("--accent-default");
+      root.style.removeProperty("--accent-hover");
+      root.style.removeProperty("--accent-pressed");
+      root.style.removeProperty("--accent-light");
+      root.style.removeProperty("--accent-lighter");
+      root.style.removeProperty("--text-on-accent");
+      root.style.removeProperty("--stroke-focus-outer");
+      return;
+    }
+    const v = generateAccentVariants(settings.accentColor);
+    root.style.setProperty("--accent-default", v.default);
+    root.style.setProperty("--accent-hover", v.hover);
+    root.style.setProperty("--accent-pressed", v.pressed);
+    root.style.setProperty("--accent-light", v.light);
+    root.style.setProperty("--accent-lighter", v.lighter);
+    const onAccent = isAccentLight(v.default) ? "#000000" : "#ffffff";
+    root.style.setProperty("--text-on-accent", onAccent);
+    root.style.setProperty("--stroke-focus-outer", v.default);
+    logger.info("Accent", `Changed to ${v.default}`);
+  }, [settings.accentColor]);
 
   useEffect(() => {
     const clamped = Math.max(FONT_SIZE_MIN, Math.min(FONT_SIZE_MAX, settings.editorFontSize));

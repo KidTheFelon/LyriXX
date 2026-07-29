@@ -32,6 +32,7 @@ export interface AppSettings {
   autoBackup: boolean;
   maxBackups: number;
   minimizeToTray: boolean;
+  accentColor: string;
 }
 
 export const DEFAULT_SETTINGS: AppSettings = {
@@ -61,4 +62,5 @@ export const DEFAULT_SETTINGS: AppSettings = {
   autoBackup: true,
   maxBackups: 10,
   minimizeToTray: true,
+  accentColor: "",
 };
