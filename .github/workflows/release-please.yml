@@ -18,18 +18,18 @@ jobs:
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
 
-      - if: steps.release.outputs.pr
+      - if: steps.release.outputs.pr_number
         uses: actions/checkout@v4
         with:
-          ref: refs/pull/${{ steps.release.outputs.pr }}/head
+          ref: refs/pull/${{ steps.release.outputs.pr_number }}/head
           fetch-depth: 0
 
-      - if: steps.release.outputs.pr
+      - if: steps.release.outputs.pr_number
         shell: bash
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          PR_NUMBER="${{ steps.release.outputs.pr }}"
+          PR_NUMBER="${{ steps.release.outputs.pr_number }}"
           PR_TITLE=$(gh api repos/${{ github.repository }}/pulls/$PR_NUMBER --jq '.title')
           PR_VERSION=$(echo "$PR_TITLE" | grep -oP '\d+\.\d+\.\d+' | head -1 || true)
 
