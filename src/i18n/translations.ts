@@ -123,6 +123,9 @@ const ru: Translations = {
   backupRestored: "База восстановлена из бэкапа. Перезапустите приложение.",
   backupDeleted: "Бэкап удалён",
 
+  presetName: "Название пресета",
+  savePreset: "Сохранить пресет",
+
   accessibility: "Доступность",
   reducedMotion: "Уменьшенное движение",
   highContrast: "Высокий контраст",
@@ -604,6 +607,9 @@ const en: Translations = {
   restoreConfirm: "Restore database from backup? Current database will be replaced.",
   backupRestored: "Database restored from backup. Restart the application.",
   backupDeleted: "Backup deleted",
+
+  presetName: "Preset name",
+  savePreset: "Save preset",
 
   accessibility: "Accessibility",
   reducedMotion: "Reduced motion",

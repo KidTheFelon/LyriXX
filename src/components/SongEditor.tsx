@@ -8,6 +8,7 @@ import { SongLyricsEditor, type SongLyricsEditorHandle } from "@/editor/SongLyri
 import { SectionOutline } from "./SectionOutline";
 import { parseSongTag, parseLyricSections, buildAllTags } from "@/types/songTags";
 import { useRhymes } from "@/hooks/useRhymes";
+import { countLineSyllables } from "@/utils/syllables";
 import { logger } from "@/services/logger";
 import { useTranslation } from "@/i18n";
 import { MusicQuotes } from "./MusicQuotes";
@@ -135,8 +136,13 @@ export function SongEditor({
     const chars = text.length;
     const words = text.trim() ? text.trim().split(/\s+/).length : 0;
     const lines = text ? text.split("\n").length : 0;
-    return { chars, words, lines };
-  }, [song?.lyrics, showWordCount, song]);
+    const syllables = text.trim()
+      ? text
+          .split("\n")
+          .reduce((sum, line) => sum + countLineSyllables(line, rhymeLang), 0)
+      : 0;
+    return { chars, words, lines, syllables };
+  }, [song?.lyrics, showWordCount, song, rhymeLang]);
 
   const handleJumpToSection = useCallback((lineIndex: number) => {
     logger.debug("Editor", `jump to section line ${lineIndex}`);
@@ -446,7 +452,7 @@ export function SongEditor({
       <div className="editor-statusbar">
         {stats && (
           <span className="editor-stats">
-            {stats.lines} {t("lines")} · {stats.words} {t("wordsStat")} · {stats.chars} {t("chars")}
+            {stats.lines} {t("lines")} · {stats.words} {t("wordsStat")} · {stats.chars} {t("chars")} · {stats.syllables} {t("syl")}
             {sections.length > 0 && ` · ${sections.length} ${t("sectionsStat")}`}
           </span>
         )}

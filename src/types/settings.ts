@@ -10,6 +10,11 @@ export type StartupAction = "empty" | "lastSong";
 export type SortSongsBy = "date" | "alphabetical" | "manual";
 export type SortCategoriesBy = "alphabetical" | "manual" | "songCount";
 
+export interface CustomTemplatePreset {
+  label: string;
+  template: string;
+}
+
 export interface AppSettings {
   editorFontSize: number;
   lineHeight: number;
@@ -38,6 +43,7 @@ export interface AppSettings {
   autoSaveDelay: number;
   exportFormat: ExportFormat;
   defaultSongTemplate: string;
+  customTemplatePresets: CustomTemplatePreset[];
   startupAction: StartupAction;
   confirmOnClose: boolean;
   sortSongsBy: SortSongsBy;
@@ -85,6 +91,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   autoSaveDelay: 300,
   exportFormat: "txt",
   defaultSongTemplate: "[Куплет]\n\n\n[Припев]\n\n",
+  customTemplatePresets: [],
   startupAction: "empty",
   confirmOnClose: true,
   sortSongsBy: "date",
