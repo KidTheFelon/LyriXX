@@ -63,6 +63,7 @@ export function DebugMenu({ open, onClose, settings, songs, categories }: DebugM
   const [tab, setTab] = useState<Tab>("info");
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [perfSnapshot, setPerfSnapshot] = useState(() => getPerfSnapshot());
+  const [fps, setFps] = useState("N/A");
   const logsRef = useRef<HTMLDivElement>(null);
   const prevOpenRef = useRef(false);
   const [logSource, setLogSource] = useState<"all" | "frontend" | "backend">("all");
@@ -185,8 +186,28 @@ export function DebugMenu({ open, onClose, settings, songs, categories }: DebugM
 
   useEffect(() => {
     if (!open) return;
+    let running = true;
+    let frameCount = 0;
+    let lastTime = performance.now();
+
+    const measure = () => {
+      if (!running) return;
+      frameCount++;
+      const now = performance.now();
+      if (now - lastTime >= 1000) {
+        setFps(String(frameCount));
+        frameCount = 0;
+        lastTime = now;
+      }
+      requestAnimationFrame(measure);
+    };
+    requestAnimationFrame(measure);
+
     const iv = setInterval(() => setPerfSnapshot(getPerfSnapshot()), 1000);
-    return () => clearInterval(iv);
+    return () => {
+      running = false;
+      clearInterval(iv);
+    };
   }, [open]);
 
   const sysInfo = getSystemInfo();
@@ -202,7 +223,7 @@ export function DebugMenu({ open, onClose, settings, songs, categories }: DebugM
     const lines: string[] = [];
     lines.push("=== LyriXX Debug Report ===");
     lines.push(`Date: ${new Date().toISOString()}`);
-    lines.push(`App: LyriXX v0.1.0`);
+    lines.push(`App: LyriXX v${import.meta.env.PACKAGE_VERSION}`);
     lines.push(`Platform: ${sysInfo.platform}`);
     lines.push(`Viewport: ${sysInfo.viewportWidth}x${sysInfo.viewportHeight}`);
     lines.push(`DPR: ${sysInfo.dpr}`);
@@ -217,10 +238,9 @@ export function DebugMenu({ open, onClose, settings, songs, categories }: DebugM
       lines.push(`DB Modified: ${dbFileInfo.last_modified}`);
       lines.push(`DB Migration: v${dbFileInfo.migration_version}`);
     }
-    lines.push(`Memory: ${perfSnapshot.memoryUsed} / ${perfSnapshot.memoryTotal}`);
-    lines.push(`JS Heap: ${perfSnapshot.heapSize}`);
+    lines.push(`Memory: ${perfSnapshot.memoryUsed} / ${perfSnapshot.memoryLimit}`);
     lines.push(`DOM Nodes: ${perfSnapshot.domNodes}`);
-    lines.push(`FPS: ${perfSnapshot.fps}`);
+    lines.push(`FPS: ${fps}`);
     lines.push(`Window Perf: ${perfSnapshot.navigationTiming}`);
     lines.push("");
     lines.push(`=== Last ${Math.min(logs.length, 50)} Logs ===`);
@@ -246,7 +266,7 @@ export function DebugMenu({ open, onClose, settings, songs, categories }: DebugM
     } else {
       setCopiedReport(false);
     }
-  }, [sysInfo, settings, songs, categories, dbFileInfo, perfSnapshot, logs, sqlQueries]);
+  }, [sysInfo, settings, songs, categories, dbFileInfo, perfSnapshot, logs, sqlQueries, fps]);
 
   if (!open) return null;
 
@@ -311,7 +331,7 @@ export function DebugMenu({ open, onClose, settings, songs, categories }: DebugM
         <div className="debug-body">
           {tab === "info" && (
             <div className="debug-section">
-              <DebugRow label="App" value={`LyriXX v0.1.0`} />
+              <DebugRow label="App" value={`LyriXX v${import.meta.env.PACKAGE_VERSION}`} />
               <DebugRow label="Platform" value={sysInfo.platform} />
               <DebugRow label="User Agent" value={sysInfo.userAgent} />
               <DebugRow label="Screen" value={`${sysInfo.screenWidth}×${sysInfo.screenHeight}`} />
@@ -381,13 +401,10 @@ export function DebugMenu({ open, onClose, settings, songs, categories }: DebugM
           {tab === "performance" && (
             <div className="debug-section">
               <DebugRow label="Memory Used" value={perfSnapshot.memoryUsed} />
-              <DebugRow label="Memory Total" value={perfSnapshot.memoryTotal} />
-              <DebugRow label="JS Heap Size" value={perfSnapshot.heapSize} />
+              <DebugRow label="Memory Limit" value={perfSnapshot.memoryLimit} />
               <DebugRow label="DOM Nodes" value={String(perfSnapshot.domNodes)} />
-              <DebugRow label="Open Intervals" value={String(perfSnapshot.openIntervals)} />
-              <DebugRow label="Open Timeouts" value={String(perfSnapshot.openTimeouts)} />
               <DebugRow label="Window Performance" value={perfSnapshot.navigationTiming} />
-              <DebugRow label="FPS (est)" value={perfSnapshot.fps} />
+              <DebugRow label="FPS" value={fps} />
             </div>
           )}
 
@@ -593,7 +610,7 @@ function DebugRow({ label, value }: { label: string; value: string }) {
 function getSystemInfo() {
   const nav = typeof navigator !== "undefined" ? navigator : null;
   return {
-    platform: nav?.platform ?? "unknown",
+    platform: (navigator as Navigator & { userAgentData?: { platform?: string } }).userAgentData?.platform ?? navigator.platform ?? "unknown",
     userAgent: nav?.userAgent ?? "unknown",
     screenWidth: window.screen?.width ?? 0,
     screenHeight: window.screen?.height ?? 0,
@@ -609,18 +626,14 @@ function getPerfSnapshot() {
     perf as Performance & { memory?: { usedJSHeapSize: number; totalJSHeapSize: number } }
   ).memory;
 
-  let heapSize = "N/A";
   let memoryUsed = "N/A";
-  let memoryTotal = "N/A";
+  let memoryLimit = "N/A";
   if (memory) {
-    heapSize = formatBytes(memory.usedJSHeapSize);
     memoryUsed = formatBytes(memory.usedJSHeapSize);
-    memoryTotal = formatBytes(memory.totalJSHeapSize);
+    memoryLimit = formatBytes(memory.totalJSHeapSize);
   }
 
   const domNodes = document.querySelectorAll("*").length;
-  const openIntervals = estimateTimers("interval");
-  const openTimeouts = estimateTimers("timeout");
 
   const navEntries = perf.getEntriesByType?.("navigation") as PerformanceNavigationTiming[];
   let navigationTiming = "N/A";
@@ -629,26 +642,11 @@ function getPerfSnapshot() {
     navigationTiming = `domContentLoaded: ${Math.round(nav.domContentLoadedEventEnd - nav.startTime)}ms, load: ${Math.round(nav.loadEventEnd - nav.startTime)}ms`;
   }
 
-  let fps = "N/A";
-  try {
-    const frames = perf.getEntriesByType?.("frame") as PerformanceEntry[];
-    if (frames?.length) {
-      const recent = frames.filter((f) => perf.now() - f.startTime < 1000);
-      fps = String(recent.length);
-    }
-  } catch {
-    // getEntriesByType("frame") may throw in some contexts
-  }
-
   return {
-    heapSize,
     memoryUsed,
-    memoryTotal,
+    memoryLimit,
     domNodes,
-    openIntervals,
-    openTimeouts,
     navigationTiming,
-    fps,
   };
 }
 
@@ -656,8 +654,4 @@ function formatBytes(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-}
-
-function estimateTimers(_type: "interval" | "timeout"): string {
-  return "N/A (browser API)";
 }
