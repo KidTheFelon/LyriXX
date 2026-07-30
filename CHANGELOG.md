@@ -1,5 +1,49 @@
 # Changelog
 
+## [0.4.0](https://github.com/KidTheFelon/LyriXX/compare/lyrixx-v0.3.0...lyrixx-v0.4.0) (2026-07-30)
+
+
+### Features
+
+* 15 новых настроек ([deeb732](https://github.com/KidTheFelon/LyriXX/commit/deeb732799e8e282c8613aeb484e8d23b6e301fa))
+* add single-instance plugin to prevent multiple app windows ([7fd03e7](https://github.com/KidTheFelon/LyriXX/commit/7fd03e7a54b3f3583eafaa2f1ae7b7fd139c87e1))
+* parenthesized text highlighting, fix keyboard shortcuts for contentEditable, disable CSP for dev ([452cf49](https://github.com/KidTheFelon/LyriXX/commit/452cf491ec6dd41811789da904cb9536e2bd4f0d))
+* добавил 15 новых настроек в приложение ([3b28e40](https://github.com/KidTheFelon/LyriXX/commit/3b28e4048c9929dc1dee0a00575f68e624f91adf))
+* добавил инвертированную версию логотипа для README ([fdaf556](https://github.com/KidTheFelon/LyriXX/commit/fdaf55628e2e5969294c7e7c627e10dce3ec6c28))
+* добавил смену акцентного цвета ([c589c39](https://github.com/KidTheFelon/LyriXX/commit/c589c392d583b507d8f6a382ea94db205b9a7104))
+* инвертированная версия логотипа для README ([e665940](https://github.com/KidTheFelon/LyriXX/commit/e665940f4f6f3b63d16e71366b8d530642342b2b))
+* обновил систему рифмовки ([0571c4c](https://github.com/KidTheFelon/LyriXX/commit/0571c4c3af26031294aa913e5f7a8050f7908c97))
+* смена акцентного цвета ([1444e54](https://github.com/KidTheFelon/LyriXX/commit/1444e54d068b19358c104a28611aba67bd644a0e))
+
+
+### Bug Fixes
+
+* add missing .gitmodules for quickpoeter submodule ([b423b58](https://github.com/KidTheFelon/LyriXX/commit/b423b5810e75c501740ff888c679c8e7e604c452))
+* **ci:** remove lyrixx/ path prefix, files are at repo root ([9a43ad5](https://github.com/KidTheFelon/LyriXX/commit/9a43ad5ecf72222cc460d8d8bfa085ea0b412ed3))
+* revert quickpoeter submodule to upstream commit (CI fetch fix) ([d0eeab3](https://github.com/KidTheFelon/LyriXX/commit/d0eeab346f77ad36dbaa38765f6b0bd0692edc80))
+* обновлять версию из тега перед сборкой релиза ([94d3c13](https://github.com/KidTheFelon/LyriXX/commit/94d3c134a96dbeefd2c5e8294dfe662bcbe2ea2f))
+* убрал несуществующий проп inputSyllables из RhymePopup ([c174ab9](https://github.com/KidTheFelon/LyriXX/commit/c174ab9e1d67fc4f04827f8ca39da29aae5b38e5))
+
+
+### Documentation
+
+* add issue and PR templates ([df9f7c0](https://github.com/KidTheFelon/LyriXX/commit/df9f7c0151eaf0bdc82ddb47b2d03cd9128846f4))
+* add v0.3.0 changelog entry ([b65a154](https://github.com/KidTheFelon/LyriXX/commit/b65a1544e8bd9f4c530696068df842d7e9cb18e0))
+* add Vision section to CONTRIBUTING.md ([958ff71](https://github.com/KidTheFelon/LyriXX/commit/958ff71e4bd4e1a0b856103ebfe9f9cce5cefa82))
+* honest AI-only development disclosure ([9f5d63a](https://github.com/KidTheFelon/LyriXX/commit/9f5d63ab440a4cee52e7fed76cc165f1b9515ebf))
+* mention AI-assisted development ([c8e4a75](https://github.com/KidTheFelon/LyriXX/commit/c8e4a7562f7a8d13973407e0dfedb05ab7b02653))
+* specify AI tools used (Kilo Code, MiMo, DeepSeek) ([bc0659c](https://github.com/KidTheFelon/LyriXX/commit/bc0659cbdceed76a94636d3f66efc2dfe608160c))
+* update AGENTS.md with current project state ([1bf6300](https://github.com/KidTheFelon/LyriXX/commit/1bf6300af48be2389d3aa5b716dfe15f1a918bcb))
+* обновил AGENTS.md — актуальные счетчики и новые компоненты ([147ef68](https://github.com/KidTheFelon/LyriXX/commit/147ef680aad64660561b4b3e9d446963084ae540))
+* обновил AGENTS.md + ci: release-please fixes ([2e57cc6](https://github.com/KidTheFelon/LyriXX/commit/2e57cc6d4a3186de96888446ebfbb55786aacfd9))
+* обновил документацию под 15 новых настроек ([0815a6b](https://github.com/KidTheFelon/LyriXX/commit/0815a6bf3a8eaca066d2b24f371195681f94f67f))
+* обновил документацию под новые настройки ([8145d53](https://github.com/KidTheFelon/LyriXX/commit/8145d5393abca82fe32c21580685ba05d5306312))
+
+
+### Miscellaneous
+
+* bump version to 0.3.0 ([6dbd6ec](https://github.com/KidTheFelon/LyriXX/commit/6dbd6ecb2594cd7fcb2e37cf20947a4e77bbe0fd))
+
 ## [0.3.0] — 2026-07-29
 
 ### Added
