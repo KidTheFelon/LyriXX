@@ -20,22 +20,22 @@ unsymmetrical: # то, что нужно для поиска подходящи�
 
 stresses:
   # для каждой соотв. пары гласных assonanse_distance = Σ Δassonance_vectors² (см. convertation.yaml)
-  k_not_strict_stress: 2.0 # − k · assonanse_distance, если нестрогое ударение с отсутствием ударения
-  k_strict_stress: 20.0 # -//-, если оба ударения есть
-  bad_rythm: 30 # чистый штраф, если не совпадают по ритму (строгий ударный со строгим безударным)
+  k_not_strict_stress:  2.0 # − k · assonanse_distance, если нестрогое ударение с отсутствием ударения
+  k_strict_stress:      20.0 # -//-, если оба ударения есть
+  bad_rythm:            30 # чистый штраф, если не совпадают по ритму (строгий ударный со строгим безударным)
   # no stress -> 1.0
 
   # множитель на сравнение двух соотв. гласных: · (номер гласной (с конца) + shift_syll_ending)^pow_syll_ending
-  shift_syll_ending: 1.0
-  pow_syll_ending: 1.0
+  shift_syll_ending:     1.0
+  pow_syll_ending:       1.0
 
-  asympt: 1.0 # финальное расстояние делится на (число_слогов + asympt_shift)^asympt
-  asympt_shift: 2.0 # далее аналогично
+  asympt:               1.0 # финальное расстояние делится на (число_слогов + asympt_shift)^asympt
+  asympt_shift:         2.0 # далее аналогично
 
-  indexation: true # если true, то ускоряет ~ в десять раз, но невозможны рифмы с другими ударными
+  indexation:           true # если true, то ускоряет ~ в десять раз, но невозможны рифмы с другими ударными
   # например, слава-слово при *любых* остальных настройках будет проигнорировано
-
-  weight: 100.0
+  
+  weight:               100.0
 
   distance:
     # стандартное расстояние считается по формуле min(1.0, [(x1 - x2)^pow + (y1 - y2)^pow]/denominator)
@@ -50,44 +50,46 @@ stresses:
       - [7.0, 5.0] # э
       - [9.0, 4.0] # и
       - [7.0, 3.0] # ы
-      - [3.0, 3.0] # у
+      - [3.0, 3.0]  # у
     pow: 0.5
     denominator: 3.0
 
+
 consonant_structure:
   # для каждого слога − (длина_слога₁ − длина_слога₂)^pow
-  pow: 2.0
+  pow:    2.0
   # множитель на сравние двух соотв. гласных: / (номер группы согласных (с конца) + shift_syll_ending)^pow_syll_ending
-  shift_syll_ending: 1.0
+  shift_syll_ending:     1.0
   pow_syll_ending: 1.5
 
   asympt: 0.7
-  asympt_shift: 2.0
+  asympt_shift:         2.0
   weight: 4.0
+
 
 alliteration:
   # для каждых двух согласных вычисляется
-  # (номера слога и букв — с конца)
+  # (номера слога и букв — с конца) 
   # d1 = номер_слога₁ + номер_буквы₁ / (длина_слога₁ + длина_слога₂)
   # d2 = номер_слога₂ + номер_буквы₂ / (длина_слога₁ + длина_слога₂)
-  # k = (|d₁ - d₂| + shift_coord)^pow_coord_delta · (d₁ + d₂ + shift_syll_ending)^pow_syll_ending
+  # k = (|d₁ - d₂| + shift_coord)^pow_coord_delta · (d₁ + d₂ + shift_syll_ending)^pow_syll_ending 
   #                ↑                                         ↑
   #   отвечает за расстояние между буквами    отвечает за важность совпадения более близких к концу согласных
   #
-  # и суммируется близость_согласных/k
+  # и суммируется близость_согласных/k 
   #
 
-  shift_coord: 1.0
-  shift_syll_ending: 1.0
-  pow_coord_delta: 3.0
-  pow_syll_ending: 1.0 # > 0 ⇒ конец более важен, < 0 — начало
+  shift_coord:           1.0
+  shift_syll_ending:     1.0
+  pow_coord_delta:       3.0
+  pow_syll_ending:       1.0 # > 0 ⇒ конец более важен, < 0 — начало
 
-  permutations: 20.0 # на каждую букву смотрится минимальное расстояние до букв рифмы
+  permutations:         20.0 # на каждую букву смотрится минимальное расстояние до букв рифмы
   # и умножается на этот коэффициент; т.о. поощряются перестановки, и штрафуются буквы, "берущиеся из ниоткуда"
 
-  weight: 5.0
-  asympt: 1.5
-  asympt_shift: 2.0
+  weight:                5.0
+  asympt:                1.5
+  asympt_shift:          2.0
 
   distance:
     # полностью аналогично vowel_distance
@@ -107,6 +109,7 @@ alliteration:
       - [3.0, 0.0] # ф
     pow: 0.5
     denominator: 3.0
+
 
 meaning:
   pow: 2.0

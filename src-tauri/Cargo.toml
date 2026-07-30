@@ -29,7 +29,6 @@ tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 tracing-appender = "0.2"
 quickpoeter = { path = "quickpoeter" }
-reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
 
 [target.'cfg(windows)'.dependencies]
 window-vibrancy = "0.8"

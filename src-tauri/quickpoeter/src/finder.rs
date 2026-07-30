@@ -271,13 +271,14 @@ impl Serialize for WordDistanceResult<'_> {
     where
         S: serde::Serializer,
     {
-        let mut s = serializer.serialize_struct("WordDistanceResult", 10)?;
+        let mut s = serializer.serialize_struct("WordDistanceResult", 8)?;
         s.serialize_field("dist", &self.dist.into_inner())?;
         s.serialize_field("misc", &self.misc)?;
         s.serialize_field("vowel", &self.vowel)?;
         s.serialize_field("cons", &self.cons)?;
         s.serialize_field("struct", &self.structure)?;
         s.serialize_field("meaning", &self.meaning)?;
+        s.serialize_field("popular", &self.popularity)?;
         s.serialize_field("popular", &self.popularity)?;
         s.serialize_field("unsymm", &self.unsymmetrical)?;
         s.serialize_field("sameSP", &self.same_part)?;
@@ -444,7 +445,7 @@ impl WordCollector {
         info: &FindingInfo<'c, '_>,
         ignore: Vec<&str>,
         top_n: u32,
-    ) -> Result<Vec<WordDistanceResult<'c>>, String> {
+    ) -> Result<Vec<WordDistanceResult>, String> {
         let mut heap = TopNHeap::new(top_n as usize);
         let allowed = self.words_with_same_stresses(info.to_find);
 

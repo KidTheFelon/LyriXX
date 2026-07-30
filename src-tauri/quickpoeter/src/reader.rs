@@ -200,6 +200,14 @@ pub(crate) fn vec2arr<T: Debug, const N: usize>(arr: Vec<Vec<T>>) -> Vec<[T; N]>
     new_arr
 }
 
+// this can read standart f32 data
+#[allow(dead_code)]
+fn bin_read(path: &PathBuf) -> Vec<[f32; VECTOR_DIM]> {
+    let f = BufReader::new(File::open(path).unwrap());
+    let data: Vec<Vec<f32>> = bincode::deserialize_from(f).unwrap();
+    vec2arr(data)
+}
+
 pub(crate) fn vec16_to_vec32(v: Vec<f16>) -> Vec<f32> {
     v.into_iter().map(f16::to_f32).collect()
 }

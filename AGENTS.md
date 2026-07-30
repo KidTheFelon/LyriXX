@@ -19,14 +19,14 @@ Project root: repo root (`H:\GHP\lyrixx5/`). For full dev docs see `docs/CONTRIB
 
 ## Key files
 
-### Components (20 non-test root + 8 settings)
+### Components (20 non-test root + 10 settings)
 
 - `src/components/TypewriterInput.tsx` — custom textarea, tag highlighting, autocomplete, rhyme popup
 - `src/components/SongEditor.tsx` — main editor: title/artist/category + lyrics + SectionOutline + rhymes
 - `src/components/Sidebar.tsx` — category sidebar: CRUD, context menu, portal menus
 - `src/components/SongList.tsx` — song list: search, debounce, pin/delete context menu
 - `src/components/SectionOutline.tsx` — drag-and-drop section navigator
-- `src/components/SettingsModal.tsx` — 7-tab settings modal: editor/interface/behavior/rhymes/tags/database/shortcuts
+- `src/components/SettingsModal.tsx` — 9-tab settings modal: editor/interface/behavior/rhymes/tags/database/accessibility/notifications/shortcuts
 - `src/components/ConfirmModal.tsx` — generic confirm dialog, danger mode, focus trap
 - `src/components/ContextMenu.tsx` — portal-based right-click menu, keyboard nav
 - `src/components/TitleBar.tsx` — custom titlebar, Tauri drag region
@@ -41,7 +41,7 @@ Project root: repo root (`H:\GHP\lyrixx5/`). For full dev docs see `docs/CONTRIB
 - `src/components/Icons.tsx` — SVG icon components
 - `src/components/MusicQuotes.tsx` — random music quotes display (108 quotes)
 - `src/components/RecoveryModal.tsx` — DB backup recovery modal: list/restore/delete backups
-- `src/components/settings/` — 8 files: UISection, EditorSection, BehaviorSection, RhymesSection, CustomTagsSection, DatabaseSection, ShortcutsSection, shared
+- `src/components/settings/` — 10 files: UISection, EditorSection, BehaviorSection, RhymesSection, CustomTagsSection, DatabaseSection, AccessibilitySection, NotificationsSection, ShortcutsSection, shared
 
 ### Hooks
 
@@ -56,14 +56,14 @@ Project root: repo root (`H:\GHP\lyrixx5/`). For full dev docs see `docs/CONTRIB
 ### Types
 
 - `src/types/songTags.ts` — **14 built-in tags** + custom tags, parsing, autocomplete
-- `src/types/settings.ts` — AppSettings (20 fields), DEFAULT_SETTINGS
+- `src/types/settings.ts` — AppSettings (44 fields), DEFAULT_SETTINGS
 - `src/types/song.ts` — Song, SongListItem interfaces
 - `src/types/category.ts` — CustomCategory, ALL_CATEGORY
 - `src/types/icons.tsx` — 20+ category icons as SVG JSX
 
 ### i18n
 
-- `src/i18n/translations.ts` — ru/en dictionaries (~120 keys), getTagLabel
+- `src/i18n/translations.ts` — ru/en dictionaries (~160 keys), getTagLabel
 - `src/i18n/index.ts` — LanguageContext, useTranslation() hook
 
 ### Services
@@ -95,13 +95,13 @@ Project root: repo root (`H:\GHP\lyrixx5/`). For full dev docs see `docs/CONTRIB
 
 - `src-tauri/src/db.rs` — SQLite (rusqlite 0.31, bundled), migrations (LATEST_VERSION=1), **20 Tauri commands**: load_songs, save_song, delete_song, delete_songs, load_categories, save_category, delete_category, load_setting, save_setting, get_db_path_str, copy_file, write_text_file, clear_all_data, list_backups, delete_backup, restore_backup, get_db_file_info, check_db_recovery
 - `src-tauri/src/rhyme.rs` — RhymeEngine (quickpoeter: Zaliznyak + word2vec + RhymeBrain for English), get_rhymes, MAX_RHYME_RESULTS=50, LRU cache (256)
-- `src-tauri/src/english_rhyme.rs` — async RhymeBrain API for English rhymes
+- `src-tauri/src/english_rhyme.rs` — CMU dict + Moby POS, find_english_rhymes, guess_pos (suffix fallback)
 - `src-tauri/src/lang_detect.rs` — cyrillic/latin language detection
 - `src-tauri/src/fonts.rs` — get_system_fonts: Windows registry font enumeration
 - `src-tauri/src/mica.rs` — Windows 11 Mica/Acrylic effect setup
 - `src-tauri/src/lib.rs` — Tauri Builder, 25 command handlers (incl. set_mica_theme, write_frontend_log, get_backend_logs, get_sql_queries, toggle_minimize_to_tray), splash→main transition, tracing/logging with LogLayer, SqlQueryLog, BackendLogBuffer, daily log rotation
 - `src-tauri/src/main.rs` — entry point
-- `src-tauri/quickpoeter/` — vendored quickpoeter crate (Zaliznyak + word2vec rhyme engine)
+- `src-tauri/quickpoeter/` — vendored quickpoeter crate (Zaliznyak + word2vec rhyme engine). **NOT a submodule** — regular vendored files from `https://github.com/sitandr/quickpoeter_core` (commit `eafa0d4`). Do NOT use `git submodule` commands for it.
 
 ### CSS (17 files in `src/styles/`)
 

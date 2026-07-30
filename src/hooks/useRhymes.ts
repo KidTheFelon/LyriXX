@@ -7,6 +7,7 @@ export interface RhymeWord {
   word: string;
   score: number;
   syllables?: string;
+  part_of_speech?: string[];
 }
 
 export interface RhymeResponse {

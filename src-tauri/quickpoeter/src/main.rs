@@ -29,6 +29,9 @@ mod reader;
 mod translator_ru;
 mod translator_struct;
 
+#[cfg(test)]
+mod tests;
+
 use crate::api::measure;
 use crate::api::{find_from_args, Args};
 use crate::finder::WordCollector;

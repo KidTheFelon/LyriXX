@@ -107,14 +107,14 @@ npm run tauri dev     # полный Tauri (требуется Rust toolchain + 
 
 ```
 ├── src/                          # Фронтенд (React + TS)
-│   ├── components/               #    20 UI-компонентов
+│   ├── components/               #    20 UI-компонентов + settings/ (10 файлов)
 │   │   ├── SongList.tsx          #      список песен (поиск, pin, удаление)
 │   │   ├── SongEditor.tsx        #      редактор песни (поля, текст, категория)
 │   │   ├── TypewriterInput.tsx   #      textarea с подсветкой тегов, автодополнением и попапом рифм
 │   │   ├── SectionOutline.tsx    #      навигатор секций (drag-and-drop, framer-motion)
 │   │   ├── Sidebar.tsx           #      боковая панель (категории, создание, настройки)
 │   │   ├── TitleBar.tsx          #      кастомный тайтлбар (—□×)
-│   │   ├── SettingsModal.tsx     #      настройки (ленивая загрузка, 7 секций)
+│   │   ├── SettingsModal.tsx     #      настройки (ленивая загрузка, 9 секций)
 │   │   ├── ConfirmModal.tsx      #      confirm-диалог (danger mode, focus trap)
 │   │   ├── ContextMenu.tsx       #      контекстное меню (portal, keyboard nav)
 │   │   ├── Toast.tsx             #      тост-уведомления (error/success/info)
@@ -128,13 +128,15 @@ npm run tauri dev     # полный Tauri (требуется Rust toolchain + 
 │   │   ├── MusicQuotes.tsx       #      случайные музыкальные цитаты
 │   │   ├── RecoveryModal.tsx     #      модалка восстановления БД
 │   │   └── Icons.tsx             #      SVG-иконки как React-компоненты
-│   ├── components/settings/      #    8 файлов
-│   │   ├── UISection.tsx         #      тема, язык, компактный режим
-│   │   ├── EditorSection.tsx     #      шрифт, размер, межстрочный
-│   │   ├── BehaviorSection.tsx   #      подтверждения, автосохранение, трей
-│   │   ├── RhymesSection.tsx     #      язык, глубина поиска рифм
+│   ├── components/settings/      #   10 файлов
+│   │   ├── UISection.tsx         #      тема, акцент, язык, sidebar, анимации, прозрачность
+│   │   ├── EditorSection.tsx     #      шрифт, размер, курсор, автозакрытие, перенос
+│   │   ├── BehaviorSection.tsx   #      автосохранение, шаблон, сортировка, трей, экспорт
+│   │   ├── RhymesSection.tsx     #      язык, глубина, макс. результатов рифм
 │   │   ├── CustomTagsSection.tsx #      пользовательские теги
 │   │   ├── DatabaseSection.tsx   #      бэкапы, очистка, экспорт
+│   │   ├── AccessibilitySection.tsx #   доступность (reduced motion, high contrast)
+│   │   ├── NotificationsSection.tsx #   toast-уведомления
 │   │   ├── ShortcutsSection.tsx  #      горячие клавиши
 │   │   └── shared.tsx            #      общие компоненты секций
 │   ├── editor/                   #    логика редактора (CodeMirror + подсветка)
@@ -157,12 +159,12 @@ npm run tauri dev     # полный Tauri (требуется Rust toolchain + 
 │   │   ├── window.ts             #      getWindowAPI() singleton + fallback
 │   │   └── clipboard.ts          #      обёртка над Tauri clipboard API
 │   ├── i18n/
-│   │   ├── translations.ts       #      ru/en словари (~120 ключей), getTagLabel
+│   │   ├── translations.ts       #      ru/en словари (~160 ключей), getTagLabel
 │   │   └── index.ts              #      LanguageContext, useTranslation() hook
 │   ├── types/
 │   │   ├── song.ts               #      интерфейс Song, SongListItem
 │   │   ├── category.ts           #      интерфейс CustomCategory, ALL_CATEGORY
-│   │   ├── settings.ts           #      AppSettings (26 полей), DEFAULT_SETTINGS
+│   │   ├── settings.ts           #      AppSettings (44 поля), DEFAULT_SETTINGS
 │   │   ├── songTags.ts           #      14 стандартных тегов, парсинг, автодополнение
 │   │   └── icons.tsx             #      20+ SVG иконок категорий
 │   ├── utils/
@@ -232,7 +234,7 @@ npm run tauri dev     # полный Tauri (требуется Rust toolchain + 
 - **Анимации:** framer-motion (SectionOutline, TypewriterInput, Toast, Modals)
 - **Теги песен:** `[Куплет]`, `[Припев]`, `[Бридж]` и т.д. — парсятся из текста, подсвечиваются цветом
 - **Рифмы:** quickpoeter (Zaliznyak + word2vec) → `RhymeEngine` в Rust → `useRhymes` hook → попап в TypewriterInput
-- **i18n:** LanguageContext + useTranslation(), ru/en словари (~120 ключей)
+- **i18n:** LanguageContext + useTranslation(), ru/en словари (~160 ключей)
 - **Системный трей:** `minimizeToTray` — сворачивание в трей при закрытии
 
 ## База данных
@@ -324,36 +326,54 @@ npm run test:watch     # watch mode
 | i18n       | translations                                                                                                                                                    |
 | Константы  | constants                                                                                                                                                       |
 
-## Настройки (26 полей)
+## Настройки (44 поля)
 
-| Ключ                   | Тип                     | По умолчанию                 | Описание                            |
-| ---------------------- | ----------------------- | ---------------------------- | ----------------------------------- |
-| `editorFontSize`       | number                  | 13                           | Размер шрифта редактора             |
-| `lineHeight`           | number                  | 1.8                          | Межстрочный интервал                |
-| `fontFamily`           | string                  | "Segoe UI Variable Text"     | Семейство шрифта                    |
-| `spellCheck`           | boolean                 | true                         | Проверка орфографии                 |
-| `wordWrap`             | boolean                 | true                         | Перенос слов                        |
-| `tabSize`              | 2 \| 4                  | 4                            | Размер табуляции                    |
-| `showLineNumbers`      | boolean                 | false                        | Номера строк                        |
-| `highlightCurrentLine` | boolean                 | true                         | Подсветка текущей строки            |
-| `theme`                | "system"/"light"/"dark" | "system"                     | Тема оформления                     |
-| `compactMode`          | boolean                 | false                        | Компактный режим                    |
-| `confirmDelete`        | boolean                 | true                         | Подтверждение удаления              |
-| `showWordCount`        | boolean                 | false                        | Счётчик слов                        |
-| `showSectionOutline`   | boolean                 | true                         | Панель навигации по секциям         |
-| `sidebarDefaultOpen`   | boolean                 | true                         | Боковая панель открыта по умолчанию |
-| `sidebarWidth`         | number                  | 300                          | Ширина боковой панели               |
-| `songListWidth`        | number                  | 280                          | Ширина списка песен                 |
-| `language`             | "ru"/"en"               | "ru"                         | Язык интерфейса                     |
-| `autoSaveDelay`        | number                  | 300                          | Задержка автосохранения (ms)        |
-| `exportFormat`         | "txt"/"md"/"lrc"        | "txt"                        | Формат экспорта                     |
-| `defaultSongTemplate`  | string                  | "[Куплет]\n\n\n[Припев]\n\n" | Шаблон новой песни                  |
-| `customTags`           | string[]                | []                           | Пользовательские теги               |
-| `rhymeLang`            | "ru"/"en"/"auto"        | "auto"                       | Язык поиска рифм                    |
-| `rhymeDepth`           | number                  | 2                            | Глубина поиска рифм                 |
-| `autoBackup`           | boolean                 | true                         | Автоматические бэкапы               |
-| `maxBackups`           | number                  | 10                           | Макс. количество бэкапов            |
-| `minimizeToTray`       | boolean                 | true                         | Сворачивать в трей                  |
+| Ключ                   | Тип                                | По умолчанию                 | Описание                            |
+| ---------------------- | ---------------------------------- | ---------------------------- | ----------------------------------- |
+| `editorFontSize`       | number                             | 13                           | Размер шрифта редактора             |
+| `lineHeight`           | number                             | 1.8                          | Межстрочный интервал                |
+| `fontFamily`           | string                             | "Segoe UI Variable Text"     | Семейство шрифта                    |
+| `spellCheck`           | boolean                            | true                         | Проверка орфографии                 |
+| `wordWrap`             | boolean                            | true                         | Перенос слов                        |
+| `tabSize`              | 2 \| 4                             | 4                            | Размер табуляции                    |
+| `showLineNumbers`      | boolean                            | false                        | Номера строк                        |
+| `highlightCurrentLine` | boolean                            | true                         | Подсветка текущей строки            |
+| `autocloseBrackets`    | boolean                            | true                         | Автозакрытие скобок/тегов           |
+| `cursorStyle`          | "line"/"block"/"underline"         | "line"                       | Стиль курсора                       |
+| `cursorBlinkRate`      | number                             | 530                          | Скорость мигания курсора (ms)       |
+| `theme`                | "system"/"light"/"dark"            | "system"                     | Тема оформления                     |
+| `compactMode`          | boolean                            | false                        | Компактный режим                    |
+| `confirmDelete`        | boolean                            | true                         | Подтверждение удаления              |
+| `showWordCount`        | boolean                            | false                        | Счётчик слов                        |
+| `showSectionOutline`   | boolean                            | true                         | Панель навигации по секциям         |
+| `sidebarDefaultOpen`   | boolean                            | true                         | Боковая панель открыта по умолчанию |
+| `sidebarWidth`         | number                             | 300                          | Ширина боковой панели (px)          |
+| `sidebarFontSize`      | number                             | 13                           | Размер шрифта боковой панели (px)   |
+| `songListWidth`        | number                             | 280                          | Ширина списка песен (px)            |
+| `animationsEnabled`    | boolean                            | true                         | Анимации интерфейса                 |
+| `transparency`         | number                             | 100                          | Прозрачность окна (%)               |
+| `titleBarStyle`        | "custom"/"native"                  | "custom"                     | Стиль заголовка окна                |
+| `language`             | "ru"/"en"                          | "ru"                         | Язык интерфейса                     |
+| `autoSaveDelay`        | number                             | 300                          | Задержка автосохранения (ms)        |
+| `exportFormat`         | "txt"/"md"/"lrc"                   | "txt"                        | Формат экспорта                     |
+| `defaultSongTemplate`  | string                             | "[Куплет]\n\n\n[Припев]\n\n" | Шаблон новой песни                  |
+| `startupAction`        | "empty"/"lastSong"                 | "empty"                      | Действие при запуске                |
+| `confirmOnClose`       | boolean                            | true                         | Подтверждение при закрытии          |
+| `sortSongsBy`          | "date"/"alphabetical"/"manual"     | "date"                       | Сортировка песен                    |
+| `sortCategoriesBy`     | "alphabetical"/"manual"/"songCount"| "alphabetical"               | Сортировка категорий                |
+| `customTags`           | string[]                           | []                           | Пользовательские теги               |
+| `rhymeLang`            | "ru"/"en"/"auto"                   | "auto"                       | Язык поиска рифм                    |
+| `rhymeDepth`           | number                             | 2                            | Глубина поиска рифм                 |
+| `maxRhymeResults`      | number                             | 50                           | Макс. результатов рифм              |
+| `autoBackup`           | boolean                            | true                         | Автоматические бэкапы               |
+| `maxBackups`           | number                             | 10                           | Макс. количество бэкапов            |
+| `minimizeToTray`       | boolean                            | true                         | Сворачивать в трей                  |
+| `accentColor`          | string                             | ""                           | Акцентный цвет                      |
+| `reducedMotion`        | boolean                            | false                        | Уменьшенное движение                |
+| `highContrast`         | boolean                            | false                        | Высокий контраст                    |
+| `toastAutosave`        | boolean                            | true                         | Уведомлять об автосохранении        |
+| `toastErrors`          | boolean                            | true                         | Уведомлять об ошибках               |
+| `toastSuccess`         | boolean                            | true                         | Уведомлять об успехе                |
 
 ## Сборка
 
