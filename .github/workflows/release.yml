@@ -18,13 +18,6 @@ jobs:
           fetch-depth: 0
           fetch-tags: true
 
-      - name: Init submodule
-        shell: bash
-        run: |
-          git submodule init src-tauri/quickpoeter
-          git config submodule.src-tauri/quickpoeter.url https://github.com/sitandr/quickpoeter_core.git
-          git submodule update --depth=1 src-tauri/quickpoeter
-
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -37,6 +30,24 @@ jobs:
           workspaces: src-tauri
 
       - run: npm ci --legacy-peer-deps
+
+      - name: Set version from tag
+        shell: pwsh
+        run: |
+          $tag = "${{ env.TAG }}" -replace '^v', ''
+          $cargo = Get-Content "src-tauri/Cargo.toml" -Raw
+          $cargo = $cargo -replace 'version = "[^"]*"', "version = `"$tag`""
+          Set-Content "src-tauri/Cargo.toml" $cargo -NoNewline
+
+          $conf = Get-Content "src-tauri/tauri.conf.json" -Raw
+          $conf = $conf -replace '"version":\s*"[^"]*"', "`"version`": `"$tag`""
+          Set-Content "src-tauri/tauri.conf.json" $conf -NoNewline
+
+          $pkg = Get-Content "package.json" -Raw
+          $pkg = $pkg -replace '"version":\s*"[^"]*"', "`"version`": `"$tag`""
+          Set-Content "package.json" $pkg -NoNewline
+
+          echo "Set version to $tag in Cargo.toml, tauri.conf.json, package.json"
 
       - uses: tauri-apps/tauri-action@v0
         env:
