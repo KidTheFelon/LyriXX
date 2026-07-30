@@ -34,7 +34,7 @@ quickpoeter = { path = "quickpoeter" }
 window-vibrancy = "0.8"
 winreg = "0.52"
 webview2-com-sys = "0.38"
-windows = { version = "0.61", features = ["Win32_Foundation", "Win32_UI_WindowsAndMessaging"] }
+windows = { version = "0.62", features = ["Win32_Foundation", "Win32_UI_WindowsAndMessaging"] }
 
 [profile.release]
 lto = "fat"
