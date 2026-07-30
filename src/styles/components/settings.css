@@ -629,3 +629,112 @@
   background: var(--danger-bg);
   color: var(--danger);
 }
+
+.settings-template-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.settings-template-preset {
+  padding: 4px 10px;
+  border: 1px solid var(--stroke-control);
+  border-radius: var(--radius-control);
+  background: var(--bg-card-solid);
+  font-family: var(--font-family-text);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition:
+    background 0.12s,
+    color 0.12s,
+    border-color 0.12s,
+    box-shadow 0.12s;
+}
+
+.settings-template-preset:hover {
+  background: var(--fill-subtle-hover);
+  color: var(--text-primary);
+  border-color: var(--accent-default);
+}
+
+.settings-template-preset.active {
+  background: var(--accent-default);
+  color: var(--text-on-accent);
+  border-color: var(--accent-default);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.settings-template-preset-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+  position: relative;
+}
+
+.settings-template-preset-delete {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border: none;
+  border-radius: 50%;
+  background: var(--danger-bg, rgba(196, 43, 28, 0.1));
+  color: var(--danger, #c42b1c);
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+  margin-left: -6px;
+  margin-top: -14px;
+  opacity: 0;
+  transition: opacity 0.12s;
+}
+
+.settings-template-preset-wrap:hover .settings-template-preset-delete {
+  opacity: 1;
+}
+
+.settings-template-preset-delete:hover {
+  background: var(--danger, #c42b1c);
+  color: #fff;
+}
+
+.settings-template-save-row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  margin-top: 8px;
+}
+
+.settings-template-save-row .settings-input {
+  flex: 1;
+}
+
+.settings-template-save-btn {
+  flex-shrink: 0;
+  padding: 4px 12px;
+  border: 1px solid var(--accent-default);
+  border-radius: var(--radius-control);
+  background: transparent;
+  font-family: var(--font-family-text);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--accent-default);
+  cursor: pointer;
+  transition:
+    background 0.12s,
+    color 0.12s;
+}
+
+.settings-template-save-btn:hover:not(:disabled) {
+  background: var(--accent-default);
+  color: var(--text-on-accent);
+}
+
+.settings-template-save-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
