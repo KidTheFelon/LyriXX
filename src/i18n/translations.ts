@@ -197,6 +197,18 @@ const ru: Translations = {
   copied: "Скопировано",
   insertNewLine: "Вставить на новую строку",
 
+  posAll: "Все",
+  posNoun: "Сущ.",
+  posAdj: "Прил.",
+  posVerb: "Гл.",
+  posAdv: "Нар.",
+  posPronoun: "Местоим.",
+  posPreposition: "Предл.",
+  posConjunction: "Союз",
+  posArticle: "Артикль",
+  posInterjection: "Межд.",
+  posOther: "Другое",
+
   insertTag: "Вставить",
 
   tag_verse: "Куплет",
@@ -666,6 +678,18 @@ const en: Translations = {
   syl: "syl.",
   copied: "Copied",
   insertNewLine: "Insert on new line",
+
+  posAll: "All",
+  posNoun: "Noun",
+  posAdj: "Adj.",
+  posVerb: "Verb",
+  posAdv: "Adv.",
+  posPronoun: "Pronoun",
+  posPreposition: "Prep.",
+  posConjunction: "Conj.",
+  posArticle: "Article",
+  posInterjection: "Interj.",
+  posOther: "Other",
 
   insertTag: "Insert",
 

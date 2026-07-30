@@ -5,8 +5,9 @@ import { RhymePopup } from "./RhymePopup";
 import type { RhymeWord } from "@/hooks/useRhymes";
 
 const mockRhymes: RhymeWord[] = [
-  { word: "дом", score: 5, syllables: "1" },
-  { word: "сон", score: 15, syllables: "1" },
+  { word: "дом", score: 5, syllables: "1", part_of_speech: ["с"] },
+  { word: "сон", score: 15, syllables: "1", part_of_speech: ["с"] },
+  { word: "тихий", score: 10, syllables: "1", part_of_speech: ["п"] },
 ];
 
 describe("RhymePopup", () => {
@@ -76,7 +77,7 @@ describe("RhymePopup", () => {
     );
 
     const items = container.querySelectorAll(".rhyme-popup__item");
-    expect(items).toHaveLength(2);
+    expect(items).toHaveLength(3);
     expect(items[0].querySelector(".rhyme-popup__word")!.textContent).toBe("дом");
     expect(items[1].querySelector(".rhyme-popup__word")!.textContent).toBe("сон");
   });
@@ -159,6 +160,34 @@ describe("RhymePopup", () => {
     );
 
     const insertBtns = container.querySelectorAll(".rhyme-popup__insert-btn");
-    expect(insertBtns).toHaveLength(2);
+    expect(insertBtns).toHaveLength(3);
+  });
+
+  it("filters rhymes by part of speech", async () => {
+    const user = userEvent.setup();
+    const { container } = render(
+      <RhymePopup
+        rhymes={mockRhymes}
+        loading={false}
+        error={null}
+        activeIndex={0}
+        position={{ top: 100, left: 100 }}
+        onSelect={vi.fn()}
+        onInsert={vi.fn()}
+        onHover={vi.fn()}
+      />,
+    );
+
+    const allItems = container.querySelectorAll(".rhyme-popup__item");
+    expect(allItems).toHaveLength(3);
+
+    const filters = container.querySelectorAll(".rhyme-popup__filter");
+    const adjFilter = Array.from(filters).find((f) => f.textContent === "Прил.");
+    expect(adjFilter).toBeTruthy();
+    await user.click(adjFilter!);
+
+    const filteredItems = container.querySelectorAll(".rhyme-popup__item");
+    expect(filteredItems).toHaveLength(1);
+    expect(filteredItems[0].querySelector(".rhyme-popup__word")!.textContent).toBe("тихий");
   });
 });

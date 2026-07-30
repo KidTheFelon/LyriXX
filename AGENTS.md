@@ -95,13 +95,13 @@ Project root: repo root (`H:\GHP\lyrixx5/`). For full dev docs see `docs/CONTRIB
 
 - `src-tauri/src/db.rs` — SQLite (rusqlite 0.31, bundled), migrations (LATEST_VERSION=1), **20 Tauri commands**: load_songs, save_song, delete_song, delete_songs, load_categories, save_category, delete_category, load_setting, save_setting, get_db_path_str, copy_file, write_text_file, clear_all_data, list_backups, delete_backup, restore_backup, get_db_file_info, check_db_recovery
 - `src-tauri/src/rhyme.rs` — RhymeEngine (quickpoeter: Zaliznyak + word2vec + RhymeBrain for English), get_rhymes, MAX_RHYME_RESULTS=50, LRU cache (256)
-- `src-tauri/src/english_rhyme.rs` — async RhymeBrain API for English rhymes
+- `src-tauri/src/english_rhyme.rs` — CMU dict + Moby POS, find_english_rhymes, guess_pos (suffix fallback)
 - `src-tauri/src/lang_detect.rs` — cyrillic/latin language detection
 - `src-tauri/src/fonts.rs` — get_system_fonts: Windows registry font enumeration
 - `src-tauri/src/mica.rs` — Windows 11 Mica/Acrylic effect setup
 - `src-tauri/src/lib.rs` — Tauri Builder, 25 command handlers (incl. set_mica_theme, write_frontend_log, get_backend_logs, get_sql_queries, toggle_minimize_to_tray), splash→main transition, tracing/logging with LogLayer, SqlQueryLog, BackendLogBuffer, daily log rotation
 - `src-tauri/src/main.rs` — entry point
-- `src-tauri/quickpoeter/` — vendored quickpoeter crate (Zaliznyak + word2vec rhyme engine)
+- `src-tauri/quickpoeter/` — vendored quickpoeter crate (Zaliznyak + word2vec rhyme engine). **NOT a submodule** — regular vendored files from `https://github.com/sitandr/quickpoeter_core` (commit `eafa0d4`). Do NOT use `git submodule` commands for it.
 
 ### CSS (17 files in `src/styles/`)
 
