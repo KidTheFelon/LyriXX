@@ -8,7 +8,7 @@
         { "type": "fix", "section": "Bug Fixes" },
         { "type": "perf", "section": "Performance" },
         { "type": "docs", "section": "Documentation" },
-        { "type": "chore", "section": "Miscellaneous" },
+        { "type": "chore", "hidden": true },
         { "type": "ci", "hidden": true },
         { "type": "test", "hidden": true },
         { "type": "refactor", "hidden": true }
