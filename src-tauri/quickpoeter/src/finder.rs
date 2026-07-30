@@ -440,12 +440,12 @@ impl WordCollector {
     /// the actual finding work: filters words (bad stresses if indexing is enabled), then creates WordDistance objects for all filtered,
     /// pushes them into heap, and returns best *n* results
     /// *ignore* — will skip listed parts of speech  
-    pub fn find_best<'c>(
-        &'c self,
-        info: &FindingInfo<'c, '_>,
+    pub fn find_best<'a>(
+        &'a self,
+        info: &FindingInfo<'a, '_>,
         ignore: Vec<&str>,
         top_n: u32,
-    ) -> Result<Vec<WordDistanceResult>, String> {
+    ) -> Result<Vec<WordDistanceResult<'a>>, String> {
         let mut heap = TopNHeap::new(top_n as usize);
         let allowed = self.words_with_same_stresses(info.to_find);
 

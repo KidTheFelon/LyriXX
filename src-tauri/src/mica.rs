@@ -8,6 +8,7 @@ pub fn setup_mica(window: &WebviewWindow, dark: Option<bool>) {
     }
 }
 
+#[allow(dead_code)]
 pub fn clear_mica(window: &WebviewWindow) {
     match window_vibrancy::clear_blur(window) {
         Ok(()) => tracing::info!("[Mica] clear_blur OK"),
