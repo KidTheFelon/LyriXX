@@ -1,6 +1,6 @@
 [package]
 name = "lyrixx"
-version = "0.3.0"
+version = "1.0.0"
 description = "LyriXX — songwriting notebook"
 authors = ["lyrixx"]
 edition = "2021"
