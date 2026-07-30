@@ -32,7 +32,7 @@ quickpoeter = { path = "quickpoeter" }
 
 [target.'cfg(windows)'.dependencies]
 window-vibrancy = "0.8"
-winreg = "0.52"
+winreg = "0.55"
 webview2-com-sys = "0.38"
 windows = { version = "0.61", features = ["Win32_Foundation", "Win32_UI_WindowsAndMessaging"] }
 
