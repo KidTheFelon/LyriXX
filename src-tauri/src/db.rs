@@ -1,169 +1,12 @@
 use rusqlite::{params, Connection, types::ToSql};
 use serde::{Deserialize, Serialize};
-use std::path::PathBuf;
-use std::sync::Arc;
-use std::sync::Mutex;
+use std::sync::{Arc, Mutex};
 use std::time::Instant;
 use tauri::State;
 
-use crate::SqlQueryLog;
-use crate::chrono_now;
-
-const DEFAULT_MAX_BACKUPS: usize = 10;
-
-const SETTINGS_KEY: &str = "lyrixx_settings";
-
-fn load_app_setting<T: serde::de::DeserializeOwned>(conn: &Connection, field: &str) -> Option<T> {
-    let raw: String = conn
-        .query_row(
-            "SELECT value FROM settings WHERE key = ?1",
-            params![SETTINGS_KEY],
-            |row| row.get(0),
-        )
-        .ok()?;
-    let obj: serde_json::Value = serde_json::from_str(&raw).ok()?;
-    let val = obj.get(field)?;
-    serde_json::from_value(val.clone()).ok()
-}
-
-pub fn auto_backup(conn: &Connection) {
-    let enabled: bool = load_app_setting(conn, "autoBackup").unwrap_or(true);
-
-    if !enabled {
-        tracing::debug!("auto_backup: disabled by setting");
-        return;
-    }
-
-    let path = match get_db_path() {
-        Ok(p) => p,
-        Err(e) => {
-            tracing::warn!(error = %e, "auto_backup: cannot get db path");
-            return;
-        }
-    };
-
-    let max_backups = load_max_backups_setting(conn);
-
-    let backups_dir = match path.parent() {
-        Some(d) => d.join("backups"),
-        None => {
-            tracing::warn!("auto_backup: db path has no parent");
-            return;
-        }
-    };
-
-    if let Err(e) = std::fs::create_dir_all(&backups_dir) {
-        tracing::warn!(error = %e, "auto_backup: failed to create backups dir");
-        return;
-    }
-
-    let now = std::time::SystemTime::now()
-        .duration_since(std::time::UNIX_EPOCH)
-        .unwrap_or_default()
-        .as_secs();
-    let dt = backup_timestamp(now);
-    let filename = format!("lyrixx_{}.db", dt);
-    let dest = backups_dir.join(&filename);
-
-    if let Err(e) = std::fs::copy(&path, &dest) {
-        tracing::warn!(error = %e, dest = %dest.display(), "auto_backup: copy failed");
-        return;
-    }
-    tracing::info!(dest = %dest.display(), "auto_backup: created");
-
-    rotate_backups(&backups_dir, max_backups);
-}
-
-fn load_max_backups_setting(conn: &Connection) -> usize {
-    load_app_setting::<usize>(conn, "maxBackups").unwrap_or(DEFAULT_MAX_BACKUPS)
-}
-
-fn rotate_backups(dir: &std::path::Path, max: usize) {
-    let mut entries: Vec<(String, u64)> = Vec::new();
-
-    if let Ok(rd) = std::fs::read_dir(dir) {
-        for entry in rd.flatten() {
-            let name = entry.file_name().to_string_lossy().to_string();
-            if name.starts_with("lyrixx_") && name.ends_with(".db") {
-                let ts_part = name
-                    .strip_prefix("lyrixx_")
-                    .unwrap_or("")
-                    .strip_suffix(".db")
-                    .unwrap_or("");
-                let numeric: String = ts_part.chars().filter(|c| c.is_ascii_digit()).collect();
-                if let Ok(n) = numeric.parse::<u64>() {
-                    entries.push((name, n));
-                }
-            }
-        }
-    }
-
-    entries.sort_by(|a, b| b.1.cmp(&a.1));
-
-    if entries.len() > max {
-        for (name, _) in entries.into_iter().skip(max) {
-            let path = dir.join(&name);
-            if let Err(e) = std::fs::remove_file(&path) {
-                tracing::warn!(error = %e, file = %name, "auto_backup: failed to remove old backup");
-            } else {
-                tracing::info!(file = %name, "auto_backup: rotated old backup");
-            }
-        }
-    }
-}
-
-fn backup_timestamp(secs: u64) -> String {
-    let mut days = secs / 86400;
-    let time_of_day = secs % 86400;
-    let hours = (time_of_day / 3600) as u32;
-    let minutes = ((time_of_day % 3600) / 60) as u32;
-    let seconds = (time_of_day % 60) as u32;
-
-    let mut year = 1970u32;
-    loop {
-        let leap = is_leap(year);
-        let days_in_year = if leap { 366 } else { 365 };
-        if days < days_in_year as u64 {
-            break;
-        }
-        days -= days_in_year as u64;
-        year += 1;
-    }
-
-    let leap = is_leap(year);
-    let month_days: [u32; 12] = [
-        31,
-        if leap { 29 } else { 28 },
-        31, 30, 31, 30, 31, 31, 30, 31, 30, 31,
-    ];
-    let mut month = 1u32;
-    let mut remaining = days as u32;
-    for (i, &md) in month_days.iter().enumerate() {
-        if remaining < md {
-            month = (i + 1) as u32;
-            break;
-        }
-        remaining -= md;
-    }
-    let day = remaining + 1;
-
-    format!(
-        "{:04}{:02}{:02}_{:02}{:02}{:02}",
-        year, month, day, hours, minutes, seconds
-    )
-}
-
-fn is_leap(y: u32) -> bool {
-    (y % 4 == 0 && y % 100 != 0) || (y % 400 == 0)
-}
-
-pub fn get_backup_dir() -> Result<PathBuf, String> {
-    let path = get_db_path()?;
-    Ok(path
-        .parent()
-        .ok_or_else(|| "db path has no parent".to_string())?
-        .join("backups"))
-}
+use crate::datetime;
+use crate::db_init::get_db_path;
+use crate::logging::SqlQueryLog;
 
 pub struct DbState {
     pub db: Mutex<Connection>,
@@ -191,143 +34,12 @@ pub struct CategoryRecord {
     pub icon: String,
 }
 
-const LATEST_VERSION: i32 = 1;
-
-fn get_db_path() -> Result<PathBuf, String> {
-    let exe =
-        std::env::current_exe().map_err(|e| {
-            tracing::warn!(error = %e, "get_db_path: failed to get exe path");
-            format!("failed to get exe path: {}", e)
-        })?;
-    let exe_dir = exe
-        .parent()
-        .ok_or_else(|| "exe path has no parent directory".to_string())?
-        .join("data");
-
-    if std::fs::create_dir_all(&exe_dir).is_ok() && is_writable(&exe_dir) {
-        tracing::debug!(path = %exe_dir.display(), "Using exe-adjacent data directory");
-        return Ok(exe_dir.join("lyrixx.db"));
-    }
-
-    let appdata = dirs_fallback()?;
-    let fallback_dir = appdata.join("data");
-    std::fs::create_dir_all(&fallback_dir)
-        .map_err(|e| format!("failed to create fallback data directory at {}: {}", fallback_dir.display(), e))?;
-    tracing::warn!(
-        exe_dir = %exe_dir.display(),
-        fallback = %fallback_dir.display(),
-        "Exe directory not writable, using appdata fallback"
-    );
-    Ok(fallback_dir.join("lyrixx.db"))
-}
-
-fn is_writable(dir: &std::path::Path) -> bool {
-    let test_file = dir.join(".write_test");
-    match std::fs::OpenOptions::new().create(true).write(true).open(&test_file) {
-        Ok(_) => {
-            let _ = std::fs::remove_file(&test_file);
-            true
-        }
-        Err(_) => false,
-    }
-}
-
-fn dirs_fallback() -> Result<PathBuf, String> {
-    if let Ok(appdata) = std::env::var("APPDATA") {
-        return Ok(PathBuf::from(appdata).join("LyriXX"));
-    }
-    if let Ok(home) = std::env::var("HOME") {
-        return Ok(PathBuf::from(home).join(".lyrixx"));
-    }
-    Err("cannot determine home directory".to_string())
-}
-
-fn migrate(conn: &Connection) -> Result<(), String> {
-    let current: i32 = conn
-        .pragma_query_value(None, "user_version", |row| row.get(0))
-        .unwrap_or(0);
-
-    tracing::info!(current_version = current, latest_version = LATEST_VERSION, "DB migration check");
-
-    if current < 1 {
-        tracing::info!("Migrating DB: v0 -> v1");
-
-        conn.execute_batch(
-            "
-            CREATE TABLE IF NOT EXISTS songs (
-                id TEXT PRIMARY KEY NOT NULL,
-                title TEXT NOT NULL DEFAULT '',
-                artist TEXT NOT NULL DEFAULT '',
-                lyrics TEXT NOT NULL DEFAULT '',
-                category TEXT NOT NULL DEFAULT '',
-                pinned INTEGER NOT NULL DEFAULT 0,
-                created_at INTEGER NOT NULL,
-                updated_at INTEGER NOT NULL
-            );
-            CREATE TABLE IF NOT EXISTS categories (
-                id TEXT PRIMARY KEY NOT NULL,
-                label TEXT NOT NULL,
-                icon TEXT NOT NULL
-            );
-            CREATE TABLE IF NOT EXISTS settings (
-                key TEXT PRIMARY KEY NOT NULL,
-                value TEXT NOT NULL
-            );
-        ",
-        )
-        .map_err(|e| {
-            tracing::error!(error = %e, "migrate: failed to create tables v1");
-            format!("failed to create tables v1: {}", e)
-        })?;
-
-        conn.execute("ALTER TABLE songs ADD COLUMN pinned INTEGER NOT NULL DEFAULT 0", [])
-            .ok();
-
-        conn.pragma_update(None, "user_version", 1)
-            .map_err(|e| {
-                tracing::error!(error = %e, "migrate: failed to set user_version");
-                format!("failed to set user_version: {}", e)
-            })?;
-    }
-    Ok(())
-}
-
-pub fn init() -> Result<DbState, String> {
-    let path = get_db_path()?;
-    tracing::info!(db_path = %path.display(), "Initializing database");
-
-    match Connection::open(&path) {
-        Ok(conn) => {
-            match migrate(&conn) {
-                Ok(()) => {
-                    return Ok(DbState { db: Mutex::new(conn), was_recovered: false });
-                }
-                Err(e) => {
-                    tracing::error!(error = %e, "DB migration failed — attempting recovery");
-                }
-            }
-        }
-        Err(e) => {
-            tracing::error!(error = %e, "Failed to open DB — attempting recovery");
-        }
-    }
-
-    let corrupted_name = format!("lyrixx_corrupted_{}.db", chrono_now());
-    let parent = path.parent().ok_or("db path has no parent")?;
-    let corrupted_path = parent.join(&corrupted_name);
-    if let Err(e) = std::fs::rename(&path, &corrupted_path) {
-        tracing::warn!(error = %e, "Failed to rename corrupted DB, deleting");
-        let _ = std::fs::remove_file(&path);
-    } else {
-        tracing::info!(dest = %corrupted_path.display(), "Corrupted DB renamed");
-    }
-
-    let conn = Connection::open(&path)
-        .map_err(|e| format!("failed to create fresh db: {}", e))?;
-    migrate(&conn)?;
-    tracing::info!("Fresh DB created after corruption recovery");
-
-    Ok(DbState { db: Mutex::new(conn), was_recovered: true })
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct DbFileInfo {
+    pub path: String,
+    pub size_bytes: u64,
+    pub last_modified: String,
+    pub migration_version: i32,
 }
 
 fn lock_db<'a>(state: &'a State<'a, DbState>) -> std::sync::MutexGuard<'a, Connection> {
@@ -604,119 +316,6 @@ pub fn write_text_file(path: String, content: String) -> Result<(), String> {
     Ok(())
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct BackupInfo {
-    pub filename: String,
-    pub size_kb: f64,
-    pub timestamp: String,
-}
-
-#[tauri::command]
-pub fn list_backups() -> Result<Vec<BackupInfo>, String> {
-    tracing::debug!("list_backups called");
-    let dir = get_backup_dir().map_err(|e| {
-        tracing::warn!(error = %e, "list_backups: failed to get backup dir");
-        e.to_string()
-    })?;
-    let mut backups = Vec::new();
-
-    if !dir.exists() {
-        tracing::debug!("list_backups: backup dir does not exist, returning empty");
-        return Ok(backups);
-    }
-
-    let rd = std::fs::read_dir(&dir).map_err(|e| {
-        tracing::warn!(error = %e, dir = %dir.display(), "list_backups: failed to read backup dir");
-        e.to_string()
-    })?;
-    for entry in rd.flatten() {
-        let name = entry.file_name().to_string_lossy().to_string();
-        if name.starts_with("lyrixx_") && name.ends_with(".db") {
-            if let Ok(meta) = entry.metadata() {
-                let size_kb = meta.len() as f64 / 1024.0;
-                let ts_part = name
-                    .strip_prefix("lyrixx_")
-                    .unwrap_or("")
-                    .strip_suffix(".db")
-                    .unwrap_or("")
-                    .to_string();
-                backups.push(BackupInfo {
-                    filename: name,
-                    size_kb: (size_kb * 100.0).round() / 100.0,
-                    timestamp: ts_part,
-                });
-            }
-        }
-    }
-
-    backups.sort_by(|a, b| b.timestamp.cmp(&a.timestamp));
-    tracing::debug!(count = backups.len(), "list_backups: found");
-    Ok(backups)
-}
-
-#[tauri::command]
-pub fn delete_backup(filename: String) -> Result<(), String> {
-    tracing::debug!(filename, "delete_backup called");
-    if filename.contains("..") || filename.contains('/') || filename.contains('\\') {
-        tracing::warn!(filename, "delete_backup: invalid filename rejected");
-        return Err("Invalid backup filename".to_string());
-    }
-    let dir = get_backup_dir().map_err(|e| {
-        tracing::warn!(error = %e, "delete_backup: failed to get backup dir");
-        e.to_string()
-    })?;
-    let path = dir.join(&filename);
-    if !path.exists() {
-        tracing::warn!(filename, "delete_backup: backup not found");
-        return Err("backup not found".to_string());
-    }
-    std::fs::remove_file(&path).map_err(|e| {
-        tracing::warn!(error = %e, filename, "delete_backup: remove_file failed");
-        e.to_string()
-    })?;
-    tracing::info!(file = %filename, "delete_backup: removed");
-    Ok(())
-}
-
-#[tauri::command]
-pub fn restore_backup(filename: String) -> Result<(), String> {
-    tracing::debug!(filename, "restore_backup called");
-    if filename.contains("..") || filename.contains('/') || filename.contains('\\') {
-        tracing::warn!(filename, "restore_backup: invalid filename rejected");
-        return Err("Invalid backup filename".to_string());
-    }
-    let dir = get_backup_dir().map_err(|e| {
-        tracing::warn!(error = %e, "restore_backup: failed to get backup dir");
-        e.to_string()
-    })?;
-    let src = dir.join(&filename);
-    if !src.exists() {
-        tracing::warn!(filename, "restore_backup: backup not found");
-        return Err("backup not found".to_string());
-    }
-    let dest = get_db_path()?;
-    std::fs::copy(&src, &dest).map_err(|e| {
-        tracing::warn!(error = %e, filename, "restore_backup: fs::copy failed");
-        format!("failed to restore: {}", e)
-    })?;
-    tracing::info!(file = %filename, "restore_backup: restored");
-    Ok(())
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct RecoveryInfo {
-    pub was_recovered: bool,
-    pub backups: Vec<BackupInfo>,
-}
-
-#[tauri::command]
-pub fn check_db_recovery(state: State<DbState>) -> Result<RecoveryInfo, String> {
-    let was_recovered = state.was_recovered;
-    let backups = list_backups()?;
-    tracing::info!(was_recovered, backups_count = backups.len(), "check_db_recovery");
-    Ok(RecoveryInfo { was_recovered, backups })
-}
-
 #[tauri::command]
 pub fn clear_all_data(state: State<DbState>, log_state: State<'_, Arc<SqlQueryLog>>) -> Result<(), String> {
     tracing::warn!("clear_all_data called — deleting all songs and categories");
@@ -739,14 +338,6 @@ pub fn clear_all_data(state: State<DbState>, log_state: State<'_, Arc<SqlQueryLo
     Ok(())
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct DbFileInfo {
-    pub path: String,
-    pub size_bytes: u64,
-    pub last_modified: String,
-    pub migration_version: i32,
-}
-
 #[tauri::command]
 pub fn get_db_file_info(state: State<DbState>) -> Result<DbFileInfo, String> {
     let path = get_db_path()?;
@@ -761,8 +352,7 @@ pub fn get_db_file_info(state: State<DbState>) -> Result<DbFileInfo, String> {
         .and_then(|t| t.duration_since(std::time::UNIX_EPOCH).ok())
         .map(|d| {
             let secs = d.as_secs();
-            let dt = chrono_from_epoch_debug(secs);
-            format!("{:04}-{:02}-{:02} {:02}:{:02}:{:02}", dt.0, dt.1, dt.2, dt.3, dt.4, dt.5)
+            datetime::format_datetime_display(secs)
         })
         .unwrap_or_else(|| "N/A".to_string());
 
@@ -779,42 +369,4 @@ pub fn get_db_file_info(state: State<DbState>) -> Result<DbFileInfo, String> {
         last_modified,
         migration_version,
     })
-}
-
-fn chrono_from_epoch_debug(secs: u64) -> (u32, u32, u32, u32, u32, u32) {
-    let mut days = secs / 86400;
-    let time_of_day = secs % 86400;
-    let hours = (time_of_day / 3600) as u32;
-    let minutes = ((time_of_day % 3600) / 60) as u32;
-    let seconds = (time_of_day % 60) as u32;
-
-    let mut year = 1970u32;
-    loop {
-        let leap = (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0);
-        let days_in_year = if leap { 366 } else { 365 };
-        if days < days_in_year as u64 {
-            break;
-        }
-        days -= days_in_year as u64;
-        year += 1;
-    }
-
-    let leap = (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0);
-    let month_days: [u32; 12] = [
-        31,
-        if leap { 29 } else { 28 },
-        31, 30, 31, 30, 31, 31, 30, 31, 30, 31,
-    ];
-    let mut month = 1u32;
-    let mut remaining = days as u32;
-    for (i, &md) in month_days.iter().enumerate() {
-        if remaining < md {
-            month = (i + 1) as u32;
-            break;
-        }
-        remaining -= md;
-    }
-    let day = remaining + 1;
-
-    (year, month, day, hours, minutes, seconds)
 }
