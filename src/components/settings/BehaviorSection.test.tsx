@@ -115,4 +115,36 @@ describe("BehaviorSection", () => {
     fireEvent.change(textarea, { target: { value: "new" } });
     expect(onUpdate).toHaveBeenCalledWith({ defaultSongTemplate: "new" });
   });
+
+  it("renders empty preset button", () => {
+    const { getByText } = render(<BehaviorSection settings={defaultSettings} onUpdate={vi.fn()} />);
+    expect(getByText("Пустой")).toBeTruthy();
+  });
+
+  it("clicking empty preset sets empty template", () => {
+    const onUpdate = vi.fn();
+    const { getByText } = render(
+      <BehaviorSection settings={defaultSettings} onUpdate={onUpdate} />,
+    );
+    fireEvent.click(getByText("Пустой").closest("button")!);
+    expect(onUpdate).toHaveBeenCalledWith({ defaultSongTemplate: "" });
+  });
+
+  it("renders template description", () => {
+    const { getByText } = render(<BehaviorSection settings={defaultSettings} onUpdate={vi.fn()} />);
+    expect(getByText("templateDesc")).toBeTruthy();
+  });
+
+  it("renders template preview section", () => {
+    const { getByText } = render(<BehaviorSection settings={defaultSettings} onUpdate={vi.fn()} />);
+    expect(getByText("templatePreview")).toBeTruthy();
+  });
+
+  it("highlights preset when template matches (ignoring trailing whitespace)", () => {
+    const settings = { ...defaultSettings, defaultSongTemplate: "[Куплет]\n\n\n[Припев]\n\n" };
+    const { getByText } = render(<BehaviorSection settings={settings} onUpdate={vi.fn()} />);
+    const btn = getByText("По умолчанию").closest("button");
+    expect(btn).toBeTruthy();
+    expect(btn!.className).toContain("active");
+  });
 });

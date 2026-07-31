@@ -125,6 +125,10 @@ const ru: Translations = {
 
   presetName: "Название пресета",
   savePreset: "Сохранить пресет",
+  templateDesc: "Подставляется в текст новой песни при создании",
+  templatePreview: "Предпросмотр",
+  presetExists: "Пресет с таким именем уже есть",
+  deletePreset: "Удалить пресет",
 
   accessibility: "Доступность",
   reducedMotion: "Уменьшенное движение",
@@ -610,6 +614,10 @@ const en: Translations = {
 
   presetName: "Preset name",
   savePreset: "Save preset",
+  templateDesc: "Inserted into new song lyrics when creating",
+  templatePreview: "Preview",
+  presetExists: "A preset with this name already exists",
+  deletePreset: "Delete preset",
 
   accessibility: "Accessibility",
   reducedMotion: "Reduced motion",
