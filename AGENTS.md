@@ -51,12 +51,19 @@ Project root: repo root (`H:\GHP\lyrixx5/`). For full dev docs see `docs/CONTRIB
 - `src/hooks/useKeyboardShortcuts.ts` — Ctrl+N/F/Del
 - `src/hooks/useMicaEffect.ts` — Windows 11 Mica effect
 - `src/hooks/useDebounce.ts` — generic debounce
-- `src/hooks/useAppStore.ts` — app-level state
+- `src/hooks/useAppStore.ts` — app-level state (composes domain hooks)
+- `src/hooks/store/useToasts.ts` — toast notification state + filtering by settings
+- `src/hooks/store/useThemeEffects.ts` — CSS variable sync (theme, accent, font, transparency)
+- `src/hooks/store/useSidebarState.ts` — sidebar collapse, resize, auto-collapse, Ctrl+B
+- `src/hooks/store/useDbOperations.ts` — DB export, import, clear, backup, recovery
+- `src/hooks/store/useSongSelection.ts` — song filtering, sorting, category, active song, CRUD handlers
+- `src/hooks/store/useMultiSelect.ts` — multi-select state, batch delete
+- `src/hooks/store/useModalState.ts` — settings/debug modal toggles
 
 ### Types
 
 - `src/types/songTags.ts` — **14 built-in tags** + custom tags, parsing, autocomplete
-- `src/types/settings.ts` — AppSettings (44 fields), DEFAULT_SETTINGS
+- `src/types/settings.ts` — AppSettings (44 fields, grouped sub-interfaces: EditorSettings, UISettings, BehaviorSettings, RhymeSettings, DbSettings, NotificationSettings, AccessibilitySettings), DEFAULT_SETTINGS
 - `src/types/song.ts` — Song, SongListItem interfaces
 - `src/types/category.ts` — CustomCategory, ALL_CATEGORY
 - `src/types/icons.tsx` — 20+ category icons as SVG JSX
@@ -93,13 +100,18 @@ Project root: repo root (`H:\GHP\lyrixx5/`). For full dev docs see `docs/CONTRIB
 
 ### Rust (src-tauri/src/) — 25 Tauri commands
 
-- `src-tauri/src/db.rs` — SQLite (rusqlite 0.31, bundled), migrations (LATEST_VERSION=1), **20 Tauri commands**: load_songs, save_song, delete_song, delete_songs, load_categories, save_category, delete_category, load_setting, save_setting, get_db_path_str, copy_file, write_text_file, clear_all_data, list_backups, delete_backup, restore_backup, get_db_file_info, check_db_recovery
+- `src-tauri/src/lib.rs` — Tauri Builder, 5 command handlers (set_mica_theme, write_frontend_log, get_backend_logs, get_sql_queries, toggle_minimize_to_tray), app setup orchestration
+- `src-tauri/src/db.rs` — SQLite types (DbState, SongRecord, CategoryRecord, DbFileInfo), 15 Tauri commands: load_songs, save_song, delete_song, delete_songs, load_categories, save_category, delete_category, load_setting, save_setting, get_db_path_str, copy_file, write_text_file, clear_all_data, get_db_file_info
+- `src-tauri/src/db_init.rs` — DB path resolution (exe-adjacent + appdata fallback), schema migration (LATEST_VERSION=1), corruption recovery, `init()` entry point
+- `src-tauri/src/backup.rs` — auto_backup, rotate_backups, 3 Tauri commands: list_backups, delete_backup, restore_backup, check_db_recovery; BackupInfo, RecoveryInfo types
+- `src-tauri/src/datetime.rs` — shared chrono utilities: is_leap, chrono_from_epoch, chrono_now, backup_timestamp, format_date_yyyy_mm_dd, format_datetime_display (deduplicates lib.rs + db.rs)
+- `src-tauri/src/logging.rs` — LogLayer (tracing→BackendLogBuffer), SqlQueryLog, BackendLogBuffer, MinimizeToTrayState, LogFileState, MAX_BACKEND_LOGS=500, MAX_SQL_QUERIES=200
+- `src-tauri/src/tray.rs` — system tray setup, menu events, splash_status, transition_to_main, close interception
 - `src-tauri/src/rhyme.rs` — RhymeEngine (quickpoeter: Zaliznyak + word2vec + RhymeBrain for English), get_rhymes, MAX_RHYME_RESULTS=50, LRU cache (256)
 - `src-tauri/src/english_rhyme.rs` — CMU dict + Moby POS, find_english_rhymes, guess_pos (suffix fallback)
 - `src-tauri/src/lang_detect.rs` — cyrillic/latin language detection
 - `src-tauri/src/fonts.rs` — get_system_fonts: Windows registry font enumeration
 - `src-tauri/src/mica.rs` — Windows 11 Mica/Acrylic effect setup
-- `src-tauri/src/lib.rs` — Tauri Builder, 25 command handlers (incl. set_mica_theme, write_frontend_log, get_backend_logs, get_sql_queries, toggle_minimize_to_tray), splash→main transition, tracing/logging with LogLayer, SqlQueryLog, BackendLogBuffer, daily log rotation
 - `src-tauri/src/main.rs` — entry point
 - `src-tauri/quickpoeter/` — vendored quickpoeter crate (Zaliznyak + word2vec rhyme engine). **NOT a submodule** — regular vendored files from `https://github.com/sitandr/quickpoeter_core` (commit `eafa0d4`). Do NOT use `git submodule` commands for it.
 
@@ -127,12 +139,45 @@ simple-git-hooks + lint-staged: `*.{ts,tsx}` → prettier + tsc, `*.{json,css,md
 
 ## Commit convention
 
-- Коммиты на **русском** языке, в **прошедшем времени**
-- Теги (`feat:`, `fix:`, `refactor:`, ...) — на **английском**
-- Название — общее, описание внутри — подробное (что изменилось, зачем, какие файлы)
+- Формат: `тип: описание на русском (прошедшее время)`
+- Описание — на **русском** языке, в **прошедшем времени**
+- Не начинать описание с заглавной буквы после двоеточия
+- Одно изменение — один коммит
 - Причина: changelog (release-please) подтягивает теги на английском, описание на русском для людей
 
-Пример:
+### Типы коммитов
+
+| Тег | Когда использовать | Пример |
+| --- | --- | --- |
+| `feat` | Новая фича | `feat: добавил смену акцентного цвета` |
+| `fix` | Исправление бага в поведении приложения | `fix: убрал несуществующий проп из RhymePopup` |
+| `build` | Компиляция, зависимости, предупреждения компилятора | `build: исправил предупреждения компилятора в Rust` |
+| `refactor` | Изменение кода без изменения поведения | `refactor: вынес логику в отдельный модуль` |
+| `test` | Добавление/изменение тестов | `test: добавил тесты для рифмовки` |
+| `docs` | Документация | `docs: обновил CONTRIBUTING.md` |
+| `style` | Форматирование (не влияет на логику) | `style: отформатировал db.rs` |
+| `perf` | Оптимизация производительности | `perf: кешировал результат рифмовки` |
+| `ci` | CI/CD, workflow-файлы, release-please | `ci: добавил workflow_dispatch` |
+| `chore` | Прочее без изменений в коде | `chore: обновил манифест release-please` |
+| `revert` | Откат предыдущего коммита | `revert: откатил изменение шрифтов` |
+
+### Границы между похожими тегами
+
+| Ситуация | Тег | Почему |
+| --- | --- | --- |
+| Исправлен warning компилятора Rust/TS | `build:` | Проблема в сборке, не в логике |
+| Исправлен CI workflow файл | `ci:` | Это конфигурация CI, даже если «баг» |
+| Исправлен баг в UI/логике приложения | `fix:` | Меняется поведение для пользователя |
+| Удалён мёртвый код, вынесена функция | `refactor:` | Код изменился, поведение — нет |
+| Обновлены npm/cargo зависимости | `chore:` | Не влияет на код |
+| Исправлены отступы, форматирование | `style:` | Не влияет на логику |
+
+### Scope (опционально)
+
+Если нужно уточнить область: `fix(editor): ...`, `fix(db): ...`, `ci(release): ...`
+
+### Пример
+
 ```
 feat: обновил синтаксис редактора
 
