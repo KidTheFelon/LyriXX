@@ -34,7 +34,7 @@ jobs:
       - name: Set version from tag
         shell: pwsh
         run: |
-          $tag = "${{ env.TAG }}" -replace '^lyrixx-v', '' -replace '^v', ''
+          $tag = "${{ env.TAG }}" -replace '^v', ''
 
           # Cargo.toml — only [package] version, not dependency versions
           $cargo = Get-Content "src-tauri/Cargo.toml" -Raw
