@@ -129,6 +129,14 @@ jobs:
               echo ""
             fi
 
+            # Reverts
+            REVERTS=$(git log "$RANGE" --pretty=format:"- %s (%h)" --grep="^revert" --no-merges 2>/dev/null || true)
+            if [ -n "$REVERTS" ]; then
+              echo "### Reverts"
+              echo "$REVERTS"
+              echo ""
+            fi
+
             echo "**Full Changelog**: https://github.com/${REPO}/compare/${PREV_TAG}...${TAG}"
           } > CHANGELOG_BODY.md
 
