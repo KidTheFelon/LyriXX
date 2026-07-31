@@ -15,7 +15,7 @@ export interface CustomTemplatePreset {
   template: string;
 }
 
-export interface AppSettings {
+export interface EditorSettings {
   editorFontSize: number;
   lineHeight: number;
   fontFamily: FontFamily;
@@ -27,11 +27,11 @@ export interface AppSettings {
   autocloseBrackets: boolean;
   cursorStyle: CursorStyle;
   cursorBlinkRate: number;
+}
+
+export interface UISettings {
   theme: ThemeMode;
   compactMode: boolean;
-  confirmDelete: boolean;
-  showWordCount: boolean;
-  showSectionOutline: boolean;
   sidebarDefaultOpen: boolean;
   sidebarWidth: number;
   sidebarFontSize: number;
@@ -40,6 +40,13 @@ export interface AppSettings {
   transparency: number;
   titleBarStyle: TitleBarStyle;
   language: UILang;
+  accentColor: string;
+}
+
+export interface BehaviorSettings {
+  confirmDelete: boolean;
+  showWordCount: boolean;
+  showSectionOutline: boolean;
   autoSaveDelay: number;
   exportFormat: ExportFormat;
   defaultSongTemplate: string;
@@ -48,20 +55,39 @@ export interface AppSettings {
   confirmOnClose: boolean;
   sortSongsBy: SortSongsBy;
   sortCategoriesBy: SortCategoriesBy;
+  minimizeToTray: boolean;
+}
+
+export interface RhymeSettings {
   customTags: string[];
   rhymeLang: RhymeLang;
   rhymeDepth: number;
   maxRhymeResults: number;
+}
+
+export interface DbSettings {
   autoBackup: boolean;
   maxBackups: number;
-  minimizeToTray: boolean;
-  accentColor: string;
-  reducedMotion: boolean;
-  highContrast: boolean;
+}
+
+export interface NotificationSettings {
   toastAutosave: boolean;
   toastErrors: boolean;
   toastSuccess: boolean;
 }
+
+export interface AccessibilitySettings {
+  reducedMotion: boolean;
+  highContrast: boolean;
+}
+
+export type AppSettings = EditorSettings &
+  UISettings &
+  BehaviorSettings &
+  RhymeSettings &
+  DbSettings &
+  NotificationSettings &
+  AccessibilitySettings;
 
 export const DEFAULT_SETTINGS: AppSettings = {
   editorFontSize: 13,
