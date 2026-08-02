@@ -34,9 +34,6 @@
           background: #1c1c1c;
           color: #ffffff;
         }
-        .logo-img {
-          filter: drop-shadow(0 6px 20px rgba(0, 0, 0, 0.5));
-        }
       }
 
       html[data-theme="light"] body {
@@ -46,9 +43,6 @@
       html[data-theme="dark"] body {
         background: #1c1c1c;
         color: #ffffff;
-      }
-      html[data-theme="dark"] .logo-img {
-        filter: drop-shadow(0 6px 20px rgba(0, 0, 0, 0.5));
       }
 
       .splash {
@@ -66,8 +60,25 @@
         object-fit: contain;
         margin-bottom: 16px;
         opacity: 0.9;
-        filter: drop-shadow(0 6px 20px rgba(0, 0, 0, 0.5)) invert(1);
+        filter: drop-shadow(0 6px 20px rgba(0, 0, 0, 0.5));
       }
+
+      .logo-light { display: none; }
+      .logo-dark { display: inline; }
+
+      @media (prefers-color-scheme: light) {
+        .logo-light { display: inline; }
+        .logo-dark { display: none; }
+      }
+      @media (prefers-color-scheme: dark) {
+        .logo-light { display: none; }
+        .logo-dark { display: inline; }
+      }
+
+      html[data-theme="light"] .logo-light { display: inline; }
+      html[data-theme="light"] .logo-dark { display: none; }
+      html[data-theme="dark"] .logo-light { display: none; }
+      html[data-theme="dark"] .logo-dark { display: inline; }
 
       .subtitle {
         font-size: 11px;
@@ -149,9 +160,15 @@
   <body>
     <div class="splash">
       <img
+        src="Wide310x150Logo-inverted.scale-200.png"
+        alt="LyriXX"
+        class="logo-img logo-light"
+        width="120"
+        height="80"
+      /><img
         src="Wide310x150Logo.scale-200.png"
         alt="LyriXX"
-        class="logo-img"
+        class="logo-img logo-dark"
         width="120"
         height="80"
       />
