@@ -1,5 +1,39 @@
 # Changelog
 
+## [1.2.0](https://github.com/KidTheFelon/LyriXX/compare/lyrixx-v1.1.0...lyrixx-v1.2.0) (2026-08-02)
+
+
+### Features
+
+* добавил drag-and-drop для песен и секций ([ef3ad72](https://github.com/KidTheFelon/LyriXX/commit/ef3ad72609fded155c8df437877bc74de5330302))
+* добавил поддержку отдельных окон для редактирования песен ([b56beed](https://github.com/KidTheFelon/LyriXX/commit/b56beedd5eb534457972dfe7566b26db442efd52))
+* добавил систему анимаций и AnimatedText для i18n ([fc51efb](https://github.com/KidTheFelon/LyriXX/commit/fc51efbf4512153b0d530efa0fd68e44ea911980))
+* добавил темо-зависимые иконки приложения и dual-logo ([7f4d66e](https://github.com/KidTheFelon/LyriXX/commit/7f4d66e64ed612aa96155286b8c78f68d04cccf0))
+* комплексное обновление — AnimatedText, DnD, song windows, темо-зависимые иконки ([dfb060f](https://github.com/KidTheFelon/LyriXX/commit/dfb060f786fe4a255d0eb21ec54175937b154222))
+* расширил контекстное меню песен и добавил batch-операции ([91bdfed](https://github.com/KidTheFelon/LyriXX/commit/91bdfed1b0140c25c19c8f7a348b62a03a4a3d71))
+* улучшил секцию шаблонов в настройках ([3fc3496](https://github.com/KidTheFelon/LyriXX/commit/3fc34967b2042a00cd2af438c8393849cbef8b04))
+
+
+### Bug Fixes
+
+* исправил баги и улучшил UX ([e90c1bb](https://github.com/KidTheFelon/LyriXX/commit/e90c1bbd9daf622487f55246aaac7aacd8d2f1ae))
+* усилил обработку ошибок в бэкенде и улучшил стабильность ([3a36e53](https://github.com/KidTheFelon/LyriXX/commit/3a36e53086c0e0b07aca15c229ad3672a2ef1468))
+
+
+### Documentation
+
+* добавил коммит-конвенции и обновил changelog секции ([7522e67](https://github.com/KidTheFelon/LyriXX/commit/7522e67205c07e82d705d73d5b59df53595300b7))
+* добавил коммит-конвенции и обновил changelog секции ([9df0b96](https://github.com/KidTheFelon/LyriXX/commit/9df0b9624c58967599a43a23c7b7c0c6d0966a6e))
+* обновил AGENTS.md — новые модули Rust и hooks/store ([7f9d813](https://github.com/KidTheFelon/LyriXX/commit/7f9d813b91f36536bcb47c282b04458b1e064651))
+* обновил AGENTS.md согласно изменениям в коде ([5c459e4](https://github.com/KidTheFelon/LyriXX/commit/5c459e4949a366dc0fd0aea3c29289efccf7e7d2))
+* обновил README — актуальные фичи, исправил URL и форматы экспорта ([d903260](https://github.com/KidTheFelon/LyriXX/commit/d903260f45db7a86607574d0f56a72b5204f5b1a))
+* обновил документацию согласно изменениям в коде ([38c3a3e](https://github.com/KidTheFelon/LyriXX/commit/38c3a3e90bc9029925409c711692247ced835bf7))
+* обновил документацию согласно изменениям в коде ([d52dd3d](https://github.com/KidTheFelon/LyriXX/commit/d52dd3d4df3cbccd4abcfcb2ecc97ff706a8cddc))
+* обновил описание в README.md ([2d00112](https://github.com/KidTheFelon/LyriXX/commit/2d00112a76cca8479dd60607a85173242d22f6f6))
+* обновил описание в README.md ([5154b37](https://github.com/KidTheFelon/LyriXX/commit/5154b37eb3c2e08e1d543e484da40e8f48cb9607))
+* обновил структуру проекта в README.md ([6ec75c1](https://github.com/KidTheFelon/LyriXX/commit/6ec75c142aaa13e1cac886deb5abf97b1421f611))
+* обновил структуру проекта в README.md ([cd35235](https://github.com/KidTheFelon/LyriXX/commit/cd3523511ac04dbff721d39c709f6b4a5eb0ace4))
+
 ## [1.1.0](https://github.com/KidTheFelon/LyriXX/compare/lyrixx-v1.0.0...lyrixx-v1.1.0) (2026-07-30)
 
 
