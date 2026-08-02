@@ -132,11 +132,14 @@ function SongItem({
         wasDraggingRef.current = false;
         return;
       }
+      logger.debug("SongList", `click: ${song.id}, isOpenInWindow=${isOpenInWindow}`);
       if (isOpenInWindow) {
         WebviewWindow.getByLabel(`song-${song.id}`).then((w) => {
           if (w) {
+            logger.debug("SongList", `focusing existing window: song-${song.id}`);
             void w.setFocus();
           } else {
+            logger.debug("SongList", `window not found, selecting: ${song.id}`);
             onSelect(song.id);
           }
         });
@@ -149,6 +152,7 @@ function SongItem({
         if (hasSelection) {
           onDeselectAll();
         }
+        logger.debug("SongList", `selecting: ${song.id}`);
         onSelect(song.id);
       }
     },
@@ -310,11 +314,15 @@ export function SongList({
   const handleKeyDown = (id: string) => (e: React.KeyboardEvent) => {
     if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
-      if (openWindowSongIds?.has(id)) {
+      const inWindow = openWindowSongIds?.has(id) ?? false;
+      logger.debug("SongList", `key Enter/Space: ${id}, openWindowSongIds.has=${inWindow}`);
+      if (inWindow) {
         WebviewWindow.getByLabel(`song-${id}`).then((w) => {
           if (w) {
+            logger.debug("SongList", `focusing existing window: song-${id}`);
             void w.setFocus();
           } else {
+            logger.debug("SongList", `window not found, selecting: ${id}`);
             onSelect(id);
           }
         });
