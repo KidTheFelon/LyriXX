@@ -1,6 +1,7 @@
 import { useEffect, useRef, useCallback, useState } from "react";
-import { useTranslation } from "@/i18n";
 import { MODAL_ANIM_DURATION_MS } from "@/constants";
+import { AnimatedText } from "./AnimatedText";
+import { logger } from "@/services/logger";
 
 interface ConfirmModalProps {
   open: boolean;
@@ -12,6 +13,7 @@ interface ConfirmModalProps {
   danger?: boolean;
 }
 
+/** Анимированное модальное окно подтверждения с danger-режимом и focus trap. */
 export function ConfirmModal({
   open,
   title,
@@ -26,7 +28,6 @@ export function ConfirmModal({
   const cancelRef = useRef<HTMLButtonElement>(null);
   const prevActiveRef = useRef<Element | null>(null);
   const animTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const { t } = useTranslation();
 
   useEffect(() => {
     if (open) {
@@ -92,6 +93,7 @@ export function ConfirmModal({
   }, []);
 
   const handleCancel = () => {
+    logger.debug("ConfirmModal", `cancelled: "${title}"`);
     setPhase("exit");
     animTimerRef.current = setTimeout(() => {
       setPhase("hidden");
@@ -100,6 +102,7 @@ export function ConfirmModal({
   };
 
   const handleConfirm = () => {
+    logger.debug("ConfirmModal", `confirmed: "${title}"`);
     setPhase("exit");
     animTimerRef.current = setTimeout(() => {
       setPhase("hidden");
@@ -141,7 +144,7 @@ export function ConfirmModal({
             ref={cancelRef}
             onClick={handleCancel}
           >
-            {t("cancel")}
+            <AnimatedText translationKey="cancel" />
           </button>
           <button
             className={`modal-btn modal-btn-confirm${danger ? " modal-btn-danger" : ""}`}

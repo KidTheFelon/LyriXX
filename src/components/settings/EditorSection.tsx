@@ -3,6 +3,7 @@ import type { CursorStyle } from "@/types/settings";
 import type { SettingsSectionProps } from "./shared";
 import { ToggleSetting, ButtonGroupSetting, SliderSetting } from "./shared";
 import { useTranslation } from "@/i18n";
+import { AnimatedText } from "../AnimatedText";
 import { invoke } from "@tauri-apps/api/core";
 import { logger } from "@/services/logger";
 
@@ -23,6 +24,7 @@ interface FontLists {
 
 const EMPTY_FONTS: FontLists = { system: FALLBACK_FONTS, custom: [] };
 
+/** Вкладка настроек редактора: шрифт, размер, отступ, шаблоны, подсветка. */
 export function EditorSection({ settings, onUpdate }: SettingsSectionProps) {
   const { t } = useTranslation();
   const [fonts, setFonts] = useState<FontLists>(EMPTY_FONTS);
@@ -45,18 +47,18 @@ export function EditorSection({ settings, onUpdate }: SettingsSectionProps) {
 
   const hasCustom = fonts.custom.length > 0;
 
-  const CURSOR_STYLES: { value: CursorStyle; label: string }[] = [
-    { value: "line", label: t("cursorStyleLine") },
-    { value: "block", label: t("cursorStyleBlock") },
-    { value: "underline", label: t("cursorStyleUnderline") },
+  const CURSOR_STYLES: { value: CursorStyle; label: React.ReactNode }[] = [
+    { value: "line", label: <AnimatedText translationKey="cursorStyleLine" /> },
+    { value: "block", label: <AnimatedText translationKey="cursorStyleBlock" /> },
+    { value: "underline", label: <AnimatedText translationKey="cursorStyleUnderline" /> },
   ];
 
   return (
     <div className="settings-section">
-      <div className="settings-section-title">{t("editor")}</div>
+      <div className="settings-section-title"><AnimatedText translationKey="editor" /></div>
 
       <div className="settings-group">
-        <label className="settings-label">{t("font")}</label>
+        <label className="settings-label"><AnimatedText translationKey="font" /></label>
         <select
           className="settings-select"
           value={settings.fontFamily}
@@ -82,7 +84,7 @@ export function EditorSection({ settings, onUpdate }: SettingsSectionProps) {
       </div>
 
       <SliderSetting
-        label={t("fontSize")}
+        label={<AnimatedText translationKey="fontSize" />}
         value={settings.editorFontSize}
         min={11}
         max={24}
@@ -92,7 +94,7 @@ export function EditorSection({ settings, onUpdate }: SettingsSectionProps) {
       />
 
       <SliderSetting
-        label={t("lineSpacing")}
+        label={<AnimatedText translationKey="lineSpacing" />}
         value={settings.lineHeight}
         min={1.0}
         max={2.5}
@@ -101,7 +103,7 @@ export function EditorSection({ settings, onUpdate }: SettingsSectionProps) {
       />
 
       <ButtonGroupSetting
-        label={t("tabSize")}
+        label={<AnimatedText translationKey="tabSize" />}
         value={settings.tabSize}
         options={[
           { value: 2, label: "2" },
@@ -111,67 +113,67 @@ export function EditorSection({ settings, onUpdate }: SettingsSectionProps) {
       />
 
       <ToggleSetting
-        label={t("wordWrap")}
+        label={<AnimatedText translationKey="wordWrap" />}
         checked={settings.wordWrap}
         onChange={(v) => onUpdate({ wordWrap: v })}
-        onLabel={t("on")}
-        offLabel={t("off")}
+        onLabel={<AnimatedText translationKey="on" />}
+        offLabel={<AnimatedText translationKey="off" />}
       />
 
       <ToggleSetting
-        label={t("spellCheck")}
+        label={<AnimatedText translationKey="spellCheck" />}
         checked={settings.spellCheck}
         onChange={(v) => onUpdate({ spellCheck: v })}
-        onLabel={t("on")}
-        offLabel={t("off")}
+        onLabel={<AnimatedText translationKey="on" />}
+        offLabel={<AnimatedText translationKey="off" />}
       />
 
       <ToggleSetting
-        label={t("highlightCurrentLine")}
+        label={<AnimatedText translationKey="highlightCurrentLine" />}
         checked={settings.highlightCurrentLine}
         onChange={(v) => onUpdate({ highlightCurrentLine: v })}
-        onLabel={t("on")}
-        offLabel={t("off")}
+        onLabel={<AnimatedText translationKey="on" />}
+        offLabel={<AnimatedText translationKey="off" />}
       />
 
       <ToggleSetting
-        label={t("lineNumbers")}
+        label={<AnimatedText translationKey="lineNumbers" />}
         checked={settings.showLineNumbers}
         onChange={(v) => onUpdate({ showLineNumbers: v })}
-        onLabel={t("on")}
-        offLabel={t("off")}
+        onLabel={<AnimatedText translationKey="on" />}
+        offLabel={<AnimatedText translationKey="off" />}
       />
 
       <ToggleSetting
-        label={t("sectionOutline")}
+        label={<AnimatedText translationKey="sectionOutline" />}
         checked={settings.showSectionOutline}
         onChange={(v) => onUpdate({ showSectionOutline: v })}
-        onLabel={t("on")}
-        offLabel={t("off")}
+        onLabel={<AnimatedText translationKey="on" />}
+        offLabel={<AnimatedText translationKey="off" />}
       />
 
       <ToggleSetting
-        label={t("autocloseBrackets")}
+        label={<AnimatedText translationKey="autocloseBrackets" />}
         checked={settings.autocloseBrackets}
         onChange={(v) => onUpdate({ autocloseBrackets: v })}
-        onLabel={t("on")}
-        offLabel={t("off")}
+        onLabel={<AnimatedText translationKey="on" />}
+        offLabel={<AnimatedText translationKey="off" />}
       />
 
       <ButtonGroupSetting
-        label={t("cursorStyle")}
+        label={<AnimatedText translationKey="cursorStyle" />}
         value={settings.cursorStyle}
         options={CURSOR_STYLES}
         onChange={(v) => onUpdate({ cursorStyle: v })}
       />
 
       <SliderSetting
-        label={t("cursorBlinkRate")}
+        label={<AnimatedText translationKey="cursorBlinkRate" />}
         value={settings.cursorBlinkRate}
         min={0}
         max={1200}
         step={10}
-        unit={t("ms")}
+        unit={<AnimatedText translationKey="ms" />}
         onChange={(v) => onUpdate({ cursorBlinkRate: v })}
       />
     </div>

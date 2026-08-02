@@ -1,11 +1,15 @@
-import { useState } from "react";
+import { type ReactNode, useState } from "react";
 import type { AppSettings } from "@/types/settings";
 
+/** Props для секций настроек. */
 export interface SettingsSectionProps {
+  /** Текущие настройки. */
   settings: AppSettings;
+  /** Колбэк обновления настроек (патч). */
   onUpdate: (patch: Partial<AppSettings>) => void;
 }
 
+/** Toggle-переключатель настроек. */
 export function ToggleSetting({
   label,
   checked,
@@ -13,11 +17,11 @@ export function ToggleSetting({
   onLabel,
   offLabel,
 }: {
-  label: string;
+  label: ReactNode;
   checked: boolean;
   onChange: (v: boolean) => void;
-  onLabel: string;
-  offLabel: string;
+  onLabel: ReactNode;
+  offLabel: ReactNode;
 }) {
   return (
     <div className="settings-group">
@@ -33,16 +37,17 @@ export function ToggleSetting({
 
 interface ButtonGroupOption<T extends string | number> {
   value: T;
-  label: string;
+  label: ReactNode;
 }
 
+/** Группа кнопок для выбора одного из вариантов. */
 export function ButtonGroupSetting<T extends string | number>({
   label,
   value,
   options,
   onChange,
 }: {
-  label: string;
+  label: ReactNode;
   value: T;
   options: ButtonGroupOption<T>[];
   onChange: (v: T) => void;
@@ -66,6 +71,7 @@ export function ButtonGroupSetting<T extends string | number>({
   );
 }
 
+/** Слайдер настроек с отображением текущего значения. */
 export function SliderSetting({
   label,
   value,
@@ -75,12 +81,12 @@ export function SliderSetting({
   unit,
   onChange,
 }: {
-  label: string;
+  label: ReactNode;
   value: number;
   min: number;
   max: number;
   step: number;
-  unit?: string;
+  unit?: ReactNode;
   onChange: (v: number) => void;
 }) {
   const display = step < 1 ? value.toFixed(1) : String(value);
@@ -106,6 +112,7 @@ export function SliderSetting({
   );
 }
 
+/** Кнопка с подтверждением действия (two-step confirm). */
 export function ConfirmAction({
   label,
   confirmMsg,
@@ -114,10 +121,10 @@ export function ConfirmAction({
   onConfirm,
   danger,
 }: {
-  label: string;
-  confirmMsg: string;
-  confirmYes: string;
-  confirmNo: string;
+  label: ReactNode;
+  confirmMsg: ReactNode;
+  confirmYes: ReactNode;
+  confirmNo: ReactNode;
   onConfirm: () => void;
   danger?: boolean;
 }) {

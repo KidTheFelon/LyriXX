@@ -1,28 +1,27 @@
 import type { SettingsSectionProps } from "./shared";
 import { ToggleSetting } from "./shared";
-import { useTranslation } from "@/i18n";
+import { AnimatedText } from "../AnimatedText";
 
+/** Вкладка настроек доступности: уменьшение движений, высокий контраст, размер текста. */
 export function AccessibilitySection({ settings, onUpdate }: SettingsSectionProps) {
-  const { t } = useTranslation();
-
   return (
     <div className="settings-section">
-      <div className="settings-section-title">{t("accessibility")}</div>
+      <div className="settings-section-title"><AnimatedText translationKey="accessibility" /></div>
 
       <ToggleSetting
-        label={t("reducedMotion")}
+        label={<AnimatedText translationKey="reducedMotion" />}
         checked={settings.reducedMotion}
         onChange={(v) => onUpdate({ reducedMotion: v })}
-        onLabel={t("on")}
-        offLabel={t("off")}
+        onLabel={<AnimatedText translationKey="on" />}
+        offLabel={<AnimatedText translationKey="off" />}
       />
 
       <ToggleSetting
-        label={t("highContrast")}
+        label={<AnimatedText translationKey="highContrast" />}
         checked={settings.highContrast}
         onChange={(v) => onUpdate({ highContrast: v })}
-        onLabel={t("on")}
-        offLabel={t("off")}
+        onLabel={<AnimatedText translationKey="on" />}
+        offLabel={<AnimatedText translationKey="off" />}
       />
     </div>
   );

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { useTranslation } from "@/i18n";
+import { AnimatedText } from "./AnimatedText";
 import { MODAL_ANIM_DURATION_MS } from "@/constants";
 import { logger } from "@/services/logger";
 
@@ -23,6 +24,7 @@ interface RecoveryModalProps {
   onDismissed: () => void;
 }
 
+/** Модалка восстановления БД: список бэкапов, восстановление, продолжение с пустой. */
 export function RecoveryModal({ open, backups, onDismissed }: RecoveryModalProps) {
   const { t } = useTranslation();
   const [phase, setPhase] = useState<"hidden" | "enter" | "open" | "exit">("hidden");
@@ -108,18 +110,18 @@ export function RecoveryModal({ open, backups, onDismissed }: RecoveryModalProps
         onClick={(e) => e.stopPropagation()}
       >
         <h2 className="modal-title" id="recovery-title">
-          {t("recoveryTitle")}
+          <AnimatedText translationKey="recoveryTitle" />
         </h2>
         <p className="modal-desc" id="recovery-desc">
-          {t("recoveryDesc")}
+          <AnimatedText translationKey="recoveryDesc" />
         </p>
 
         {restored ? (
           <div className="recovery-restored">
-            <p className="recovery-restored-text">{t("backupRestored")}</p>
+            <p className="recovery-restored-text"><AnimatedText translationKey="backupRestored" /></p>
             <div className="modal-actions">
               <button className="modal-btn modal-btn-confirm" type="button" onClick={handleRestart}>
-                {t("recoveryRestart")}
+                <AnimatedText translationKey="recoveryRestart" />
               </button>
             </div>
           </div>
@@ -147,14 +149,14 @@ export function RecoveryModal({ open, backups, onDismissed }: RecoveryModalProps
                 ))}
               </div>
             ) : (
-              <p className="recovery-no-backups">{t("noBackups")}</p>
+              <p className="recovery-no-backups"><AnimatedText translationKey="noBackups" /></p>
             )}
 
             {error && <p className="recovery-error">{error}</p>}
 
             <div className="modal-actions">
               <button className="modal-btn modal-btn-cancel" type="button" onClick={handleContinue}>
-                {t("recoveryContinue")}
+                <AnimatedText translationKey="recoveryContinue" />
               </button>
               {backups.length > 0 && (
                 <button

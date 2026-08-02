@@ -2,7 +2,9 @@ import { useState } from "react";
 import { getLocalizedDefaultTags } from "@/types/songTags";
 import type { SettingsSectionProps } from "./shared";
 import { useTranslation } from "@/i18n";
+import { AnimatedText } from "../AnimatedText";
 
+/** Вкладка управления пользовательскими тегами: добавление, удаление, переключение встроенных. */
 export function CustomTagsSection({ settings, onUpdate }: SettingsSectionProps) {
   const [newTagValue, setNewTagValue] = useState("");
   const { t, lang } = useTranslation();
@@ -10,10 +12,10 @@ export function CustomTagsSection({ settings, onUpdate }: SettingsSectionProps) 
 
   return (
     <div className="settings-section">
-      <div className="settings-section-title">{t("customTags")}</div>
+      <div className="settings-section-title"><AnimatedText translationKey="customTags" /></div>
 
       <div className="settings-group">
-        <label className="settings-label">{t("builtinTags")}</label>
+        <label className="settings-label"><AnimatedText translationKey="builtinTags" /></label>
         <div className="settings-tag-list">
           {builtinTags.map((tag) => (
             <span
@@ -29,7 +31,7 @@ export function CustomTagsSection({ settings, onUpdate }: SettingsSectionProps) 
 
       {settings.customTags.length > 0 && (
         <div className="settings-group">
-          <label className="settings-label">{t("yourTags")}</label>
+          <label className="settings-label"><AnimatedText translationKey="yourTags" /></label>
           <div className="settings-tag-list">
             {settings.customTags.map((tag) => (
               <span key={tag} className="settings-tag-chip settings-tag-chip--custom">
@@ -73,7 +75,7 @@ export function CustomTagsSection({ settings, onUpdate }: SettingsSectionProps) 
             }}
             type="button"
           >
-            {t("add")}
+            <AnimatedText translationKey="add" />
           </button>
         </div>
       </div>

@@ -1,7 +1,9 @@
 import { useState, useCallback } from "react";
 import type { ToastData } from "@/components/Toast";
 import type { AppSettings } from "@/types/settings";
+import { logger } from "@/services/logger";
 
+/** Хук управления тост-уведомлениями с фильтрацией по настройкам. */
 export function useToasts(settings: AppSettings) {
   const [toasts, setToasts] = useState<ToastData[]>([]);
 
@@ -10,6 +12,9 @@ export function useToasts(settings: AppSettings) {
       if (type === "error" && !settings.toastErrors) return;
       if (type === "success" && !settings.toastSuccess) return;
       if (type === "info" && !settings.toastAutosave) return;
+      if (type === "error") {
+        logger.warn("Toast", message);
+      }
       const id = crypto.randomUUID();
       setToasts((prev) => [...prev, { id, message, type }]);
     },

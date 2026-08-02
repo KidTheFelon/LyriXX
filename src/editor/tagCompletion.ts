@@ -39,6 +39,7 @@ function songTagCompletion(customTags: string[], lang: Lang) {
   };
 }
 
+/** CodeMirror autocompletion extension для тегов песен внутри [...]. */
 export function tagAutocompleteExtension(customTags: string[], lang: Lang) {
   return autocompletion({
     override: [songTagCompletion(customTags, lang)],

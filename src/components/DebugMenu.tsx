@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { invoke } from "@tauri-apps/api/core";
-import { useTranslation } from "@/i18n";
+import { AnimatedText } from "./AnimatedText";
 import { logger, type LogEntry } from "@/services/logger";
 import { copyToClipboard } from "@/services/clipboard";
+import { useTranslation } from "@/i18n";
 import type { AppSettings } from "@/types/settings";
 import type { Song } from "@/types/song";
 import type { CustomCategory } from "@/types/category";
@@ -58,6 +59,7 @@ const ANIMATION_PRESETS = [
   { name: "settingsConfirmSlideIn", css: "settingsConfirmSlideIn 0.2s ease-out both" },
 ];
 
+/** Панель отладки: инфо, настройки, логи, производительность, SQL, анимации, preview сплеша. */
 export function DebugMenu({ open, onClose, settings, songs, categories }: DebugMenuProps) {
   const { t } = useTranslation();
   const [tab, setTab] = useState<Tab>("info");
@@ -280,13 +282,13 @@ export function DebugMenu({ open, onClose, settings, songs, categories }: DebugM
         className="modal debug-modal"
         role="dialog"
         aria-modal="true"
-        aria-label="Debug Menu"
+        aria-label={t("debugMenu")}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="debug-header">
-          <h2 className="modal-title">Debug Menu</h2>
+          <h2 className="modal-title"><AnimatedText translationKey="debugMenu" /></h2>
           <button className="modal-btn modal-btn-cancel" type="button" onClick={onClose}>
-            {t("close")}
+            <AnimatedText translationKey="close" />
           </button>
         </div>
 
@@ -310,20 +312,20 @@ export function DebugMenu({ open, onClose, settings, songs, categories }: DebugM
               onClick={() => setTab(id)}
             >
               {id === "info"
-                ? "Info"
+                ? t("debugInfo")
                 : id === "settings"
-                  ? "Settings"
+                  ? t("settings")
                   : id === "logs"
-                    ? "Logs"
+                    ? t("debugLogs")
                     : id === "performance"
-                      ? "Perf"
+                      ? t("debugPerf")
                       : id === "sql"
                         ? "SQL"
                         : id === "animations"
-                          ? "Anims"
+                          ? t("debugAnims")
                           : id === "splash"
-                            ? "Splash"
-                            : "Actions"}
+                            ? t("debugSplash")
+                            : t("debugActions")}
             </button>
           ))}
         </div>
@@ -331,22 +333,22 @@ export function DebugMenu({ open, onClose, settings, songs, categories }: DebugM
         <div className="debug-body">
           {tab === "info" && (
             <div className="debug-section">
-              <DebugRow label="App" value={`LyriXX v${import.meta.env.PACKAGE_VERSION}`} />
-              <DebugRow label="Platform" value={sysInfo.platform} />
-              <DebugRow label="User Agent" value={sysInfo.userAgent} />
-              <DebugRow label="Screen" value={`${sysInfo.screenWidth}×${sysInfo.screenHeight}`} />
+              <DebugRow label={t("debugApp")} value={`LyriXX v${import.meta.env.PACKAGE_VERSION}`} />
+              <DebugRow label={t("debugPlatform")} value={sysInfo.platform} />
+              <DebugRow label={t("debugUserAgent")} value={sysInfo.userAgent} />
+              <DebugRow label={t("debugScreen")} value={`${sysInfo.screenWidth}×${sysInfo.screenHeight}`} />
               <DebugRow
-                label="Viewport"
+                label={t("debugViewport")}
                 value={`${sysInfo.viewportWidth}×${sysInfo.viewportHeight}`}
               />
-              <DebugRow label="DPR" value={String(sysInfo.dpr)} />
-              <DebugRow label="Theme" value={settings.theme} />
-              <DebugRow label="Language" value={settings.language} />
-              <DebugRow label="Songs" value={String(songs.length)} />
-              <DebugRow label="Categories" value={String(categories.length)} />
+              <DebugRow label={t("debugDpr")} value={String(sysInfo.dpr)} />
+              <DebugRow label={t("debugTheme")} value={settings.theme} />
+              <DebugRow label={t("debugLanguage")} value={settings.language} />
+              <DebugRow label={t("debugSongs")} value={String(songs.length)} />
+              <DebugRow label={t("debugCategories")} value={String(categories.length)} />
               <DebugRow
-                label="Build Mode"
-                value={import.meta.env.DEV ? "development" : "production"}
+                label={t("debugBuildMode")}
+                value={import.meta.env.DEV ? t("debugDevelopment") : t("debugProduction")}
               />
             </div>
           )}
@@ -367,13 +369,13 @@ export function DebugMenu({ open, onClose, settings, songs, categories }: DebugM
                     type="button"
                     onClick={() => setLogSource(src)}
                   >
-                    {src === "all" ? "All" : src === "frontend" ? "Frontend" : "Backend"}
+                    {src === "all" ? t("debugLogAll") : src === "frontend" ? t("debugLogFrontend") : t("debugLogBackend")}
                   </button>
                 ))}
               </div>
               <div className="debug-logs" ref={logsRef}>
                 {filteredLogs.length === 0 && (
-                  <span className="debug-logs-empty">No logs captured.</span>
+                  <span className="debug-logs-empty"><AnimatedText translationKey="debugNoLogs" /></span>
                 )}
                 {filteredLogs.map((entry, i) => (
                   <div key={i} className={`debug-log-line debug-log-${entry.level}`}>
@@ -393,27 +395,27 @@ export function DebugMenu({ open, onClose, settings, songs, categories }: DebugM
                 style={{ marginTop: 8, alignSelf: "flex-end" }}
                 onClick={() => setLogs([])}
               >
-                Clear
+                <AnimatedText translationKey="debugClear" />
               </button>
             </div>
           )}
 
           {tab === "performance" && (
             <div className="debug-section">
-              <DebugRow label="Memory Used" value={perfSnapshot.memoryUsed} />
-              <DebugRow label="Memory Limit" value={perfSnapshot.memoryLimit} />
-              <DebugRow label="DOM Nodes" value={String(perfSnapshot.domNodes)} />
-              <DebugRow label="Window Performance" value={perfSnapshot.navigationTiming} />
-              <DebugRow label="FPS" value={fps} />
+              <DebugRow label={t("debugMemoryUsed")} value={perfSnapshot.memoryUsed} />
+              <DebugRow label={t("debugMemoryLimit")} value={perfSnapshot.memoryLimit} />
+              <DebugRow label={t("debugDomNodes")} value={String(perfSnapshot.domNodes)} />
+              <DebugRow label={t("debugWindowPerf")} value={perfSnapshot.navigationTiming} />
+              <DebugRow label={t("debugFps")} value={fps} />
             </div>
           )}
 
           {tab === "sql" && (
             <div className="debug-section debug-logs-wrap">
               <div className="debug-sql-summary">
-                <DebugRow label="Total Queries" value={String(sqlQueries.length)} />
+                <DebugRow label={t("debugTotalQueries")} value={String(sqlQueries.length)} />
                 <DebugRow
-                  label="Avg Duration"
+                  label={t("debugAvgDuration")}
                   value={
                     sqlQueries.length > 0
                       ? `${(sqlQueries.reduce((sum, q) => sum + q.duration_ms, 0) / sqlQueries.length).toFixed(2)}ms`
@@ -421,13 +423,13 @@ export function DebugMenu({ open, onClose, settings, songs, categories }: DebugM
                   }
                 />
                 <DebugRow
-                  label="Failed"
+                  label={t("debugFailed")}
                   value={String(sqlQueries.filter((q) => !q.success).length)}
                 />
               </div>
               <div className="debug-logs" ref={sqlLogsRef}>
                 {sqlQueries.length === 0 && (
-                  <span className="debug-logs-empty">No SQL queries captured yet.</span>
+                  <span className="debug-logs-empty"><AnimatedText translationKey="debugNoSql" /></span>
                 )}
                 {sqlQueries.map((entry, i) => (
                   <div
@@ -441,7 +443,7 @@ export function DebugMenu({ open, onClose, settings, songs, categories }: DebugM
                       <span
                         className={`debug-sql-status ${entry.success ? "debug-sql-ok" : "debug-sql-fail"}`}
                       >
-                        {entry.success ? "OK" : "FAIL"}
+                        {entry.success ? t("debugOk") : t("debugFail")}
                       </span>
                     </div>
                     <pre className="debug-sql-code">{entry.sql}</pre>
@@ -455,7 +457,7 @@ export function DebugMenu({ open, onClose, settings, songs, categories }: DebugM
                 style={{ marginTop: 8, alignSelf: "flex-end" }}
                 onClick={() => setSqlQueries([])}
               >
-                Clear
+                <AnimatedText translationKey="debugClear" />
               </button>
             </div>
           )}
@@ -468,7 +470,7 @@ export function DebugMenu({ open, onClose, settings, songs, categories }: DebugM
                   type="button"
                   onClick={() => setAnimKey((k) => k + 1)}
                 >
-                  Replay All
+                  <AnimatedText translationKey="debugReplayAll" />
                 </button>
               </div>
               <div className="debug-anim-grid">
@@ -487,7 +489,7 @@ export function DebugMenu({ open, onClose, settings, songs, categories }: DebugM
           {tab === "actions" && (
             <div className="debug-section debug-actions">
               <div className="debug-actions-group">
-                <div className="debug-actions-title">Feature Toggles</div>
+                <div className="debug-actions-title"><AnimatedText translationKey="debugFeatureToggles" /></div>
                 <label className="debug-toggle">
                   <input
                     type="checkbox"
@@ -497,7 +499,7 @@ export function DebugMenu({ open, onClose, settings, songs, categories }: DebugM
                     }}
                   />
                   <span className="debug-toggle-track" />
-                  <span className="debug-toggle-label">Dark Mode (override)</span>
+                  <span className="debug-toggle-label"><AnimatedText translationKey="debugDarkModeOverride" /></span>
                 </label>
                 <label className="debug-toggle">
                   <input
@@ -506,32 +508,32 @@ export function DebugMenu({ open, onClose, settings, songs, categories }: DebugM
                     onChange={() => setForceError(true)}
                   />
                   <span className="debug-toggle-track" />
-                  <span className="debug-toggle-label">Crash Test (ErrorBoundary)</span>
+                  <span className="debug-toggle-label"><AnimatedText translationKey="debugCrashTest" /></span>
                 </label>
               </div>
 
               <div className="debug-actions-group">
-                <div className="debug-actions-title">Database</div>
+                <div className="debug-actions-title"><AnimatedText translationKey="debugDatabase" /></div>
                 {dbFileInfo ? (
                   <>
-                    <DebugRow label="Path" value={dbFileInfo.path} />
-                    <DebugRow label="Size" value={formatBytesJS(dbFileInfo.size_bytes)} />
-                    <DebugRow label="Last Modified" value={dbFileInfo.last_modified} />
-                    <DebugRow label="Migration" value={`v${dbFileInfo.migration_version}`} />
+                    <DebugRow label={t("debugPath")} value={dbFileInfo.path} />
+                    <DebugRow label={t("debugSize")} value={formatBytesJS(dbFileInfo.size_bytes)} />
+                    <DebugRow label={t("debugLastModified")} value={dbFileInfo.last_modified} />
+                    <DebugRow label={t("debugMigration")} value={`v${dbFileInfo.migration_version}`} />
                   </>
                 ) : (
-                  <span className="debug-logs-empty">Loading...</span>
+                  <span className="debug-logs-empty"><AnimatedText translationKey="debugLoading" /></span>
                 )}
               </div>
 
               <div className="debug-actions-group">
-                <div className="debug-actions-title">Export</div>
+                <div className="debug-actions-title"><AnimatedText translationKey="debugExport" /></div>
                 <button
                   className={`modal-btn debug-copy-btn${copiedReport ? " debug-copy-btn--ok" : ""}`}
                   type="button"
                   onClick={copyDebugReport}
                 >
-                  {copiedReport ? "Copied!" : "Copy Debug Report"}
+                  {copiedReport ? <AnimatedText translationKey="debugCopied" /> : <AnimatedText translationKey="debugCopyReport" />}
                 </button>
               </div>
             </div>
@@ -541,7 +543,7 @@ export function DebugMenu({ open, onClose, settings, songs, categories }: DebugM
             <div className="debug-section">
               <div className="debug-splash-wrap">
                 <div className="debug-splash-frame">
-                  <div className="debug-splash-label">Splash Preview (400×280)</div>
+                  <div className="debug-splash-label"><AnimatedText translationKey="debugSplashPreview" /></div>
                   <iframe
                     ref={splashFrameRef}
                     src="/splash.html"
@@ -553,7 +555,7 @@ export function DebugMenu({ open, onClose, settings, songs, categories }: DebugM
                   />
                 </div>
                 <div className="debug-splash-controls">
-                  <div className="debug-actions-title">Status</div>
+                  <div className="debug-actions-title"><AnimatedText translationKey="debugStatus" /></div>
                   <div className="debug-splash-btns">
                     {splashStatuses.map((s) => (
                       <button
@@ -567,7 +569,7 @@ export function DebugMenu({ open, onClose, settings, songs, categories }: DebugM
                     ))}
                   </div>
                   <div className="debug-actions-title" style={{ marginTop: 12 }}>
-                    Theme
+                    <AnimatedText translationKey="debugTheme" />
                   </div>
                   <div className="debug-splash-btns">
                     {(["light", "dark", "system"] as const).map((th) => (
@@ -582,11 +584,11 @@ export function DebugMenu({ open, onClose, settings, songs, categories }: DebugM
                     ))}
                   </div>
                   <div className="debug-actions-title" style={{ marginTop: 12 }}>
-                    Info
+                    <AnimatedText translationKey="debugInfo" />
                   </div>
-                  <DebugRow label="Source" value="/splash.html" />
-                  <DebugRow label="Window" value="400×280" />
-                  <DebugRow label="Image" value="Wide310x150Logo.scale-200.png (620×300)" />
+                  <DebugRow label={t("debugSource")} value="/splash.html" />
+                  <DebugRow label={t("debugWindow")} value="400×280" />
+                  <DebugRow label={t("debugImage")} value="Wide310x150Logo.scale-200.png (620×300)" />
                 </div>
               </div>
             </div>

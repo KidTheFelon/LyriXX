@@ -4,6 +4,7 @@ const EN_VOWEL_GROUPS = /[aeiouy]+/gi;
 
 const EN_SILENT_E = /[^aeiou]e$/i;
 
+/** Подсчитывает количество слогов в русском слове (по гласным). */
 export function countSyllablesRu(word: string): number {
   const lower = word.toLowerCase();
   let count = 0;
@@ -13,6 +14,7 @@ export function countSyllablesRu(word: string): number {
   return Math.max(count, word.length > 0 ? 1 : 0);
 }
 
+/** Подсчитывает количество слогов в английском слове (по группам гласных + silent-e). */
 export function countSyllablesEn(word: string): number {
   const lower = word.trim().toLowerCase();
   if (!lower) return 0;
@@ -29,6 +31,7 @@ export function countSyllablesEn(word: string): number {
   return Math.max(count, 1);
 }
 
+/** Подсчитывает слоги с автоопределением языка. */
 export function countSyllables(word: string, lang: "ru" | "en" | "auto" = "auto"): number {
   if (!word.trim()) return 0;
 
@@ -39,6 +42,7 @@ export function countSyllables(word: string, lang: "ru" | "en" | "auto" = "auto"
   return hasCyrillic ? countSyllablesRu(word) : countSyllablesEn(word);
 }
 
+/** Суммирует слоги всех слов в строке. */
 export function countLineSyllables(line: string, lang: "ru" | "en" | "auto" = "auto"): number {
   const words = line.split(/\s+/).filter((w) => w.length > 0);
   let total = 0;
@@ -48,6 +52,7 @@ export function countLineSyllables(line: string, lang: "ru" | "en" | "auto" = "a
   return total;
 }
 
+/** Суммирует слоги всех непустых строк в тексте песни. */
 export function countAllSyllables(lyrics: string, lang: "ru" | "en" | "auto" = "auto"): number {
   const lines = lyrics.split("\n").filter((l) => l.trim().length > 0);
   let total = 0;

@@ -8,12 +8,17 @@ const SIDEBAR_MAX = 500;
 const SONGLIST_MIN = 150;
 const SONGLIST_MAX = 500;
 
+/** Параметры хука состояния сайдбара. */
 interface UseSidebarStateParams {
+  /** Текущие настройки приложения. */
   settings: AppSettings;
+  /** Настройки загружены из БД. */
   settingsReady: boolean;
+  /** Функция обновления настроек. */
   updateSettings: (patch: Partial<AppSettings>) => void;
 }
 
+/** Хук состояния сайдбара: сворачивание, узкий режим, Ctrl+B, ресайз колонок. */
 export function useSidebarState({
   settings,
   settingsReady,

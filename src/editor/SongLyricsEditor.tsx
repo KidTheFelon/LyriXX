@@ -25,10 +25,15 @@ import { type RhymeWord } from "@/hooks/useRhymes";
 import { getCurrentWord } from "@/utils/charUtils";
 import { RhymePopup } from "@/components/RhymePopup";
 import { copyToClipboard } from "@/services/clipboard";
+import { logger } from "@/services/logger";
 
+/** Imperative handle компонента SongLyricsEditor: insertText, scrollToLine, getCursorLine. */
 export interface SongLyricsEditorHandle {
+  /** Вставить текст в позицию курсора. */
   insertText: (text: string) => void;
+  /** Прокрутить к указанной строке. */
   scrollToLine: (lineIndex: number) => void;
+  /** Номер строки под курсором. */
   getCursorLine: () => number;
 }
 
@@ -75,6 +80,7 @@ interface SongLyricsEditorProps {
   style?: React.CSSProperties;
 }
 
+/** CodeMirror-редактор текста песен с интеграцией rhyme popup, тегов и подсветки. */
 export const SongLyricsEditor = forwardRef<SongLyricsEditorHandle, SongLyricsEditorProps>(
   function SongLyricsEditor(
     {
@@ -133,6 +139,7 @@ export const SongLyricsEditor = forwardRef<SongLyricsEditorHandle, SongLyricsEdi
     const handleRhymeSelect = useCallback((rhyme: RhymeWord) => {
       copyToClipboard(rhyme.word);
       onCopyWordRef.current?.(rhyme.word);
+      logger.debug("Editor", `rhyme copied: "${rhyme.word}"`);
       setRhymeState(EMPTY_RHYME_STATE);
       onRhymeDismissRef.current?.();
       viewRef.current?.focus();
@@ -148,6 +155,7 @@ export const SongLyricsEditor = forwardRef<SongLyricsEditorHandle, SongLyricsEdi
         changes: { from: insertPos, insert: `\n${rhyme.word}` },
         selection: { anchor: insertPos + 1 + rhyme.word.length },
       });
+      logger.debug("Editor", `rhyme inserted: "${rhyme.word}"`);
       setRhymeState(EMPTY_RHYME_STATE);
       onRhymeDismissRef.current?.();
       view.focus();
@@ -339,6 +347,7 @@ export const SongLyricsEditor = forwardRef<SongLyricsEditorHandle, SongLyricsEdi
       view.dom.style.lineHeight = String(lineHeight);
       view.dom.style.fontFamily = `"${fontFamily}", sans-serif`;
       viewRef.current = view;
+      logger.debug("Editor", "SongLyricsEditor initialized");
 
       return () => {
         view.destroy();
@@ -433,7 +442,7 @@ export const SongLyricsEditor = forwardRef<SongLyricsEditorHandle, SongLyricsEdi
         if (!view) return 0;
         return view.state.doc.lineAt(view.state.selection.main.head).number - 1;
       },
-    }));
+    }), []);
 
     return (
       <div style={{ position: "relative", height: "100%" }} className={className}>

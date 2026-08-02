@@ -66,14 +66,16 @@
   }
 }
 
-@keyframes win-dropdown-fade-in {
+@keyframes win-dropdown-flyout-in {
   from {
     opacity: 0;
-    transform: translateY(-4px);
+    transform: scaleY(0.92) translateY(-4px);
+    transform-origin: top;
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: scaleY(1) translateY(0);
+    transform-origin: top;
   }
 }
 
@@ -326,6 +328,195 @@
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+.animated-text {
+  display: inline-block;
+  will-change: clip-path, transform, opacity, filter;
+}
+
+@keyframes textWipeOut {
+  from {
+    clip-path: inset(0 0 0 0);
+    opacity: 1;
+  }
+  to {
+    clip-path: inset(0 100% 0 0);
+    opacity: 0.3;
+  }
+}
+
+@keyframes textWipeIn {
+  from {
+    clip-path: inset(0 0 0 100%);
+    opacity: 0.3;
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+    opacity: 1;
+  }
+}
+
+.animated-text--wipe-out {
+  animation: textWipeOut 220ms cubic-bezier(0.7, 0, 1, 0.5) forwards;
+}
+
+.animated-text--wipe-in {
+  animation: textWipeIn 220ms cubic-bezier(0, 0.5, 0.3, 1) forwards;
+}
+
+@keyframes textSlideOut {
+  from {
+    clip-path: inset(0 0 0 0);
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    clip-path: inset(0 0 0 100%);
+    transform: translateX(-25%);
+    opacity: 0;
+  }
+}
+
+@keyframes textSlideIn {
+  from {
+    clip-path: inset(0 100% 0 0);
+    transform: translateX(25%);
+    opacity: 0;
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.animated-text--slide-out {
+  animation: textSlideOut 240ms cubic-bezier(0.7, 0, 1, 0.5) forwards;
+}
+
+.animated-text--slide-in {
+  animation: textSlideIn 240ms cubic-bezier(0, 0.5, 0.3, 1) forwards;
+}
+
+@keyframes textBlurOut {
+  from {
+    transform: scale(1);
+    filter: blur(0);
+    opacity: 1;
+  }
+  to {
+    transform: scale(0.92);
+    filter: blur(6px);
+    opacity: 0;
+  }
+}
+
+@keyframes textBlurIn {
+  from {
+    transform: scale(1.08);
+    filter: blur(6px);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    filter: blur(0);
+    opacity: 1;
+  }
+}
+
+.animated-text--blur-out {
+  animation: textBlurOut 200ms cubic-bezier(0.7, 0, 1, 0.5) forwards;
+}
+
+.animated-text--blur-in {
+  animation: textBlurIn 250ms cubic-bezier(0, 0.5, 0.3, 1) forwards;
+}
+
+@keyframes textGlowOut {
+  0% {
+    opacity: 1;
+    text-shadow: none;
+  }
+  40% {
+    opacity: 1;
+    text-shadow:
+      0 0 6px var(--accent-default, #0078d4),
+      0 0 18px var(--accent-default, #0078d4),
+      0 0 32px color-mix(in srgb, var(--accent-default, #0078d4) 50%, transparent);
+  }
+  100% {
+    opacity: 0;
+    text-shadow:
+      0 0 2px var(--accent-default, #0078d4),
+      0 0 8px var(--accent-default, #0078d4);
+  }
+}
+
+@keyframes textGlowIn {
+  0% {
+    opacity: 0;
+    text-shadow:
+      0 0 2px var(--accent-default, #0078d4),
+      0 0 8px var(--accent-default, #0078d4);
+  }
+  50% {
+    opacity: 1;
+    text-shadow:
+      0 0 6px var(--accent-default, #0078d4),
+      0 0 18px var(--accent-default, #0078d4),
+      0 0 32px color-mix(in srgb, var(--accent-default, #0078d4) 50%, transparent);
+  }
+  100% {
+    opacity: 1;
+    text-shadow: none;
+  }
+}
+
+.animated-text--glow-out {
+  animation: textGlowOut 300ms cubic-bezier(0.4, 0, 0.6, 1) forwards;
+}
+
+.animated-text--glow-in {
+  animation: textGlowIn 350ms cubic-bezier(0.2, 0, 0.3, 1) forwards;
+}
+
+@keyframes textMaskGlowOut {
+  0% {
+    clip-path: inset(0 0 0 0);
+    opacity: 1;
+  }
+  50% {
+    clip-path: inset(0 50% 0 0);
+    opacity: 0.7;
+  }
+  100% {
+    clip-path: inset(0 100% 0 0);
+    opacity: 0;
+  }
+}
+
+@keyframes textMaskGlowIn {
+  0% {
+    clip-path: inset(0 0 0 100%);
+    opacity: 0;
+  }
+  50% {
+    clip-path: inset(0 0 0 50%);
+    opacity: 0.7;
+  }
+  100% {
+    clip-path: inset(0 0 0 0);
+    opacity: 1;
+  }
+}
+
+.animated-text--mask-glow-out {
+  animation: textMaskGlowOut 300ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.animated-text--mask-glow-in {
+  animation: textMaskGlowIn 300ms cubic-bezier(0, 0.6, 0.4, 1) forwards;
 }
 
 @keyframes blink {

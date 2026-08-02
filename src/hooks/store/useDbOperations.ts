@@ -4,17 +4,25 @@ import { open } from "@tauri-apps/plugin-dialog";
 import { TauriDbService } from "@/services/storage";
 import { logger } from "@/services/logger";
 
+/** Запись резервной копии. */
 interface BackupEntry {
+  /** Имя файла бэкапа. */
   filename: string;
+  /** Размер в КБ. */
   size_kb: number;
+  /** Timestamp создания. */
   timestamp: string;
 }
 
+/** Информация о восстановлении БД после аварии. */
 interface RecoveryInfo {
+  /** Была ли выполнена автоматическая рекавери. */
   was_recovered: boolean;
+  /** Доступные резервные копии. */
   backups: BackupEntry[];
 }
 
+/** Хук операций с БД: экспорт/импорт/очистка, бэкапы, восстановление. */
 export function useDbOperations(
   addToast: (message: string, type?: "error" | "success" | "info") => void,
   t: (key: string) => string,

@@ -1,9 +1,17 @@
+/** Запись символа для анимации typewriter. */
 export interface CharEntry {
+  /** Уникальный id символа (для key-пропа). */
   id: number;
+  /** Символ. */
   ch: string;
+  /** Порядковый номер в пакете новых символов (для задержки). */
   newInBatch: number;
 }
 
+/**
+ * Вычисляет id-символов для typewriter-анимации.
+ * Использует diff: общие символы сохраняют старые id, новые получают свежие.
+ */
 export function computeCharIds(
   newVal: string,
   oldVal: string,
@@ -36,6 +44,7 @@ export function computeCharIds(
   return res;
 }
 
+/** Извлекает слово под курсором. Возвращает слово + позиции start/end или null. */
 export function getCurrentWord(
   value: string,
   pos: number,

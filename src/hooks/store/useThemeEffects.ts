@@ -4,6 +4,7 @@ import type { AppSettings } from "@/types/settings";
 import { FONT_SIZE_MIN, FONT_SIZE_MAX } from "@/constants";
 import { generateAccentVariants, isAccentLight } from "@/utils/accentColors";
 
+/** Синхронизирует CSS-переменные темы, акцентного цвета, шрифта, прозрачности и ширин колонок. */
 export function useThemeEffects(settings: AppSettings) {
   useEffect(() => {
     const root = document.documentElement;

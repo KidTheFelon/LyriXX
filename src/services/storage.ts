@@ -4,19 +4,31 @@ import type { Song } from "@/types/song";
 import type { CustomCategory } from "@/types/category";
 import { logger } from "./logger";
 
+/** Абстрактный интерфейс хранилища песен и категорий. */
 export interface SongsDb {
+  /** Загрузить все песни. */
   loadSongs(): Promise<Song[]>;
+  /** Сохранить/обновить песню. */
   saveSong(song: Song): Promise<void>;
+  /** Удалить песню по id. */
   deleteSong(id: string): Promise<void>;
+  /** Массово удалить песни по id. */
   deleteSongs(ids: string[]): Promise<void>;
+  /** Загрузить все категории. */
   loadCategories(): Promise<CustomCategory[]>;
+  /** Сохранить/обновить категорию. */
   saveCategory(cat: CustomCategory): Promise<void>;
+  /** Удалить категорию по id. */
   deleteCategory(id: string): Promise<void>;
+  /** Загрузить значение настройки по ключу. */
   loadSetting<T>(key: string): Promise<T | null>;
+  /** Сохранить значение настройки. */
   saveSetting<T>(key: string, value: T): Promise<void>;
+  /** Экспортировать БД через диалог сохранения. */
   exportDb(): Promise<void>;
 }
 
+/** Реализация SongsDb через Tauri invoke (SQLite бэкенд). */
 export class TauriDbService implements SongsDb {
   async loadSongs(): Promise<Song[]> {
     logger.debug("DB", "load_songs: invoking");

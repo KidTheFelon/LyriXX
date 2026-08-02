@@ -9,6 +9,7 @@ function resolveDark(theme: ThemeMode): boolean {
   return window.matchMedia("(prefers-color-scheme: dark)").matches;
 }
 
+/** Синхронизирует тему Windows 11 Mica/Acrylic эффекта с текущей темой приложения. */
 export function useMicaThemeSync(theme: ThemeMode) {
   const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const versionRef = useRef(0);
