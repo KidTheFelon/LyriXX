@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.2.1](https://github.com/KidTheFelon/LyriXX/compare/lyrixx-v1.2.0...lyrixx-v1.2.1) (2026-08-02)
+
+
+### Bug Fixes
+
+* исправил shell для Resolve release ID шага (bash вместо pwsh) ([98c9b63](https://github.com/KidTheFelon/LyriXX/commit/98c9b632a28f64c8b855d17313582d4fbb9c5be4))
+* исправил трекинг открытых окон песен ([d60afa3](https://github.com/KidTheFelon/LyriXX/commit/d60afa383c6f1cbaf48a904dd3e0a6a05ea2211f))
+* исправил трекинг открытых окон песен — песни больше не открываются в основном редакторе, если уже открыты в отдельном окне ([5e23a1d](https://github.com/KidTheFelon/LyriXX/commit/5e23a1d2658264cbaf992a4f0a7356f6ef6caf40))
+* исправил триггер Release Build для release-please релизов ([cedf4b2](https://github.com/KidTheFelon/LyriXX/commit/cedf4b209372a0c25b5ce133cbb30f51283cdb6e))
+* исправил триггер Release Build для release-please релизов ([203b652](https://github.com/KidTheFelon/LyriXX/commit/203b65245c97d65ae7cd7f30a621091cf6d950b1))
+
 ## [1.2.0](https://github.com/KidTheFelon/LyriXX/compare/lyrixx-v1.1.0...lyrixx-v1.2.0) (2026-08-02)
 
 
