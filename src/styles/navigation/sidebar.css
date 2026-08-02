@@ -92,7 +92,7 @@
 }
 
 .sidebar--collapsed .sidebar-item-icon-btn {
-  pointer-events: none;
+  pointer-events: auto;
   background: transparent;
   width: auto;
   height: auto;
@@ -321,6 +321,18 @@
 
 .sidebar-item.active .sidebar-item-icon-btn svg {
   color: var(--accent-default);
+}
+
+.sidebar-item--drag-over {
+  background: var(--accent-light) !important;
+  outline: 2px solid var(--accent-default);
+  outline-offset: -2px;
+}
+
+.sidebar-item-wrap--drag-over .sidebar-item {
+  background: var(--accent-light) !important;
+  outline: 2px solid var(--accent-default);
+  outline-offset: -2px;
 }
 
 .sidebar-item-input {

@@ -1,7 +1,9 @@
-import { useMemo, useCallback, useRef, useState } from "react";
+import { useMemo, useCallback, useRef } from "react";
+import { DragDropProvider, type DragEndEvent } from "@dnd-kit/react";
+import { useSortable, isSortable } from "@dnd-kit/react/sortable";
 import { parseLyricSections } from "@/types/songTags";
 import type { SongTag } from "@/types/songTags";
-import { useTranslation } from "@/i18n";
+import { AnimatedText } from "./AnimatedText";
 import { logger } from "@/services/logger";
 
 interface SectionOutlineProps {
@@ -11,192 +13,136 @@ interface SectionOutlineProps {
   onMoveSection: (fromLineIndex: number, toLineIndex: number) => void;
 }
 
-const DRAG_THRESHOLD = 4;
+function SectionItem({
+  sec,
+  stableId,
+  index,
+  onJumpToSection,
+  wasJustDraggedRef,
+}: {
+  sec: ReturnType<typeof parseLyricSections>[number];
+  stableId: string;
+  index: number;
+  onJumpToSection: (lineIndex: number) => void;
+  wasJustDraggedRef: React.MutableRefObject<boolean>;
+}) {
+  const { ref, isDragging } = useSortable({
+    id: stableId,
+    index,
+  });
 
+  const handleClick = useCallback(() => {
+    if (wasJustDraggedRef.current) {
+      wasJustDraggedRef.current = false;
+      return;
+    }
+    onJumpToSection(sec.lineIndex);
+  }, [sec.lineIndex, onJumpToSection, wasJustDraggedRef]);
+
+  return (
+    <div
+      ref={ref}
+      className={`section-outline-item${isDragging ? " dragging" : ""}`}
+      onClick={handleClick}
+    >
+      <span
+        className={`section-outline-dot section-outline-dot--${sec.tag?.id ?? "unknown"}`}
+      />
+      <span className="section-outline-label">{sec.label}</span>
+      <span className="section-outline-count">{sec.lineCount - 1}</span>
+    </div>
+  );
+}
+
+/** Drag-and-drop навигатор секций с jump-to и reorder. */
 export function SectionOutline({
   lyrics,
   allTags,
   onJumpToSection,
   onMoveSection,
 }: SectionOutlineProps) {
-  const sections = useMemo(() => parseLyricSections(lyrics, allTags), [lyrics, allTags]);
-  const [overIdx, setOverIdx] = useState<number | null>(null);
-  const [overPos, setOverPos] = useState<"before" | "after">("before");
-  const [dragIdx, setDragIdx] = useState<number | null>(null);
-  const listRef = useRef<HTMLDivElement>(null);
-  const { t } = useTranslation();
-  const overIdxRef = useRef<number | null>(null);
-  const overPosRef = useRef<"before" | "after">("before");
-  const dragStateRef = useRef<{
-    idx: number;
-    startX: number;
-    startY: number;
-    moved: boolean;
-    pointerId: number;
-  } | null>(null);
+  const sections = useMemo(
+    () => parseLyricSections(lyrics, allTags),
+    [lyrics, allTags],
+  );
+  const wasJustDraggedRef = useRef(false);
   const lyricsRef = useRef(lyrics);
   lyricsRef.current = lyrics;
   const allTagsRef = useRef(allTags);
   allTagsRef.current = allTags;
 
-  const handlePointerDown = useCallback((e: React.PointerEvent, idx: number) => {
-    if (e.button !== 0) return;
-    dragStateRef.current = {
-      idx,
-      startX: e.clientX,
-      startY: e.clientY,
-      moved: false,
-      pointerId: e.pointerId,
-    };
-    listRef.current?.setPointerCapture(e.pointerId);
-  }, []);
+  const handleDragEnd = useCallback(
+    (event: DragEndEvent) => {
+      if (event.canceled) return;
+      const { source } = event.operation;
+      if (!source || !isSortable(source)) return;
 
-  const handlePointerMove = useCallback((e: React.PointerEvent) => {
-    const ds = dragStateRef.current;
-    if (!ds || e.pointerId !== ds.pointerId) return;
+      const { initialIndex, index } = source;
+      if (initialIndex === index) return;
 
-    const dx = e.clientX - ds.startX;
-    const dy = e.clientY - ds.startY;
-    if (!ds.moved && Math.abs(dx) + Math.abs(dy) < DRAG_THRESHOLD) return;
+      wasJustDraggedRef.current = true;
+      setTimeout(() => {
+        wasJustDraggedRef.current = false;
+      }, 0);
 
-    if (!ds.moved) {
-      ds.moved = true;
-      setDragIdx(ds.idx);
-    }
+      const currentSections = parseLyricSections(
+        lyricsRef.current,
+        allTagsRef.current,
+      );
+      const fromLineIndex = currentSections[initialIndex]?.lineIndex;
+      if (fromLineIndex === undefined) return;
 
-    const list = listRef.current;
-    if (!list) return;
-
-    const items = list.querySelectorAll<HTMLElement>(".section-outline-item");
-    let found = -1;
-    for (let i = 0; i < items.length; i++) {
-      const rect = items[i].getBoundingClientRect();
-      if (e.clientY >= rect.top && e.clientY <= rect.bottom) {
-        found = i;
-        break;
-      }
-    }
-
-    if (found === -1) {
-      overIdxRef.current = null;
-      setOverIdx(null);
-      return;
-    }
-
-    const rect = items[found].getBoundingClientRect();
-    const pos = e.clientY < rect.top + rect.height / 2 ? "before" : "after";
-    overPosRef.current = pos;
-    overIdxRef.current = found;
-    setOverPos(pos);
-    setOverIdx(found);
-  }, []);
-
-  const handlePointerUp = useCallback(
-    (e: React.PointerEvent) => {
-      const ds = dragStateRef.current;
-      dragStateRef.current = null;
-
-      if (e.pointerId !== ds?.pointerId) return;
-
-      if (!ds || !ds.moved) {
-        if (ds) {
-          logger.debug("Outline", `jump to section: line ${sections[ds.idx].lineIndex}`);
-          onJumpToSection(sections[ds.idx].lineIndex);
+      let toLineIndex: number;
+      if (index < currentSections.length) {
+        if (index > initialIndex) {
+          toLineIndex =
+            currentSections[index].lineIndex +
+            currentSections[index].lineCount;
+        } else {
+          toLineIndex = currentSections[index].lineIndex;
         }
-        setDragIdx(null);
-        setOverIdx(null);
-        overIdxRef.current = null;
-        return;
-      }
-
-      const fromIdx = ds.idx;
-      let toIdx = overIdxRef.current;
-      const pos = overPosRef.current;
-
-      setDragIdx(null);
-      setOverIdx(null);
-      overIdxRef.current = null;
-      overPosRef.current = "before";
-
-      if (toIdx === null || toIdx === fromIdx) return;
-
-      if (pos === "after") {
-        toIdx = toIdx + 1;
-        if (toIdx > sections.length) toIdx = sections.length;
-      }
-
-      if (toIdx === fromIdx || toIdx === fromIdx + 1) return;
-
-      const fromLineIndex = sections[fromIdx].lineIndex;
-      const toLineIndex = toIdx < sections.length ? sections[toIdx].lineIndex : -1;
-
-      const currentSections = parseLyricSections(lyricsRef.current, allTagsRef.current);
-      const currentFrom = currentSections.find((s) => s.lineIndex === fromLineIndex);
-      if (!currentFrom) return;
-
-      logger.debug("Outline", `move section: line ${fromLineIndex} -> ${toLineIndex}`);
-      if (toLineIndex === -1) {
-        onMoveSection(fromLineIndex, currentSections[currentSections.length - 1].lineIndex);
       } else {
-        const currentTo = currentSections.find((s) => s.lineIndex === toLineIndex);
-        if (currentTo) {
-          onMoveSection(fromLineIndex, toLineIndex);
-        }
+        const last = currentSections[currentSections.length - 1];
+        toLineIndex = last.lineIndex + last.lineCount;
       }
+
+      logger.debug(
+        "Outline",
+        `move section: line ${fromLineIndex} -> ${toLineIndex} (from idx ${initialIndex} to ${index})`,
+      );
+      onMoveSection(fromLineIndex, toLineIndex);
     },
-    [sections, onJumpToSection, onMoveSection],
+    [onMoveSection],
   );
 
-  const handlePointerCancel = useCallback((e: React.PointerEvent) => {
-    const ds = dragStateRef.current;
-    dragStateRef.current = null;
-    setDragIdx(null);
-    setOverIdx(null);
-    overIdxRef.current = null;
-    overPosRef.current = "before";
-    if (ds && e.pointerId === ds.pointerId) {
-      try {
-        listRef.current?.releasePointerCapture(e.pointerId);
-      } catch {
-        /* noop */
-      }
-    }
-  }, []);
+  const stableIds = useMemo(() => {
+    const tagCounts = new Map<string, number>();
+    return sections.map((sec) => {
+      const tagId = sec.tag?.id ?? "unknown";
+      const count = tagCounts.get(tagId) ?? 0;
+      tagCounts.set(tagId, count + 1);
+      return `${tagId}-${count}`;
+    });
+  }, [sections]);
 
   if (sections.length === 0) return null;
 
   return (
     <div className="section-outline">
-      <div className="section-outline-header">{t("sections")}</div>
-      <div
-        className="section-outline-list"
-        ref={listRef}
-        onPointerMove={handlePointerMove}
-        onPointerUp={handlePointerUp}
-        onPointerCancel={handlePointerCancel}
-      >
-        {sections.map((sec, idx) => {
-          const isDragging = dragIdx === idx;
-          const isOver = overIdx === idx && dragIdx !== null && dragIdx !== idx;
-          const dropClass = isOver
-            ? overPos === "before"
-              ? " drop-target-before"
-              : " drop-target-after"
-            : "";
-          return (
-            <div
-              key={sec.label}
-              className={`section-outline-item${isDragging ? " dragging" : ""}${dropClass}`}
-              onPointerDown={(e) => handlePointerDown(e, idx)}
-            >
-              <span
-                className={`section-outline-dot section-outline-dot--${sec.tag?.id ?? "unknown"}`}
-              />
-              <span className="section-outline-label">{sec.label}</span>
-              <span className="section-outline-count">{sec.lineCount - 1}</span>
-            </div>
-          );
-        })}
+      <div className="section-outline-header"><AnimatedText translationKey="sections" /></div>
+      <div className="section-outline-list">
+        <DragDropProvider onDragEnd={handleDragEnd}>
+          {sections.map((sec, idx) => (
+            <SectionItem
+              key={stableIds[idx]}
+              stableId={stableIds[idx]}
+              sec={sec}
+              index={idx}
+              onJumpToSection={onJumpToSection}
+              wasJustDraggedRef={wasJustDraggedRef}
+            />
+          ))}
+        </DragDropProvider>
       </div>
     </div>
   );

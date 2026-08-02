@@ -102,12 +102,20 @@
   padding: 8px 10px;
   margin: 1px 0;
   border-radius: var(--radius-nav);
-  cursor: pointer;
+  cursor: default;
   transition:
     background 0.12s ease-out,
     border-left-color 0.15s ease-out;
   border: none;
   border-left: 2px solid transparent;
+}
+
+.song-list-item:hover {
+  background: var(--fill-subtle-hover);
+}
+
+.song-list-item:active {
+  background: var(--fill-subtle-pressed);
 }
 
 .song-list-item:hover {
@@ -125,6 +133,20 @@
 .song-list-item-content {
   flex: 1;
   min-width: 0;
+}
+
+.song-list-item-input {
+  width: 100%;
+  border: none;
+  border-bottom: 1px solid var(--accent-default);
+  background: transparent;
+  font-family: var(--font-family-text);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-primary);
+  outline: none;
+  padding: 0 2px;
+  line-height: 18px;
 }
 
 .song-list-item-title {
@@ -349,4 +371,22 @@
 
 .song-list-item.selected .song-list-item-date {
   color: var(--text-secondary);
+}
+
+.song-list-item-window-icon {
+  display: inline-flex;
+  align-items: center;
+  color: var(--accent-default);
+  opacity: 0.6;
+  flex-shrink: 0;
+  margin-left: 4px;
+}
+
+.song-list-item.in-window {
+  opacity: 0.55;
+  cursor: pointer;
+}
+
+.song-list-item.in-window:hover {
+  opacity: 0.75;
 }

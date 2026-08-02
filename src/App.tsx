@@ -1,5 +1,6 @@
-import React, { Suspense } from "react";
+import React, { Suspense, useCallback, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
+import { DragDropProvider, type DragEndEvent } from "@dnd-kit/react";
 import { useAppStore } from "./hooks/useAppStore";
 import { TitleBar } from "./components/TitleBar";
 import { Sidebar } from "./components/Sidebar";
@@ -11,6 +12,10 @@ import { ToastContainer } from "./components/Toast";
 import { ConfirmModal } from "./components/ConfirmModal";
 import { RecoveryModal } from "./components/RecoveryModal";
 import { LanguageContext, useTranslation } from "./i18n";
+import { openSongWindow } from "./services/window";
+import { useOpenWindows } from "./hooks/useOpenWindows";
+import { AnimatedText, AnimatedTextProvider } from "./components/AnimatedText";
+import { logger } from "./services/logger";
 
 const SettingsModal = React.lazy(() =>
   import("./components/SettingsModal").then((m) => ({ default: m.SettingsModal })),
@@ -58,6 +63,72 @@ if (typeof requestIdleCallback !== "undefined") {
 function AppInner() {
   const { t } = useTranslation();
   const store = useAppStore();
+  const openWindowSongIds = useOpenWindows();
+
+  useEffect(() => {
+    logger.info("App", "AppInner mounted");
+  }, []);
+
+  useEffect(() => {
+    if (store.songsReady && store.settingsReady) {
+      logger.info("App", `ready: ${store.songs.length} songs, ${store.sortedCategories.length} categories`);
+    }
+  }, [store.songsReady, store.settingsReady, store.songs.length, store.sortedCategories.length]);
+
+  const songsRef = useRef(store.songs);
+  songsRef.current = store.songs;
+
+  const cursorRef = useRef({ x: 0, y: 0 });
+
+  useEffect(() => {
+    const onMove = (e: PointerEvent) => {
+      cursorRef.current = { x: e.clientX, y: e.clientY };
+    };
+    window.addEventListener("pointermove", onMove);
+    return () => window.removeEventListener("pointermove", onMove);
+  }, []);
+
+  const handleDropToCategory = useCallback(
+    (songIds: string[], categoryId: string) => {
+      const alreadyIn = songIds.every((id) => {
+        const s = songsRef.current.find((song) => song.id === id);
+        return s && s.category === categoryId;
+      });
+      if (alreadyIn) {
+        store.addToast(t("allSongsAlreadyInCategory"), "info");
+        return;
+      }
+      store.updateSongsCategory(songIds, categoryId);
+      store.addToast(t("songsMoved"), "success");
+    },
+    [store.updateSongsCategory, store.addToast, t],
+  );
+
+  const handleDndEnd = useCallback(
+    (event: DragEndEvent) => {
+      if (event.canceled) return;
+      const { source, target } = event.operation;
+      if (!source) return;
+
+      const songIds = (source as unknown as { data?: { songIds?: string[] } }).data?.songIds;
+
+      if (!target) return;
+
+      if (target.id === "open-new-window") {
+        if (songIds?.length === 1) {
+          const song = songsRef.current.find((s) => s.id === songIds[0]);
+          if (song) openSongWindow(song.id, song.title || t("untitled"));
+        }
+        return;
+      }
+
+      if (songIds && songIds.length > 0) {
+        const categoryId = String(target.id);
+        handleDropToCategory(songIds, categoryId);
+      }
+    },
+    [handleDropToCategory],
+  );
 
   if (!store.songsReady || !store.settingsReady) {
     return (
@@ -67,7 +138,7 @@ function AppInner() {
         <TitleBar />
         <div className="app-loading">
           <div className="spinner" />
-          <span style={{ marginLeft: 10 }}>{t("loading")}</span>
+          <span style={{ marginLeft: 10 }}><AnimatedText translationKey="loading" /></span>
         </div>
       </div>
     );
@@ -75,15 +146,17 @@ function AppInner() {
 
   return (
     <LanguageContext.Provider value={store.settings.language}>
+      <AnimatedTextProvider variant="mask-glow">
       <div
         className={`app${store.settings.compactMode ? " app--compact" : ""}${store.isNarrow ? " app--narrow" : ""}`}
       >
         <a href="#editor-area" className="skip-link">
-          {t("goToEditor")}
+          <AnimatedText translationKey="goToEditor" />
         </a>
         <div aria-live="polite" className="sr-only" ref={store.announceRef} />
         <TitleBar />
         <div className="app-body">
+          <DragDropProvider onDragEnd={handleDndEnd}>
           <ErrorBoundary>
             <Sidebar
               collapsed={store.sidebarCollapsed}
@@ -117,6 +190,13 @@ function AppInner() {
               onSelectAll={store.selectAll}
               onDeselectAll={store.deselectAll}
               onRequestDeleteSelected={store.handleRequestDeleteSelected}
+              onDuplicate={store.handleDuplicateSong}
+              onRename={store.handleRenameSong}
+              onMoveToCategory={store.handleMoveToCategory}
+              categories={store.sortedCategories}
+              exportFormat={store.settings.exportFormat}
+              addToast={store.addToast}
+              openWindowSongIds={openWindowSongIds}
             />
           </ErrorBoundary>
           <ResizeHandle onResize={store.handleSongListResize} />
@@ -148,6 +228,7 @@ function AppInner() {
               />
             </ErrorBoundary>
           </div>
+          </DragDropProvider>
         </div>
         {createPortal(
           <ModalSuspense>
@@ -243,18 +324,18 @@ function AppInner() {
                     onClick={(e) => e.stopPropagation()}
                   >
                     <div className="debug-header">
-                      <h2 className="modal-title">{t("errSomethingWrong")}</h2>
+                      <h2 className="modal-title"><AnimatedText translationKey="errSomethingWrong" /></h2>
                       <button
                         className="modal-btn modal-btn-cancel"
                         type="button"
                         onClick={() => store.setDebugOpen(false)}
                       >
-                        {t("close")}
+                        <AnimatedText translationKey="close" />
                       </button>
                     </div>
                     <div className="debug-content">
                       <p style={{ opacity: 0.7 }}>
-                        ErrorBoundary caught a render error in DebugMenu.
+                        <AnimatedText translationKey="errDebugBoundary" />
                       </p>
                     </div>
                   </div>
@@ -273,10 +354,12 @@ function AppInner() {
           document.body,
         )}
       </div>
+      </AnimatedTextProvider>
     </LanguageContext.Provider>
   );
 }
 
+/** Корневой компонент приложения: рендерит все модалы, порталы, sidebar, song list, editor, i18n. */
 export default function App() {
   return <AppInner />;
 }

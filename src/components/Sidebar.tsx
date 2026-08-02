@@ -1,10 +1,12 @@
 import { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
+import { useDroppable } from "@dnd-kit/react";
 import { ALL_CATEGORY, type CustomCategory } from "@/types/category";
 import { getIconSvg } from "@/types/icons";
 import { IconPicker } from "./IconPicker";
 import { ConfirmModal } from "./ConfirmModal";
 import { ContextMenu } from "./ContextMenu";
+import { AnimatedText } from "./AnimatedText";
 import { IconEdit, IconTrash } from "./Icons";
 import { logger } from "@/services/logger";
 import { useTranslation } from "@/i18n";
@@ -44,6 +46,18 @@ const ALL_ICON = (
   </svg>
 );
 
+function DroppableCat({
+  catId,
+  children,
+}: {
+  catId: string;
+  children: (ref: (el: Element | null) => void, isDropTarget: boolean) => React.ReactNode;
+}) {
+  const { ref, isDropTarget } = useDroppable({ id: catId });
+  return <>{children(ref, isDropTarget)}</>;
+}
+
+/** Боковая панель категорий: CRUD, context menu, icon picker, drag-drop, collapse. */
 export function Sidebar({
   collapsed,
   onToggleCollapse,
@@ -70,11 +84,17 @@ export function Sidebar({
   const addInputRef = useRef<HTMLInputElement>(null);
   const renameInputRef = useRef<HTMLInputElement>(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
-  const iconBtnRefs = useRef<Map<string, HTMLButtonElement>>(new Map());
+  const iconBtnRefs = useRef<Map<string, HTMLSpanElement>>(new Map());
   const [ctxMenu, setCtxMenu] = useState<{ x: number; y: number; catId: string } | null>(null);
   const settingsClickCount = useRef(0);
   const settingsClickTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { t } = useTranslation();
+
+  useEffect(() => {
+    return () => {
+      if (settingsClickTimer.current) clearTimeout(settingsClickTimer.current);
+    };
+  }, []);
 
   useEffect(() => {
     if (adding && addInputRef.current) {
@@ -117,7 +137,7 @@ export function Sidebar({
     }
   };
 
-  const handleIconClick = (catId: string, btn: HTMLButtonElement | null) => {
+  const handleIconClick = (catId: string, btn: HTMLElement | null) => {
     if (btn) {
       setPickerCategoryId(catId);
       setPickerAnchor(btn);
@@ -159,7 +179,7 @@ export function Sidebar({
             <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
               <path d="M8 1.5a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5a.5.5 0 0 1 .5-.5z" />
             </svg>
-            {!collapsed && <span>{t("create")}</span>}
+            {!collapsed && <span><AnimatedText translationKey="create" /></span>}
           </button>
           <button
             className="btn-collapse"
@@ -188,22 +208,27 @@ export function Sidebar({
       </div>
 
       <div className="sidebar-nav">
-        <button
-          className={`sidebar-item ${isAll ? "active" : ""}`}
-          onClick={() => onCategoryChange(ALL_CATEGORY.id)}
-          type="button"
-          aria-current={isAll ? "page" : undefined}
-        >
-          {ALL_ICON}
-          {!collapsed && <span>{t("allSongs")}</span>}
-          {!collapsed && <span className="sidebar-badge">{songsTotal}</span>}
-        </button>
+        <DroppableCat catId={ALL_CATEGORY.id}>
+          {(ref, isDropTarget) => (
+            <button
+              ref={ref}
+              className={`sidebar-item ${isAll ? "active" : ""}${isDropTarget ? " sidebar-item--drag-over" : ""}`}
+              onClick={() => onCategoryChange(ALL_CATEGORY.id)}
+              type="button"
+              aria-current={isAll ? "page" : undefined}
+            >
+              {ALL_ICON}
+              {!collapsed && <span><AnimatedText translationKey="allSongs" /></span>}
+              {!collapsed && <span className="sidebar-badge">{songsTotal}</span>}
+            </button>
+          )}
+        </DroppableCat>
 
         {collapsed && <div className="sidebar-nav-divider" />}
 
         {!collapsed && (
           <div className="sidebar-section-header">
-            <span>{t("categoriesLabel")}</span>
+            <span><AnimatedText translationKey="categoriesLabel" /></span>
           </div>
         )}
 
@@ -211,91 +236,96 @@ export function Sidebar({
           const isActive = activeCategory === cat.id;
           const isRenaming = renamingId === cat.id;
           return (
-            <div
-              key={cat.id}
-              className={`sidebar-item-wrap ${isActive ? "active" : ""}`}
-              onContextMenu={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                setCtxMenu({ x: e.clientX, y: e.clientY, catId: cat.id });
-              }}
-            >
-              <button
-                className={`sidebar-item ${isActive ? "active" : ""}`}
-                onClick={() => onCategoryChange(cat.id)}
-                onKeyDown={(e) => {
-                  if (e.key === "Delete") {
+            <DroppableCat key={cat.id} catId={cat.id}>
+              {(ref, isDropTarget) => (
+                <div
+                  ref={ref}
+                  className={`sidebar-item-wrap ${isActive ? "active" : ""}${isDropTarget ? " sidebar-item-wrap--drag-over" : ""}`}
+                  onContextMenu={(e) => {
                     e.preventDefault();
-                    setConfirmDeleteId(cat.id);
-                  }
-                }}
-                type="button"
-                aria-current={isActive ? "page" : undefined}
-              >
-                <span className="sidebar-item-icon-wrap">
+                    e.stopPropagation();
+                    setCtxMenu({ x: e.clientX, y: e.clientY, catId: cat.id });
+                  }}
+                >
                   <button
-                    ref={(el) => {
-                      if (el) iconBtnRefs.current.set(cat.id, el);
-                      else iconBtnRefs.current.delete(cat.id);
+                    className={`sidebar-item ${isActive ? "active" : ""}`}
+                    onClick={() => onCategoryChange(cat.id)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Delete") {
+                        e.preventDefault();
+                        setConfirmDeleteId(cat.id);
+                      }
                     }}
-                    className="sidebar-item-icon-btn"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleIconClick(cat.id, iconBtnRefs.current.get(cat.id) ?? null);
-                    }}
-                    title={t("changeIcon")}
                     type="button"
+                    aria-current={isActive ? "page" : undefined}
                   >
-                    {getIconSvg(cat.icon) ?? getIconSvg("note")}
+                    <span className="sidebar-item-icon-wrap">
+                      <span
+                        ref={(el) => {
+                          if (el instanceof HTMLSpanElement) iconBtnRefs.current.set(cat.id, el);
+                          else iconBtnRefs.current.delete(cat.id);
+                        }}
+                        className="sidebar-item-icon-btn"
+                        role="button"
+                        tabIndex={0}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleIconClick(cat.id, iconBtnRefs.current.get(cat.id) ?? null);
+                        }}
+                        title={t("changeIcon")}
+                      >
+                        {getIconSvg(cat.icon) ?? getIconSvg("note")}
+                      </span>
+                    </span>
+                    {!collapsed &&
+                      (isRenaming ? (
+                        <input
+                          ref={renameInputRef}
+                          className="sidebar-item-input"
+                          value={renameValue}
+                          onChange={(e) => setRenameValue(e.target.value)}
+                          onBlur={handleFinishRename}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") handleFinishRename();
+                            if (e.key === "Escape") setRenamingId(null);
+                          }}
+                          onClick={(e) => e.stopPropagation()}
+                        />
+                      ) : (
+                        <span>{cat.label}</span>
+                      ))}
+                    {!collapsed && <span className="sidebar-badge">{counts[cat.id] ?? 0}</span>}
                   </button>
-                </span>
-                {!collapsed &&
-                  (isRenaming ? (
-                    <input
-                      ref={renameInputRef}
-                      className="sidebar-item-input"
-                      value={renameValue}
-                      onChange={(e) => setRenameValue(e.target.value)}
-                      onBlur={handleFinishRename}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") handleFinishRename();
-                        if (e.key === "Escape") setRenamingId(null);
-                      }}
-                      onClick={(e) => e.stopPropagation()}
-                    />
-                  ) : (
-                    <span>{cat.label}</span>
-                  ))}
-                {!collapsed && <span className="sidebar-badge">{counts[cat.id] ?? 0}</span>}
-              </button>
-              {!collapsed && !isRenaming && (
-                <div className="sidebar-item-actions">
-                  <button
-                    className="sidebar-item-action"
-                    title={t("rename")}
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setRenameValue(cat.label);
-                      setRenamingId(cat.id);
-                    }}
-                  >
-                    <IconEdit size={12} />
-                  </button>
-                  <button
-                    className="sidebar-item-action sidebar-item-action-danger"
-                    title={t("delete")}
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setConfirmDeleteId(cat.id);
-                    }}
-                  >
-                    <IconTrash size={12} />
-                  </button>
+                  {!collapsed && !isRenaming && (
+                    <div className="sidebar-item-actions">
+                      <button
+                        className="sidebar-item-action"
+                        title={t("rename")}
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setRenameValue(cat.label);
+                          setRenamingId(cat.id);
+                        }}
+                      >
+                        <IconEdit size={12} />
+                      </button>
+                      <button
+                        className="sidebar-item-action sidebar-item-action-danger"
+                        title={t("delete")}
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setConfirmDeleteId(cat.id);
+                        }}
+                      >
+                        <IconTrash size={12} />
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
-            </div>
+            </DroppableCat>
           );
         })}
 
@@ -323,7 +353,7 @@ export function Sidebar({
               <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor">
                 <path d="M6 0a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 6 0z" />
               </svg>
-              <span>{t("addCategory")}</span>
+              <span><AnimatedText translationKey="addCategory" /></span>
             </button>
           ))}
       </div>
