@@ -62,13 +62,15 @@ export function getWindowAPI(): WindowAPI {
 
 const _openWindowSongIds = new Set<string>();
 const _openWindowListeners = new Set<() => void>();
+let _openWindowSnapshot: ReadonlySet<string> = new Set();
 
 function _notifyOpenWindows() {
+  _openWindowSnapshot = new Set(_openWindowSongIds);
   for (const l of _openWindowListeners) l();
 }
 
 export function getOpenWindowSongIds(): ReadonlySet<string> {
-  return _openWindowSongIds;
+  return _openWindowSnapshot;
 }
 
 export function subscribeOpenWindows(listener: () => void): () => void {
@@ -100,15 +102,18 @@ export async function openSongWindow(
   position?: { x: number; y: number },
 ): Promise<void> {
   const label = `song-${songId}`;
+  logger.debug("Window", `openSongWindow: ${label}, tracked=${[..._openWindowSongIds].join(",") || "(empty)"}`);
   try {
     const existing = await WebviewWindow.getByLabel(label);
     if (existing) {
+      logger.debug("Window", `window already exists, focusing: ${label}`);
       await existing.setFocus();
       return;
     }
     await cleanupStaleWindows();
     _openWindowSongIds.add(songId);
     _notifyOpenWindows();
+    logger.debug("Window", `tracked after add: ${[..._openWindowSongIds].join(",") || "(empty)"}`);
     const win = new WebviewWindow(label, {
       url: `/?songId=${encodeURIComponent(songId)}`,
       title: title || "LyriXX",
