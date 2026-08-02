@@ -1,5 +1,3 @@
-# LyriXX
-
 <p align="center">
   <img src="public/Wide310x150Logo-inverted.scale-200.png" alt="LyriXX" width="310" />
 </p>

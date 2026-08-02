@@ -29,6 +29,7 @@ tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 tracing-appender = "0.2"
 quickpoeter = { path = "quickpoeter" }
+png = "0.18"
 
 [target.'cfg(windows)'.dependencies]
 window-vibrancy = "0.8"
