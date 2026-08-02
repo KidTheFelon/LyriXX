@@ -7,7 +7,7 @@
   padding: 8px;
   max-height: 320px;
   overflow-y: auto;
-  animation: win-dropdown-fade-in 0.15s ease-out;
+  animation: win-dropdown-flyout-in 0.18s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .icon-picker-grid {
