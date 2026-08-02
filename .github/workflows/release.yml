@@ -58,11 +58,12 @@ jobs:
 
       - name: Resolve release ID
         if: ${{ !github.event.release.id }}
+        shell: bash
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          RELEASE_ID=$(gh api repos/${{ github.repository }}/releases/tags/${{ env.TAG }} --jq '.id')
-          echo "RELEASE_ID=$RELEASE_ID" >> $env:GITHUB_ENV
+          RELEASE_ID=$(gh api "repos/${{ github.repository }}/releases/tags/${{ env.TAG }}" --jq '.id')
+          echo "RELEASE_ID=$RELEASE_ID" >> "$GITHUB_ENV"
 
       - uses: tauri-apps/tauri-action@v0
         env:
