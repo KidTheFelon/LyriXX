@@ -19,7 +19,7 @@ Project root: repo root (`H:\GHP\lyrixx5/`). For full dev docs see `docs/CONTRIB
 
 ## Key files
 
-### Components (20 non-test root + 10 settings)
+### Components (22 non-test root + 10 settings)
 
 - `src/components/TypewriterInput.tsx` — custom textarea, tag highlighting, autocomplete, rhyme popup
 - `src/components/SongEditor.tsx` — main editor: title/artist/category + lyrics + SectionOutline + rhymes
@@ -41,6 +41,8 @@ Project root: repo root (`H:\GHP\lyrixx5/`). For full dev docs see `docs/CONTRIB
 - `src/components/Icons.tsx` — SVG icon components
 - `src/components/MusicQuotes.tsx` — random music quotes display (108 quotes)
 - `src/components/RecoveryModal.tsx` — DB backup recovery modal: list/restore/delete backups
+- `src/components/AnimatedText.tsx` — text animation component (wipe/slide/blur/glow/mask-glow variants) for i18n
+- `src/components/SongWindow.tsx` — separate window for editing a single song
 - `src/components/settings/` — 10 files: UISection, EditorSection, BehaviorSection, RhymesSection, CustomTagsSection, DatabaseSection, AccessibilitySection, NotificationsSection, ShortcutsSection, shared
 
 ### Hooks
@@ -52,6 +54,7 @@ Project root: repo root (`H:\GHP\lyrixx5/`). For full dev docs see `docs/CONTRIB
 - `src/hooks/useMicaEffect.ts` — Windows 11 Mica effect
 - `src/hooks/useDebounce.ts` — generic debounce
 - `src/hooks/useAppStore.ts` — app-level state (composes domain hooks)
+- `src/hooks/useOpenWindows.ts` — tracks open song windows via useSyncExternalStore
 - `src/hooks/store/useToasts.ts` — toast notification state + filtering by settings
 - `src/hooks/store/useThemeEffects.ts` — CSS variable sync (theme, accent, font, transparency)
 - `src/hooks/store/useSidebarState.ts` — sidebar collapse, resize, auto-collapse, Ctrl+B
@@ -63,14 +66,14 @@ Project root: repo root (`H:\GHP\lyrixx5/`). For full dev docs see `docs/CONTRIB
 ### Types
 
 - `src/types/songTags.ts` — **14 built-in tags** + custom tags, parsing, autocomplete
-- `src/types/settings.ts` — AppSettings (44 fields, grouped sub-interfaces: EditorSettings, UISettings, BehaviorSettings, RhymeSettings, DbSettings, NotificationSettings, AccessibilitySettings), DEFAULT_SETTINGS
+- `src/types/settings.ts` — AppSettings (45 fields, grouped sub-interfaces: EditorSettings, UISettings, BehaviorSettings, RhymeSettings, DbSettings, NotificationSettings, AccessibilitySettings), DEFAULT_SETTINGS
 - `src/types/song.ts` — Song, SongListItem interfaces
 - `src/types/category.ts` — CustomCategory, ALL_CATEGORY
-- `src/types/icons.tsx` — 20+ category icons as SVG JSX
+- `src/types/icons.tsx` — 32 category icons as SVG JSX
 
 ### i18n
 
-- `src/i18n/translations.ts` — ru/en dictionaries (~160 keys), getTagLabel
+- `src/i18n/translations.ts` — ru/en dictionaries (~560 keys), getTagLabel
 - `src/i18n/index.ts` — LanguageContext, useTranslation() hook
 
 ### Services
@@ -84,7 +87,9 @@ Project root: repo root (`H:\GHP\lyrixx5/`). For full dev docs see `docs/CONTRIB
 
 - `src/utils/charUtils.ts` — computeCharIds, getCurrentWord for typewriter animation
 - `src/utils/id.ts` — generateId (timestamp + random)
-- `src/constants.ts` — font sizes, animation durations, popup dimensions, rhyme thresholds
+- `src/utils/accentColors.ts` — 12 accent color presets + hex/HSL conversion + CSS variable generation
+- `src/utils/syllables.ts` — syllable counting for Russian (vowels) and English (vowel groups + silent-e)
+- `src/constants.ts` — font sizes, animation durations, popup dimensions, rhyme thresholds, icon picker/dropdown sizes
 
 ### Editor
 
@@ -101,9 +106,9 @@ Project root: repo root (`H:\GHP\lyrixx5/`). For full dev docs see `docs/CONTRIB
 ### Rust (src-tauri/src/) — 25 Tauri commands
 
 - `src-tauri/src/lib.rs` — Tauri Builder, 5 command handlers (set_mica_theme, write_frontend_log, get_backend_logs, get_sql_queries, toggle_minimize_to_tray), app setup orchestration
-- `src-tauri/src/db.rs` — SQLite types (DbState, SongRecord, CategoryRecord, DbFileInfo), 15 Tauri commands: load_songs, save_song, delete_song, delete_songs, load_categories, save_category, delete_category, load_setting, save_setting, get_db_path_str, copy_file, write_text_file, clear_all_data, get_db_file_info
+- `src-tauri/src/db.rs` — SQLite types (DbState, SongRecord, CategoryRecord, DbFileInfo), 14 Tauri commands: load_songs, save_song, delete_song, delete_songs, load_categories, save_category, delete_category, load_setting, save_setting, get_db_path_str, copy_file, write_text_file, clear_all_data, get_db_file_info
 - `src-tauri/src/db_init.rs` — DB path resolution (exe-adjacent + appdata fallback), schema migration (LATEST_VERSION=1), corruption recovery, `init()` entry point
-- `src-tauri/src/backup.rs` — auto_backup, rotate_backups, 3 Tauri commands: list_backups, delete_backup, restore_backup, check_db_recovery; BackupInfo, RecoveryInfo types
+- `src-tauri/src/backup.rs` — auto_backup, rotate_backups, 4 Tauri commands: list_backups, delete_backup, restore_backup, check_db_recovery; BackupInfo, RecoveryInfo types
 - `src-tauri/src/datetime.rs` — shared chrono utilities: is_leap, chrono_from_epoch, chrono_now, backup_timestamp, format_date_yyyy_mm_dd, format_datetime_display (deduplicates lib.rs + db.rs)
 - `src-tauri/src/logging.rs` — LogLayer (tracing→BackendLogBuffer), SqlQueryLog, BackendLogBuffer, MinimizeToTrayState, LogFileState, MAX_BACKEND_LOGS=500, MAX_SQL_QUERIES=200
 - `src-tauri/src/tray.rs` — system tray setup, menu events, splash_status, transition_to_main, close interception
@@ -119,13 +124,13 @@ Project root: repo root (`H:\GHP\lyrixx5/`). For full dev docs see `docs/CONTRIB
 
 `src/styles/`: theme.css (light+dark), base.css, animations.css. `src/styles/layout/`: app.css, titlebar.css. `src/styles/navigation/`: sidebar.css. `src/styles/songs/`: song-list.css. `src/styles/editor/`: editor.css. `src/styles/components/`: modal.css, settings.css, toast.css, accessibility.css, icon-picker.css, context-menu.css, dropdown.css, debug-menu.css, resize-handle.css.
 
-## Tests (35 files)
+## Tests (37 files)
 
-### .test.ts (15)
-`constants.test.ts`, `fluentTheme.test.ts`, `songLanguage.test.ts`, `useSongs.test.ts`, `useDebounce.test.ts`, `useSettings.test.ts`, `useRhymes.test.ts`, `useKeyboardShortcuts.test.ts`, `translations.test.ts`, `storage.test.ts`, `window.test.ts`, `logger.test.ts`, `songTags.test.ts`, `charUtils.test.ts`, `id.test.ts`.
+### .test.ts (17)
+`constants.test.ts`, `fluentTheme.test.ts`, `songLanguage.test.ts`, `useSongs.test.ts`, `useDebounce.test.ts`, `useSettings.test.ts`, `useRhymes.test.ts`, `useKeyboardShortcuts.test.ts`, `translations.test.ts`, `storage.test.ts`, `window.test.ts`, `logger.test.ts`, `songTags.test.ts`, `charUtils.test.ts`, `id.test.ts`, `syllables.test.ts`, `accentColors.test.ts`.
 
 ### .test.tsx (20)
-`TypewriterInput.test.tsx`, `Toast.test.tsx`, `TagAutocomplete.test.tsx`, `SongList.test.tsx`, `Sidebar.test.tsx`, `ContextMenu.test.tsx`, `RhymePopup.test.tsx`, `DebugMenu.test.tsx`, `ConfirmModal.test.tsx`, `ResizeHandle.test.tsx`, `IconPicker.test.tsx`, `WinDropdown.test.tsx`, `SectionOutline.test.tsx`, `SongEditor.test.tsx`, `TitleBar.test.tsx`, `ErrorBoundary.test.tsx`, `Icons.test.tsx`, `SettingsModal.test.tsx` + 7 settings tests.
+`TypewriterInput.test.tsx`, `Toast.test.tsx`, `TagAutocomplete.test.tsx`, `SongList.test.tsx`, `Sidebar.test.tsx`, `ContextMenu.test.tsx`, `RhymePopup.test.tsx`, `DebugMenu.test.tsx`, `ConfirmModal.test.tsx`, `ResizeHandle.test.tsx`, `Icons.test.tsx`, `SettingsModal.test.tsx`, `ErrorBoundary.test.tsx` + 7 settings tests.
 
 Run: `npm run test`.
 

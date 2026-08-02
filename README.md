@@ -66,16 +66,16 @@ LyriXX — десктопное приложение, созданное спе�
 
 ```
 ├── src/
-│   ├── components/       # 20 компонентов + settings/ (8 файлов)
+│   ├── components/       # 22 компонента + settings/ (10 файлов)
 │   ├── editor/           # CodeMirror: подсветка тегов, тема, автодополнение
-│   ├── hooks/            # 7 хуков
+│   ├── hooks/            # 8 хуков + store/ (7 domain-хуков)
 │   ├── types/            # 5 файлов типов
 │   ├── services/         # storage, logger, window, clipboard
-│   ├── utils/            # charUtils, id
-│   ├── i18n/             # ru/en переводы (~120 ключей)
+│   ├── utils/            # charUtils, id, accentColors, syllables
+│   ├── i18n/             # ru/en переводы (~560 ключей)
 │   ├── constants.ts      # константы приложения
 │   └── App.tsx           # главный компонент
-├── src-tauri/src/        # Rust: db.rs, rhyme.rs, english_rhyme.rs, fonts.rs, lang_detect.rs, mica.rs, lib.rs
+├── src-tauri/src/        # Rust: db.rs, rhyme.rs, english_rhyme.rs, fonts.rs, lang_detect.rs, mica.rs, lib.rs + 6 модулей
 ├── src-tauri/quickpoeter/ # вендорный quickpoeter crate (Зализняк + word2vec)
 └── src/styles/           # 17 CSS-файлов по папкам
 ```
