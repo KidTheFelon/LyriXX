@@ -8,11 +8,15 @@ use std::sync::{Arc, Mutex};
 use crate::english_rhyme::CmuDict;
 use crate::lang_detect::detect_language;
 
+/// Макс. количество рифм в ответе.
 const MAX_RHYME_RESULTS: u32 = 50;
+/// Макс. размер LRU-кеша.
 const MAX_CACHE_SIZE: usize = 256;
 
+/// Потокобезопасный указатель на движок рифм.
 pub type SharedRhymeEngine = Arc<Mutex<Option<RhymeEngine>>>;
 
+/// Движок рифм: Zaliznyak + CMU dict + LRU-кеш.
 pub struct RhymeEngine {
     inner: Mutex<(WordCollector, GeneralSettings)>,
     cmu: CmuDict,
@@ -82,21 +86,30 @@ impl RhymeEngine {
     }
 }
 
+/// Результат рифмы.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RhymeWord {
+    /// Слово-рифма.
     pub word: String,
+    /// Оценка качества (0–1).
     pub score: f32,
+    /// Слоги (опционально).
     pub syllables: Option<String>,
+    /// Части речи.
     pub part_of_speech: Vec<String>,
 }
 
+/// Ответ API рифмовки.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RhymeResponse {
+    /// Список рифм.
     pub rhymes: Vec<RhymeWord>,
+    /// Количество слогов в исходном слове.
     pub input_syllables: Option<i32>,
 }
 
 #[tauri::command]
+/// Tauri command: ищет рифмы для слова, автоопределяет язык.
 pub async fn get_rhymes(
     word: String,
     _lang: String,

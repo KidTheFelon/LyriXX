@@ -3,19 +3,22 @@ use tauri::menu::{Menu, MenuItem};
 use tauri::tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent};
 use tauri::Manager;
 
-use crate::logging::MinimizeToTrayState;
+use crate::{decode_png_to_rgba, ICON_DARK, ICON_LIGHT, logging::MinimizeToTrayState};
 
 #[cfg(target_os = "windows")]
 use windows::core::Interface;
 
+/// Отправляет обновление статуса в splash-окно через eval.
 pub fn splash_status(handle: &tauri::AppHandle, key: &str) {
     if let Some(splash) = handle.get_webview_window("splash") {
-        if let Err(e) = splash.eval(&format!("window.__splashStatus('{}')", key)) {
+        let safe_key: String = key.chars().filter(|c| c.is_alphanumeric() || *c == '_' || *c == '-').collect();
+        if let Err(e) = splash.eval(&format!("window.__splashStatus('{}')", safe_key)) {
             tracing::warn!(error = %e, key, "Failed to update splash status via eval");
         }
     }
 }
 
+/// Уничтожает splash-окно, показывает главное окно, применяет Mica.
 pub fn transition_to_main(handle: &tauri::AppHandle) {
     splash_status(handle, "ready");
     std::thread::sleep(std::time::Duration::from_millis(300));
@@ -30,11 +33,29 @@ pub fn transition_to_main(handle: &tauri::AppHandle) {
                 let _ = main.with_webview(|webview| {
                     unsafe {
                         let controller = webview.controller();
-                        let core = controller.CoreWebView2().unwrap();
-                        let settings = core.Settings().unwrap();
+                        let core = match controller.CoreWebView2() {
+                            Ok(c) => c,
+                            Err(e) => {
+                                tracing::warn!(error = %e, "Failed to get CoreWebView2 for main");
+                                return;
+                            }
+                        };
+                        let settings = match core.Settings() {
+                            Ok(s) => s,
+                            Err(e) => {
+                                tracing::warn!(error = %e, "Failed to get WebView2 settings for main");
+                                return;
+                            }
+                        };
                         let _ = settings.SetAreDefaultContextMenusEnabled(false);
                         let settings3: webview2_com_sys::Microsoft::Web::WebView2::Win32::ICoreWebView2Settings3 =
-                            settings.cast().unwrap();
+                            match settings.cast() {
+                                Ok(s) => s,
+                                Err(e) => {
+                                    tracing::warn!(error = %e, "Failed to cast WebView2 settings for main");
+                                    return;
+                                }
+                            };
                         let _ = settings3.SetAreBrowserAcceleratorKeysEnabled(false);
                     }
                 });
@@ -45,15 +66,18 @@ pub fn transition_to_main(handle: &tauri::AppHandle) {
     }
 }
 
-pub fn setup_tray(app: &tauri::App) -> Result<(), tauri::Error> {
+/// Создаёт системную иконку в трее с меню "Показать"/"Выход".
+pub fn setup_tray(app: &tauri::App, dark: bool) -> Result<(), tauri::Error> {
     let show_i = MenuItem::with_id(app, "show", "Показать", true, None::<&str>)?;
     let quit_i = MenuItem::with_id(app, "quit", "Выход", true, None::<&str>)?;
     let tray_menu = Menu::with_items(app, &[&show_i, &quit_i])?;
 
     tracing::info!("Creating system tray icon");
 
+    let icon = tray_icon_for_theme(dark);
+
     let _tray = TrayIconBuilder::with_id("main-tray")
-        .icon(app.default_window_icon().unwrap().clone())
+        .icon(icon)
         .menu(&tray_menu)
         .tooltip("LyriXX")
         .on_menu_event(move |app, event| match event.id.as_ref() {
@@ -94,6 +118,7 @@ pub fn setup_tray(app: &tauri::App) -> Result<(), tauri::Error> {
     Ok(())
 }
 
+/// Перехватывает закрытие окна: сворачивает в трей вместо завершения.
 pub fn setup_close_intercept(main_window: &tauri::WebviewWindow, handle: tauri::AppHandle) {
     let h = handle.clone();
     main_window.on_window_event(move |event| {
@@ -112,11 +137,34 @@ pub fn setup_close_intercept(main_window: &tauri::WebviewWindow, handle: tauri::
     });
 }
 
+/// Прячет иконку трея при запуске, если minimizeToTray=false.
 pub fn hide_tray_if_disabled(app: &tauri::App, enabled: bool) {
     if !enabled {
         if let Some(tray) = app.tray_by_id("main-tray") {
             let _ = tray.set_visible(false);
             tracing::info!(target: "tray", "Tray icon hidden on startup (minimizeToTray=false)");
+        }
+    }
+}
+
+pub fn tray_icon_for_theme(dark: bool) -> tauri::image::Image<'static> {
+    let bytes = if dark { ICON_DARK } else { ICON_LIGHT };
+    match decode_png_to_rgba(bytes) {
+        Ok((rgba, w, h)) => tauri::image::Image::new_owned(rgba, w, h),
+        Err(e) => {
+            tracing::warn!(error = %e, dark, "Failed to decode tray icon, using default");
+            tauri::image::Image::new_owned(vec![0u8; 64 * 64 * 4], 64, 64)
+        }
+    }
+}
+
+pub fn update_tray_icon(app: &tauri::AppHandle, dark: bool) {
+    if let Some(tray) = app.tray_by_id("main-tray") {
+        let icon = tray_icon_for_theme(dark);
+        if let Err(e) = tray.set_icon(Some(icon)) {
+            tracing::warn!(error = %e, dark, "Failed to update tray icon");
+        } else {
+            tracing::debug!(dark, "Tray icon updated");
         }
     }
 }

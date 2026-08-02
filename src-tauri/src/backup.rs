@@ -25,6 +25,7 @@ fn load_max_backups_setting(conn: &Connection) -> usize {
     load_app_setting::<usize>(conn, "maxBackups").unwrap_or(DEFAULT_MAX_BACKUPS)
 }
 
+/// Создаёт резервную копию БД, если автобэкап включён в настройках.
 pub fn auto_backup(conn: &Connection) {
     let enabled: bool = load_app_setting(conn, "autoBackup").unwrap_or(true);
 
@@ -107,14 +108,19 @@ fn rotate_backups(dir: &std::path::Path, max: usize) {
     }
 }
 
+/// Информация о резервной копии.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct BackupInfo {
+    /// Имя файла.
     pub filename: String,
+    /// Размер в КБ.
     pub size_kb: f64,
+    /// Timestamp создания.
     pub timestamp: String,
 }
 
 #[tauri::command]
+/// Возвращает список всех резервных копий.
 pub fn list_backups() -> Result<Vec<BackupInfo>, String> {
     tracing::debug!("list_backups called");
     let dir = get_backup_dir().map_err(|e| {
@@ -158,6 +164,7 @@ pub fn list_backups() -> Result<Vec<BackupInfo>, String> {
 }
 
 #[tauri::command]
+/// Удаляет резервную копию по имени файла.
 pub fn delete_backup(filename: String) -> Result<(), String> {
     tracing::debug!(filename, "delete_backup called");
     if filename.contains("..") || filename.contains('/') || filename.contains('\\') {
@@ -182,6 +189,7 @@ pub fn delete_backup(filename: String) -> Result<(), String> {
 }
 
 #[tauri::command]
+/// Восстанавливает БД из резервной копии.
 pub fn restore_backup(filename: String) -> Result<(), String> {
     tracing::debug!(filename, "restore_backup called");
     if filename.contains("..") || filename.contains('/') || filename.contains('\\') {
@@ -206,13 +214,17 @@ pub fn restore_backup(filename: String) -> Result<(), String> {
     Ok(())
 }
 
+/// Информация о восстановлении БД.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RecoveryInfo {
+    /// Была ли автоматическая рекавери при запуске.
     pub was_recovered: bool,
+    /// Доступные резервные копии.
     pub backups: Vec<BackupInfo>,
 }
 
 #[tauri::command]
+/// Проверяет статус рекавери и возвращает список доступных бэкапов.
 pub fn check_db_recovery(state: tauri::State<'_, crate::db::DbState>) -> Result<RecoveryInfo, String> {
     let was_recovered = state.was_recovered;
     let backups = list_backups()?;

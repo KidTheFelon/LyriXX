@@ -3,8 +3,10 @@ use std::path::PathBuf;
 
 use crate::datetime;
 
+/// Текущая версия схемы БД.
 pub const LATEST_VERSION: i32 = 1;
 
+/// Определяет путь к БД: data/ рядом с exe или AppData fallback.
 pub fn get_db_path() -> Result<PathBuf, String> {
     let exe =
         std::env::current_exe().map_err(|e| {
@@ -33,6 +35,7 @@ pub fn get_db_path() -> Result<PathBuf, String> {
     Ok(fallback_dir.join("lyrixx.db"))
 }
 
+/// Возвращает папку для резервных копий (рядом с БД).
 pub fn get_backup_dir() -> Result<PathBuf, String> {
     let path = get_db_path()?;
     Ok(path
@@ -114,6 +117,7 @@ fn migrate(conn: &Connection) -> Result<(), String> {
 
 use crate::db::DbState;
 
+/// Инициализация БД: открытие, миграция схемы, рекавери при повреждении.
 pub fn init() -> Result<DbState, String> {
     let path = get_db_path()?;
     tracing::info!(db_path = %path.display(), "Initializing database");

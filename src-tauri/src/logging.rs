@@ -4,20 +4,31 @@ use std::sync::{Arc, Mutex};
 
 use crate::datetime;
 
+/// Макс. количество записей в буфере логов бэкенда.
 pub const MAX_BACKEND_LOGS: usize = 500;
+/// Макс. количество записей в логе SQL-запросов.
 pub const MAX_SQL_QUERIES: usize = 200;
 
+/// Запись SQL-запроса.
 #[derive(Clone, Serialize)]
 pub struct SqlQueryEntry {
+    /// Время выполнения.
     pub time: String,
+    /// Имя Tauri command.
     pub command: String,
+    /// SQL-запрос.
     pub sql: String,
+    /// Длительность (ms).
     pub duration_ms: f64,
+    /// Успешность.
     pub success: bool,
+    /// Текст ошибки (если есть).
     pub error: Option<String>,
 }
 
+/// Потокобезопасный буфер логов SQL-запросов.
 pub struct SqlQueryLog {
+    /// Записи лога.
     pub entries: Mutex<Vec<SqlQueryEntry>>,
 }
 
@@ -47,28 +58,42 @@ impl SqlQueryLog {
     }
 }
 
+/// Запись лога бэкенда.
 #[derive(Clone, Serialize)]
 pub struct BackendLogEntry {
+    /// Время (HH:MM:SS.mmm).
     pub time: String,
+    /// Уровень (debug/info/warn/error).
     pub level: String,
+    /// Тег модуля.
     pub target: String,
+    /// Текст сообщения.
     pub message: String,
 }
 
+/// Потокобезопасный буфер логов бэкенда.
 pub struct BackendLogBuffer {
+    /// Записи лога.
     pub entries: Mutex<Vec<BackendLogEntry>>,
 }
 
+/// Глобальное состояние "свернуть в трей" (AtomicBool).
 pub struct MinimizeToTrayState {
+    /// Включено ли сворачивание в трей.
     pub enabled: AtomicBool,
 }
 
+/// Состояние файла лога фронтенда + ротация.
 pub struct LogFileState {
+    /// Файл лога.
     pub file: Mutex<std::fs::File>,
+    /// Папка логов.
     pub logs_dir: std::path::PathBuf,
+/// Текущая дата лог-файла (для ротации).
     pub current_date: Mutex<String>,
 }
 
+/// tracing_subscriber Layer, перехватывающий логи в BackendLogBuffer.
 pub struct LogLayer {
     buffer: Arc<BackendLogBuffer>,
 }
@@ -158,6 +183,7 @@ impl tracing::field::Visit for MsgVisitor {
     }
 }
 
+/// Формирует имя файла лога фронтенда: lyrixx.frontend.{date}.log.
 pub fn frontend_log_filename(date: &str) -> String {
     format!("lyrixx.frontend.{}.log", date)
 }

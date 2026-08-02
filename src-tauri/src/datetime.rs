@@ -1,7 +1,9 @@
+/// Проверяет, является ли год високосным.
 pub fn is_leap(y: u32) -> bool {
     (y % 4 == 0 && y % 100 != 0) || (y % 400 == 0)
 }
 
+/// Конвертирует epoch-секунды в кортеж (год, месяц, день, часы, минуты, секунды).
 pub fn chrono_from_epoch(secs: u64) -> (u32, u32, u32, u32, u32, u32) {
     let mut days = secs / 86400;
     let time_of_day = secs % 86400;
@@ -40,6 +42,7 @@ pub fn chrono_from_epoch(secs: u64) -> (u32, u32, u32, u32, u32, u32) {
     (year, month, day, hours, minutes, seconds)
 }
 
+/// Возвращает текущее время в формате "HH:MM:SS.mmm".
 pub fn chrono_now() -> String {
     let now = std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
@@ -51,6 +54,7 @@ pub fn chrono_now() -> String {
     format!("{}:{:02}:{:02}.{:03}", dt.3, dt.4, dt.5, millis)
 }
 
+/// Форматирует epoch как "YYYYMMDD_HHMMSS" для имени файла бэкапа.
 pub fn backup_timestamp(secs: u64) -> String {
     let mut days = secs / 86400;
     let time_of_day = secs % 86400;
@@ -92,11 +96,13 @@ pub fn backup_timestamp(secs: u64) -> String {
     )
 }
 
+/// Форматирует epoch как "YYYY-MM-DD".
 pub fn format_date_yyyy_mm_dd(secs: u64) -> String {
     let dt = chrono_from_epoch(secs);
     format!("{:04}-{:02}-{:02}", dt.0, dt.1, dt.2)
 }
 
+/// Форматирует epoch как "YYYY-MM-DD HH:MM:SS".
 pub fn format_datetime_display(secs: u64) -> String {
     let dt = chrono_from_epoch(secs);
     format!(

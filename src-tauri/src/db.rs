@@ -8,37 +8,58 @@ use crate::datetime;
 use crate::db_init::get_db_path;
 use crate::logging::SqlQueryLog;
 
+/// Потокобезопасное состояние БД: подключение + флаг рекавери.
 pub struct DbState {
+    /// Мьютекс SQLite-подключения.
     pub db: Mutex<Connection>,
+    /// Была ли выполнена автоматическая рекавери при запуске.
     pub was_recovered: bool,
 }
 
+/// Запись песни в БД.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SongRecord {
+    /// Уникальный id.
     pub id: String,
+    /// Название.
     pub title: String,
+    /// Исполнитель.
     pub artist: String,
+    /// Текст с тегами секций.
     pub lyrics: String,
+    /// ID категории.
     pub category: String,
+    /// Закреплена ли.
     pub pinned: bool,
+    /// Timestamp создания (ms).
     #[serde(rename = "createdAt")]
     pub created_at: i64,
+    /// Timestamp обновления (ms).
     #[serde(rename = "updatedAt")]
     pub updated_at: i64,
 }
 
+/// Запись категории в БД.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CategoryRecord {
+    /// Уникальный id.
     pub id: String,
+    /// Отображаемое название.
     pub label: String,
+    /// ID иконки.
     pub icon: String,
 }
 
+/// Метаданные файла БД.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DbFileInfo {
+    /// Путь к файлу.
     pub path: String,
+    /// Размер в байтах.
     pub size_bytes: u64,
+    /// Дата последнего изменения.
     pub last_modified: String,
+    /// Версия миграции.
     pub migration_version: i32,
 }
 
@@ -53,6 +74,7 @@ fn lock_db<'a>(state: &'a State<'a, DbState>) -> std::sync::MutexGuard<'a, Conne
 }
 
 #[tauri::command]
+/// Загружает все песни из БД, сортировка: закреплённые первые, затем по updated_at.
 pub fn load_songs(state: State<DbState>, log_state: State<'_, Arc<SqlQueryLog>>) -> Result<Vec<SongRecord>, String> {
     tracing::debug!("load_songs called");
     let sql = "SELECT id, title, artist, lyrics, category, pinned, created_at, updated_at FROM songs ORDER BY pinned DESC, updated_at DESC";
@@ -91,6 +113,7 @@ pub fn load_songs(state: State<DbState>, log_state: State<'_, Arc<SqlQueryLog>>)
 }
 
 #[tauri::command]
+/// Upsert песни: INSERT или UPDATE по id.
 pub fn save_song(state: State<DbState>, log_state: State<'_, Arc<SqlQueryLog>>, song: SongRecord) -> Result<(), String> {
     tracing::debug!(song_id = %song.id, title = %song.title, "save_song called");
     let sql = "INSERT INTO songs (id, title, artist, lyrics, category, pinned, created_at, updated_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8) ON CONFLICT(id) DO UPDATE SET title=excluded.title, artist=excluded.artist, lyrics=excluded.lyrics, category=excluded.category, pinned=excluded.pinned, updated_at=excluded.updated_at";
@@ -111,6 +134,7 @@ pub fn save_song(state: State<DbState>, log_state: State<'_, Arc<SqlQueryLog>>, 
 }
 
 #[tauri::command]
+/// Удаляет одну песню по id.
 pub fn delete_song(state: State<DbState>, log_state: State<'_, Arc<SqlQueryLog>>, id: String) -> Result<(), String> {
     tracing::debug!(song_id = %id, "delete_song called");
     let sql = "DELETE FROM songs WHERE id = ?1";
@@ -131,6 +155,7 @@ pub fn delete_song(state: State<DbState>, log_state: State<'_, Arc<SqlQueryLog>>
 }
 
 #[tauri::command]
+/// Массовое удаление песен по списку id.
 pub fn delete_songs(state: State<DbState>, log_state: State<'_, Arc<SqlQueryLog>>, ids: Vec<String>) -> Result<(), String> {
     if ids.is_empty() {
         return Ok(());
@@ -157,6 +182,7 @@ pub fn delete_songs(state: State<DbState>, log_state: State<'_, Arc<SqlQueryLog>
 }
 
 #[tauri::command]
+/// Загружает все категории из БД.
 pub fn load_categories(state: State<DbState>, log_state: State<'_, Arc<SqlQueryLog>>) -> Result<Vec<CategoryRecord>, String> {
     tracing::debug!("load_categories called");
     let sql = "SELECT id, label, icon FROM categories ORDER BY id";
@@ -190,6 +216,7 @@ pub fn load_categories(state: State<DbState>, log_state: State<'_, Arc<SqlQueryL
 }
 
 #[tauri::command]
+/// Upsert категории: INSERT или UPDATE по id.
 pub fn save_category(state: State<DbState>, log_state: State<'_, Arc<SqlQueryLog>>, category: CategoryRecord) -> Result<(), String> {
     tracing::debug!(cat_id = %category.id, label = %category.label, "save_category called");
     let sql = "INSERT INTO categories (id, label, icon) VALUES (?1, ?2, ?3) ON CONFLICT(id) DO UPDATE SET label=excluded.label, icon=excluded.icon";
@@ -210,28 +237,39 @@ pub fn save_category(state: State<DbState>, log_state: State<'_, Arc<SqlQueryLog
 }
 
 #[tauri::command]
+/// Удаляет категорию и сбрасывает category у связанных песен.
 pub fn delete_category(state: State<DbState>, log_state: State<'_, Arc<SqlQueryLog>>, id: String) -> Result<(), String> {
     tracing::debug!(cat_id = %id, "delete_category called");
     let sql_del = "DELETE FROM categories WHERE id = ?1";
     let sql_upd = "UPDATE songs SET category = '' WHERE category = ?1";
     let start = Instant::now();
-    let conn = lock_db(&state);
-    let r1 = conn.execute(sql_del, params![id]).map_err(|e| e.to_string());
-    let r2 = conn.execute(sql_upd, params![id]).map_err(|e| e.to_string());
-    if let Err(e) = &r1 {
-        log_state.log("delete_category", sql_del, start, false, Some(e.clone()));
-        return Err(e.clone());
-    }
-    if let Err(e) = &r2 {
-        log_state.log("delete_category", sql_upd, start, false, Some(e.clone()));
-        return Err(e.clone());
-    }
-    log_state.log("delete_category", "DELETE + UPDATE", start, true, None);
+    let mut conn = lock_db(&state);
+    let tx = match conn.transaction() {
+        Ok(tx) => tx,
+        Err(e) => {
+            log_state.log("delete_category", "BEGIN TRANSACTION", start, false, Some(e.to_string()));
+            return Err(e.to_string());
+        }
+    };
+    tx.execute(sql_del, params![id]).map_err(|e| {
+        log_state.log("delete_category", sql_del, start, false, Some(e.to_string()));
+        e.to_string()
+    })?;
+    tx.execute(sql_upd, params![id]).map_err(|e| {
+        log_state.log("delete_category", sql_upd, start, false, Some(e.to_string()));
+        e.to_string()
+    })?;
+    tx.commit().map_err(|e| {
+        log_state.log("delete_category", "COMMIT", start, false, Some(e.to_string()));
+        e.to_string()
+    })?;
+    log_state.log("delete_category", "DELETE + UPDATE (transaction)", start, true, None);
     tracing::debug!("Category deleted");
     Ok(())
 }
 
 #[tauri::command]
+/// Загружает значение настройки по ключу.
 pub fn load_setting(state: State<DbState>, log_state: State<'_, Arc<SqlQueryLog>>, key: String) -> Result<Option<String>, String> {
     tracing::debug!(setting_key = %key, "load_setting called");
     let sql = "SELECT value FROM settings WHERE key = ?1";
@@ -254,6 +292,7 @@ pub fn load_setting(state: State<DbState>, log_state: State<'_, Arc<SqlQueryLog>
 }
 
 #[tauri::command]
+/// Сохраняет значение настройки (JSON-строка).
 pub fn save_setting(state: State<DbState>, log_state: State<'_, Arc<SqlQueryLog>>, key: String, value: String) -> Result<(), String> {
     let keys_count = serde_json::from_str::<serde_json::Value>(&value)
         .ok()
@@ -278,6 +317,7 @@ pub fn save_setting(state: State<DbState>, log_state: State<'_, Arc<SqlQueryLog>
 }
 
 #[tauri::command]
+/// Возвращает путь к файлу БД как строку.
 pub fn get_db_path_str() -> Result<String, String> {
     let path = get_db_path()?;
     tracing::debug!(db_path = %path.display(), "get_db_path_str called");
@@ -285,6 +325,7 @@ pub fn get_db_path_str() -> Result<String, String> {
 }
 
 #[tauri::command]
+/// Копирует файл с защитой от path traversal.
 pub fn copy_file(src: String, dest: String) -> Result<(), String> {
     let src_path = std::path::Path::new(&src);
     let dest_path = std::path::Path::new(&dest);
@@ -307,7 +348,13 @@ pub fn copy_file(src: String, dest: String) -> Result<(), String> {
 }
 
 #[tauri::command]
+/// Записывает текстовый файл на диск.
 pub fn write_text_file(path: String, content: String) -> Result<(), String> {
+    let path_obj = std::path::Path::new(&path);
+    if path_obj.components().any(|c| matches!(c, std::path::Component::ParentDir)) {
+        tracing::warn!(path = %path, "write_text_file: path traversal rejected");
+        return Err("Path contains directory traversal".to_string());
+    }
     tracing::info!(path = %path, len = content.len(), "write_text_file called");
     std::fs::write(&path, content.as_bytes()).map_err(|e| {
         tracing::error!(error = %e, path = %path, "write_text_file failed");
@@ -317,6 +364,7 @@ pub fn write_text_file(path: String, content: String) -> Result<(), String> {
 }
 
 #[tauri::command]
+/// Очищает все данные: удаляет все песни и категории.
 pub fn clear_all_data(state: State<DbState>, log_state: State<'_, Arc<SqlQueryLog>>) -> Result<(), String> {
     tracing::warn!("clear_all_data called — deleting all songs and categories");
     let sql_songs = "DELETE FROM songs";
@@ -339,6 +387,7 @@ pub fn clear_all_data(state: State<DbState>, log_state: State<'_, Arc<SqlQueryLo
 }
 
 #[tauri::command]
+/// Возвращает метаданные файла БД: путь, размер, дата, версия миграции.
 pub fn get_db_file_info(state: State<DbState>) -> Result<DbFileInfo, String> {
     let path = get_db_path()?;
     let metadata = std::fs::metadata(&path).map_err(|e| {

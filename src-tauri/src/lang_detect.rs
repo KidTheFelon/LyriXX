@@ -1,3 +1,4 @@
+/// Определяет язык слова: "ru" или "en" по подсчёту кириллических/латинских символов.
 pub fn detect_language(word: &str) -> &'static str {
     let mut cyrillic = 0u32;
     let mut latin = 0u32;
@@ -8,7 +9,9 @@ pub fn detect_language(word: &str) -> &'static str {
             _ => {}
         }
     }
-    if cyrillic > latin { "ru" } else { "en" }
+    let lang = if cyrillic > latin { "ru" } else { "en" };
+    tracing::trace!(word = %word, lang, cyrillic, latin, "detect_language");
+    lang
 }
 
 #[cfg(test)]
