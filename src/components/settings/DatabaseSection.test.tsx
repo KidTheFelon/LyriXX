@@ -124,7 +124,9 @@ describe("DatabaseSection", () => {
 
   it("renders backups list", () => {
     const { getByText } = render(<DatabaseSection {...defaultProps} />);
-    expect(getByText("backups (1)")).toBeTruthy();
+    expect(
+      getByText((_content, el) => el.textContent?.trim() === "backups (1)"),
+    ).toBeTruthy();
   });
 
   it("shows no backups message when empty", () => {
