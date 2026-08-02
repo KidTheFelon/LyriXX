@@ -1,14 +1,21 @@
+/** Тег секции песни. */
 export interface SongTag {
+  /** Внутренний id (verse, chorus, custom-...). */
   id: string;
+  /** Отображаемое название. */
   label: string;
+  /** Алиасы для парсинга ([куплет], [verse] и т.д.). */
   aliases: string[];
+  /** Цвет в светлой теме. */
   color: string;
+  /** Цвет в тёмной теме. */
   colorDark: string;
 }
 
 import type { Lang } from "@/i18n/translations";
 import { getTagLabel } from "@/i18n/translations";
 
+/** 14 встроенных тегов секций (куплет, припев, бридж и т.д.). */
 export const DEFAULT_SONG_TAGS: SongTag[] = [
   {
     id: "verse",
@@ -134,6 +141,7 @@ function getCustomTagColor(id: string): { color: string; colorDark: string } {
   return c;
 }
 
+/** Возвращает дефолтные теги с локализованными названиями для заданного языка. */
 export function getLocalizedDefaultTags(lang: Lang): SongTag[] {
   if (lang === "ru") return DEFAULT_SONG_TAGS;
   return DEFAULT_SONG_TAGS.map((t) => ({
@@ -142,6 +150,7 @@ export function getLocalizedDefaultTags(lang: Lang): SongTag[] {
   }));
 }
 
+/** Собирает полный список тегов: дефолтные + пользовательские. */
 export function buildAllTags(customLabels: string[], lang: Lang = "ru"): SongTag[] {
   const defaults = getLocalizedDefaultTags(lang);
   const custom = customLabels.map((label): SongTag => {
@@ -158,6 +167,7 @@ export function buildAllTags(customLabels: string[], lang: Lang = "ru"): SongTag
   return [...defaults, ...custom];
 }
 
+/** Парсит строку-тег встроенным тегом. Возвращает тег + суффикс (номер) или null. */
 export function parseSongTag(line: string): { tag: SongTag; suffix: string } | null {
   const match = TAG_REGEX.exec(line.trim());
   if (!match) return null;
@@ -182,6 +192,7 @@ export function parseSongTag(line: string): { tag: SongTag; suffix: string } | n
   return null;
 }
 
+/** Парсит строку-тег встроенным или пользовательским тегом. Также поддерживает inline-теги. */
 export function parseSongTagWithCustoms(
   line: string,
   allTags: SongTag[],
@@ -230,6 +241,7 @@ export function parseSongTagWithCustoms(
   return { tag: customTag, suffix: "" };
 }
 
+/** Определяет inline-тег в начале строки. Возвращает тег + позицию. */
 export function parseInlineTag(
   line: string,
   allTags: SongTag[],
@@ -265,19 +277,27 @@ export function parseInlineTag(
   return { tag: customTag, start, end };
 }
 
+/** Строит RegExp для поиска строк-тегов среди всех встроенных алиасов. */
 export function buildTagRegex(): RegExp {
   const allAliases = DEFAULT_SONG_TAGS.flatMap((t) => t.aliases);
   return new RegExp(`^\\[([^\\]]*?(${allAliases.join("|")})[^\\]]*?)\\]$`, "i");
 }
 
+/** Секция текста песни, определённая тегом. */
 export interface LyricSection {
+  /** Номер строки начала секции. */
   lineIndex: number;
+  /** Смещение в символах от начала текста. */
   charOffset: number;
+  /** Отображаемая метка (например "[Куплет]"). */
   label: string;
+  /** Распознанный тег или null для прозрачных секций. */
   tag: SongTag | null;
+  /** Количество строк в секции (включая строку тега). */
   lineCount: number;
 }
 
+/** Разбивает текст песни на секции по тегам. */
 export function parseLyricSections(lyrics: string, allTags?: SongTag[]): LyricSection[] {
   const lines = lyrics.split("\n");
   const sections: LyricSection[] = [];
@@ -305,6 +325,7 @@ export function parseLyricSections(lyrics: string, allTags?: SongTag[]): LyricSe
   return sections;
 }
 
+/** Формирует список элементов автодополнения из всех тегов (встроенные + пользовательские). */
 export function getAutocompleteTags(
   customLabels?: string[],
   lang: Lang = "ru",

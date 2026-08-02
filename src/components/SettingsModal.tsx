@@ -10,6 +10,7 @@ import { AccessibilitySection } from "./settings/AccessibilitySection";
 import { NotificationsSection } from "./settings/NotificationsSection";
 import { ShortcutsSection } from "./settings/ShortcutsSection";
 import { useTranslation } from "@/i18n";
+import { AnimatedText } from "./AnimatedText";
 import { MODAL_ANIM_DURATION_MS } from "@/constants";
 
 type TabId =
@@ -44,6 +45,7 @@ interface SettingsModalProps {
   onDeleteBackup: (filename: string) => void;
 }
 
+/** 9-вкладочный модал настроек: editor/interface/behavior/rhymes/tags/database/accessibility/notifications/shortcuts. */
 export function SettingsModal({
   open,
   settings,
@@ -132,16 +134,16 @@ export function SettingsModal({
 
   if (phase === "hidden") return null;
 
-  const tabs: { id: TabId; label: string }[] = [
-    { id: "editor", label: t("editor") },
-    { id: "interface", label: t("interface") },
-    { id: "behavior", label: t("behavior") },
-    { id: "rhymes", label: t("rhymeDict") },
-    { id: "tags", label: t("customTags") },
-    { id: "database", label: t("database") },
-    { id: "accessibility", label: t("accessibility") },
-    { id: "notifications", label: t("notifications") },
-    { id: "shortcuts", label: t("shortcuts") },
+  const tabs: { id: TabId; translationKey: string }[] = [
+    { id: "editor", translationKey: "editor" },
+    { id: "interface", translationKey: "interface" },
+    { id: "behavior", translationKey: "behavior" },
+    { id: "rhymes", translationKey: "rhymeDict" },
+    { id: "tags", translationKey: "customTags" },
+    { id: "database", translationKey: "database" },
+    { id: "accessibility", translationKey: "accessibility" },
+    { id: "notifications", translationKey: "notifications" },
+    { id: "shortcuts", translationKey: "shortcuts" },
   ];
 
   return (
@@ -161,7 +163,7 @@ export function SettingsModal({
         onKeyDown={handleKeyDown}
       >
         <div className="settings-header">
-          <div className="modal-title">{t("settings")}</div>
+          <div className="modal-title"><AnimatedText translationKey="settings" /></div>
         </div>
 
         <div className="settings-layout">
@@ -175,7 +177,7 @@ export function SettingsModal({
                 aria-selected={activeTab === tab.id}
                 type="button"
               >
-                {tab.label}
+                <AnimatedText translationKey={tab.translationKey} />
               </button>
             ))}
           </nav>
@@ -218,7 +220,7 @@ export function SettingsModal({
 
         <div className="modal-actions">
           <button className="modal-btn modal-btn-confirm" onClick={startClose} type="button">
-            {t("close")}
+            <AnimatedText translationKey="close" />
           </button>
         </div>
       </div>

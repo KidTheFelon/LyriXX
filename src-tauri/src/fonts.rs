@@ -1,8 +1,11 @@
 use serde::Serialize;
 
+/// Списки шрифтов: системные + пользовательские.
 #[derive(Serialize)]
 pub struct FontLists {
+    /// Системные шрифты (HKLM).
     pub system: Vec<String>,
+    /// Пользовательские шрифты (HKCU).
     pub custom: Vec<String>,
 }
 
@@ -14,6 +17,7 @@ fn strip_suffix(name: &str) -> String {
 }
 
 #[tauri::command]
+/// Перечисляет системные шрифты из реестра Windows.
 pub fn get_system_fonts() -> FontLists {
     tracing::debug!("get_system_fonts called");
     #[cfg(target_os = "windows")]

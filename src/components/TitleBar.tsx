@@ -1,5 +1,7 @@
+import { useState, useCallback } from "react";
 import { getWindowAPI, type WindowAPI } from "@/services/window";
 import { useTranslation } from "@/i18n";
+import { ContextMenu, type ContextMenuItem } from "./ContextMenu";
 
 let _win: WindowAPI | null = null;
 function getWin(): WindowAPI {
@@ -9,13 +11,70 @@ function getWin(): WindowAPI {
   return _win;
 }
 
-export function TitleBar() {
+/** Кастомный заголовок окна с кнопками minimize/maximize/close. */
+export function TitleBar({ title }: { title?: string }) {
   const win = getWin();
   const { t } = useTranslation();
+  const [ctxMenu, setCtxMenu] = useState<{ x: number; y: number } | null>(null);
+  const [maximized, setMaximized] = useState(false);
+
+  const handleContextMenu = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault();
+      win.isMaximized().then(setMaximized);
+      setCtxMenu({ x: e.clientX, y: e.clientY });
+    },
+    [],
+  );
+
+  const menuItems: ContextMenuItem[] = ctxMenu
+    ? [
+        {
+          id: "move",
+          label: t("move"),
+          disabled: false,
+          onClick: () => {
+            setCtxMenu(null);
+            win.startDragging();
+          },
+        },
+        { id: "separator" },
+        {
+          id: "minimize",
+          label: t("minimize"),
+          onClick: () => {
+            setCtxMenu(null);
+            win.minimize();
+          },
+        },
+        {
+          id: "maximize",
+          label: maximized ? t("restore") : t("maximize"),
+          onClick: () => {
+            setCtxMenu(null);
+            win.toggleMaximize();
+          },
+        },
+        { id: "separator" },
+        {
+          id: "close",
+          label: t("close"),
+          danger: true,
+          onClick: () => {
+            setCtxMenu(null);
+            win.close();
+          },
+        },
+      ]
+    : [];
 
   return (
-    <div data-tauri-drag-region className="titlebar">
-      <span className="titlebar-title">LyriXX</span>
+    <div data-tauri-drag-region className="titlebar" onContextMenu={handleContextMenu}>
+      <div className="titlebar-left">
+        <img src="/icon-64.png" alt="" width="16" height="16" className="titlebar-icon logo-theme-dark" />
+        <img src="/icon-64-inverted.png" alt="" width="16" height="16" className="titlebar-icon logo-theme-light" />
+      </div>
+      <span className="titlebar-title">{title !== undefined ? (title || t("untitled")) : "LyriXX"}</span>
       <div className="titlebar-controls">
         <button
           className="titlebar-btn"
@@ -74,6 +133,14 @@ export function TitleBar() {
           </svg>
         </button>
       </div>
+      {ctxMenu && (
+        <ContextMenu
+          items={menuItems}
+          x={ctxMenu.x}
+          y={ctxMenu.y}
+          onClose={() => setCtxMenu(null)}
+        />
+      )}
     </div>
   );
 }

@@ -14,6 +14,7 @@ interface TagAutocompleteProps {
   onHover: (index: number) => void;
 }
 
+/** Popup автодополнения тегов с цветными точками и названиями. */
 export function TagAutocomplete({
   items,
   activeIndex,

@@ -3,28 +3,30 @@ import type { ThemeMode, TitleBarStyle } from "@/types/settings";
 import type { SettingsSectionProps } from "./shared";
 import { ToggleSetting, ButtonGroupSetting, SliderSetting } from "./shared";
 import { useTranslation } from "@/i18n";
+import { AnimatedText } from "../AnimatedText";
 import { ACCENT_PRESETS } from "@/utils/accentColors";
 
 const DEFAULT_ACCENT = "#005fb8";
 
+/** Вкладка настроек интерфейса: тема, шрифты, прозрачность, titlebar. */
 export function UISection({ settings, onUpdate }: SettingsSectionProps) {
   const { t } = useTranslation();
   const pickerRef = useRef<HTMLInputElement>(null);
 
-  const THEMES: { value: ThemeMode; label: string }[] = [
-    { value: "system", label: t("systemTheme") },
-    { value: "light", label: t("lightTheme") },
-    { value: "dark", label: t("darkTheme") },
+  const THEMES: { value: ThemeMode; label: React.ReactNode }[] = [
+    { value: "system", label: <AnimatedText translationKey="systemTheme" /> },
+    { value: "light", label: <AnimatedText translationKey="lightTheme" /> },
+    { value: "dark", label: <AnimatedText translationKey="darkTheme" /> },
   ];
 
-  const TITLE_BAR_STYLES: { value: TitleBarStyle; label: string }[] = [
-    { value: "custom", label: t("titleBarCustom") },
-    { value: "native", label: t("titleBarNative") },
+  const TITLE_BAR_STYLES: { value: TitleBarStyle; label: React.ReactNode }[] = [
+    { value: "custom", label: <AnimatedText translationKey="titleBarCustom" /> },
+    { value: "native", label: <AnimatedText translationKey="titleBarNative" /> },
   ];
 
   const LANGS = [
-    { value: "ru" as const, label: t("russian") },
-    { value: "en" as const, label: t("english") },
+    { value: "ru" as const, label: <AnimatedText translationKey="russian" /> },
+    { value: "en" as const, label: <AnimatedText translationKey="english" /> },
   ];
 
   const currentAccent = settings.accentColor || "";
@@ -33,17 +35,17 @@ export function UISection({ settings, onUpdate }: SettingsSectionProps) {
 
   return (
     <div className="settings-section">
-      <div className="settings-section-title">{t("interface")}</div>
+      <div className="settings-section-title"><AnimatedText translationKey="interface" /></div>
 
       <ButtonGroupSetting
-        label={t("theme")}
+        label={<AnimatedText translationKey="theme" />}
         value={settings.theme}
         options={THEMES}
         onChange={(v) => onUpdate({ theme: v })}
       />
 
       <div className="settings-group">
-        <label className="settings-label">{t("accentColor")}</label>
+        <label className="settings-label"><AnimatedText translationKey="accentColor" /></label>
         <div className="accent-color-grid">
           <button
             className={`accent-color-swatch accent-color-picker-btn ${isCustom ? "active" : ""}`}
@@ -83,22 +85,22 @@ export function UISection({ settings, onUpdate }: SettingsSectionProps) {
       </div>
 
       <ButtonGroupSetting
-        label={t("interfaceLanguage")}
+        label={<AnimatedText translationKey="interfaceLanguage" />}
         value={settings.language}
         options={LANGS}
         onChange={(v) => onUpdate({ language: v })}
       />
 
       <ToggleSetting
-        label={t("sidebarDefaultOpen")}
+        label={<AnimatedText translationKey="sidebarDefaultOpen" />}
         checked={settings.sidebarDefaultOpen}
         onChange={(v) => onUpdate({ sidebarDefaultOpen: v })}
-        onLabel={t("on")}
-        offLabel={t("off")}
+        onLabel={<AnimatedText translationKey="on" />}
+        offLabel={<AnimatedText translationKey="off" />}
       />
 
       <SliderSetting
-        label={t("sidebarWidth")}
+        label={<AnimatedText translationKey="sidebarWidth" />}
         value={settings.sidebarWidth}
         min={220}
         max={500}
@@ -108,7 +110,7 @@ export function UISection({ settings, onUpdate }: SettingsSectionProps) {
       />
 
       <SliderSetting
-        label={t("sidebarFontSize")}
+        label={<AnimatedText translationKey="sidebarFontSize" />}
         value={settings.sidebarFontSize}
         min={10}
         max={18}
@@ -118,7 +120,7 @@ export function UISection({ settings, onUpdate }: SettingsSectionProps) {
       />
 
       <SliderSetting
-        label={t("songListWidth")}
+        label={<AnimatedText translationKey="songListWidth" />}
         value={settings.songListWidth}
         min={150}
         max={500}
@@ -128,23 +130,23 @@ export function UISection({ settings, onUpdate }: SettingsSectionProps) {
       />
 
       <ToggleSetting
-        label={t("compactMode")}
+        label={<AnimatedText translationKey="compactMode" />}
         checked={settings.compactMode}
         onChange={(v) => onUpdate({ compactMode: v })}
-        onLabel={t("on")}
-        offLabel={t("off")}
+        onLabel={<AnimatedText translationKey="on" />}
+        offLabel={<AnimatedText translationKey="off" />}
       />
 
       <ToggleSetting
-        label={t("animationsEnabled")}
+        label={<AnimatedText translationKey="animationsEnabled" />}
         checked={settings.animationsEnabled}
         onChange={(v) => onUpdate({ animationsEnabled: v })}
-        onLabel={t("on")}
-        offLabel={t("off")}
+        onLabel={<AnimatedText translationKey="on" />}
+        offLabel={<AnimatedText translationKey="off" />}
       />
 
       <SliderSetting
-        label={t("transparency")}
+        label={<AnimatedText translationKey="transparency" />}
         value={settings.transparency}
         min={50}
         max={100}
@@ -154,26 +156,26 @@ export function UISection({ settings, onUpdate }: SettingsSectionProps) {
       />
 
       <ButtonGroupSetting
-        label={t("titleBarStyle")}
+        label={<AnimatedText translationKey="titleBarStyle" />}
         value={settings.titleBarStyle}
         options={TITLE_BAR_STYLES}
         onChange={(v) => onUpdate({ titleBarStyle: v })}
       />
 
       <ToggleSetting
-        label={t("confirmDelete")}
+        label={<AnimatedText translationKey="confirmDelete" />}
         checked={settings.confirmDelete}
         onChange={(v) => onUpdate({ confirmDelete: v })}
-        onLabel={t("on")}
-        offLabel={t("off")}
+        onLabel={<AnimatedText translationKey="on" />}
+        offLabel={<AnimatedText translationKey="off" />}
       />
 
       <ToggleSetting
-        label={t("wordCountStatusBar")}
+        label={<AnimatedText translationKey="wordCountStatusBar" />}
         checked={settings.showWordCount}
         onChange={(v) => onUpdate({ showWordCount: v })}
-        onLabel={t("on")}
-        offLabel={t("off")}
+        onLabel={<AnimatedText translationKey="on" />}
+        offLabel={<AnimatedText translationKey="off" />}
       />
     </div>
   );

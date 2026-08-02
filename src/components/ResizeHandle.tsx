@@ -5,6 +5,7 @@ interface ResizeHandleProps {
   direction?: "horizontal" | "vertical";
 }
 
+/** Drag-хэндл для изменения ширины колонок sidebar/songlist. */
 export function ResizeHandle({ onResize, direction = "horizontal" }: ResizeHandleProps) {
   const startX = useRef(0);
   const startY = useRef(0);

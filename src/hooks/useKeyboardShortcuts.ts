@@ -1,13 +1,19 @@
 import { useEffect, useRef } from "react";
 import { logger } from "@/services/logger";
 
+/** Конфигурация обработчиков горячих клавиш. */
 export interface KeyboardShortcutMap {
+  /** Ctrl+N — новая песня. */
   onNewSong?: () => void;
+  /** Ctrl+F — фокус на поиск. */
   onFocusSearch?: () => void;
+  /** Delete — запрос удаления активной песни. */
   onRequestDelete?: () => void;
+  /** Включить обработку Delete (false = игнорировать). */
   deleteEnabled?: boolean;
 }
 
+/** Регистрирует глобальные горячие клавиши: Ctrl+N, Ctrl+F, Delete. */
 export function useKeyboardShortcuts(shortcuts: KeyboardShortcutMap) {
   const ref = useRef(shortcuts);
   ref.current = shortcuts;

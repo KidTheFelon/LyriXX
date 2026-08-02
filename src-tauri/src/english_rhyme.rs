@@ -3,11 +3,16 @@ use std::sync::Arc;
 
 use crate::rhyme::RhymeWord;
 
+/// Потокобезопасный указатель на CMU dict.
 pub type CmuDict = Arc<CmuDictInner>;
 
+/// CMU фонетический словарь + индекс рифм + словарь частей речи.
 pub struct CmuDictInner {
+    /// Слово → список фонем.
     word_to_phonemes: HashMap<String, Vec<String>>,
+    /// Индекс рифм: окончание фонем → записи.
     rhyme_index: HashMap<String, Vec<RhymeEntry>>,
+    /// Слово → части речи (Moby POS).
     pos_dict: HashMap<String, Vec<String>>,
 }
 
@@ -108,6 +113,7 @@ fn guess_pos_all(pos_dict: &HashMap<String, Vec<String>>, word: &str) -> Vec<Str
     result
 }
 
+/// Загружает CMU dict + Moby POS из встроенных данных.
 pub fn load_cmu_dict(
     cmu_bytes: &'static [u8],
     pos_bytes: &'static [u8],
@@ -193,6 +199,7 @@ pub fn load_cmu_dict(
     CmuDictInner { word_to_phonemes, rhyme_index, pos_dict }
 }
 
+/// Ищет английские рифмы по фонетическому совпадению.
 pub fn find_english_rhymes(dict: &CmuDictInner, word: &str, max_results: u32) -> Vec<RhymeWord> {
     let input = word.to_lowercase();
 
@@ -234,6 +241,7 @@ pub fn find_english_rhymes(dict: &CmuDictInner, word: &str, max_results: u32) ->
 }
 
 #[allow(dead_code)]
+/// Подсчитывает слоги по фонемам CMU dict.
 pub fn cmu_syllables(dict: &CmuDictInner, word: &str) -> Option<u32> {
     dict.word_to_phonemes
         .get(&word.to_lowercase())

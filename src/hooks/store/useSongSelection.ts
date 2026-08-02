@@ -5,20 +5,33 @@ import type { CustomCategory } from "@/types/category";
 import { logger } from "@/services/logger";
 import { EXIT_ANIM_MS } from "@/constants";
 
+/** Параметры хука выбора песен. */
 interface UseSongSelectionParams {
+  /** Все песни. */
   songs: Song[];
+  /** Все категории. */
   categories: CustomCategory[];
+  /** Создать песню. */
   addSong: (category: string, lyrics?: string) => Promise<string>;
+  /** Обновить песню. */
   updateSong: (id: string, patch: Partial<Omit<Song, "id" | "createdAt">>) => void;
+  /** Удалить песню. */
   deleteSong: (id: string) => Promise<void>;
+  /** Поле сортировки песен. */
   sortSongsBy: string;
+  /** Поле сортировки категорий. */
   sortCategoriesBy: string;
+  /** Подтверждать удаление. */
   confirmDelete: boolean;
+  /** Шаблон для новой песни. */
   defaultSongTemplate: string;
+  /** Колбэк для screen reader. */
   announce: (msg: string) => void;
+  /** Функция перевода. */
   t: (key: string) => string;
 }
 
+/** Хук фильтрации, сортировки и выбора активной песни. */
 export function useSongSelection({
   songs,
   categories,

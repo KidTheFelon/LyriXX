@@ -66,6 +66,7 @@ function detectDark(): boolean {
   return window.matchMedia("(prefers-color-scheme: dark)").matches;
 }
 
+/** CodeMirror ViewPlugin для подсветки [tag]-строк цветом тега. */
 export function tagHighlightPlugin(allTags: SongTag[]) {
   return ViewPlugin.fromClass(
     class {
@@ -80,7 +81,9 @@ export function tagHighlightPlugin(allTags: SongTag[]) {
       }
 
       update(update: ViewUpdate) {
-        if (update.docChanged || update.viewportChanged) {
+        const newDark = detectDark();
+        if (update.docChanged || update.viewportChanged || newDark !== this.isDark) {
+          this.isDark = newDark;
           this.decorations = buildDecorations(update.view, this.tags, this.isDark);
         }
       }

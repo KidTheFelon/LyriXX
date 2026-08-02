@@ -30,6 +30,7 @@ use crate::logging::{
 };
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
+/// Точка входа приложения: настройка логирования, БД, rhyme engine, tray, Tauri плагины.
 pub fn run() {
     let logs_dir = get_logs_dir();
 
@@ -129,11 +130,29 @@ pub fn run() {
                         let _ = splash.with_webview(|webview| {
                             unsafe {
                                 let controller = webview.controller();
-                                let core = controller.CoreWebView2().unwrap();
-                                let settings = core.Settings().unwrap();
+                                let core = match controller.CoreWebView2() {
+                                    Ok(c) => c,
+                                    Err(e) => {
+                                        tracing::warn!(error = %e, "Failed to get CoreWebView2 for splash");
+                                        return;
+                                    }
+                                };
+                                let settings = match core.Settings() {
+                                    Ok(s) => s,
+                                    Err(e) => {
+                                        tracing::warn!(error = %e, "Failed to get WebView2 settings for splash");
+                                        return;
+                                    }
+                                };
                                 let _ = settings.SetAreDefaultContextMenusEnabled(false);
                                 let settings3: webview2_com_sys::Microsoft::Web::WebView2::Win32::ICoreWebView2Settings3 =
-                                    settings.cast().unwrap();
+                                    match settings.cast() {
+                                        Ok(s) => s,
+                                        Err(e) => {
+                                            tracing::warn!(error = %e, "Failed to cast WebView2 settings for splash");
+                                            return;
+                                        }
+                                    };
                                 let _ = settings3.SetAreBrowserAcceleratorKeysEnabled(false);
                             }
                         });
@@ -147,7 +166,13 @@ pub fn run() {
 
             {
                 let db_state: tauri::State<'_, db::DbState> = handle.state();
-                let conn = db_state.db.lock().unwrap();
+                let conn = match db_state.db.lock() {
+                    Ok(g) => g,
+                    Err(poisoned) => {
+                        tracing::warn!("Mutex poisoned during auto_backup, recovering");
+                        poisoned.into_inner()
+                    }
+                };
                 backup::auto_backup(&conn);
             }
 
@@ -155,13 +180,25 @@ pub fn run() {
 
             let initial_theme: Option<String> = {
                 let db_state: tauri::State<'_, db::DbState> = handle.state();
-                let conn = db_state.db.lock().unwrap();
+                let conn = match db_state.db.lock() {
+                    Ok(g) => g,
+                    Err(poisoned) => {
+                        tracing::warn!("Mutex poisoned during theme load, recovering");
+                        poisoned.into_inner()
+                    }
+                };
                 conn.query_row("SELECT value FROM settings WHERE key = ?1", ["theme"], |row| row.get(0)).ok()
             };
 
             let minimize_to_tray: bool = {
                 let db_state: tauri::State<'_, db::DbState> = handle.state();
-                let conn = db_state.db.lock().unwrap();
+                let conn = match db_state.db.lock() {
+                    Ok(g) => g,
+                    Err(poisoned) => {
+                        tracing::warn!("Mutex poisoned during minimize_to_tray load, recovering");
+                        poisoned.into_inner()
+                    }
+                };
                 conn.query_row("SELECT value FROM settings WHERE key = ?1", ["minimizeToTray"], |row| row.get::<_, String>(0))
                     .ok()
                     .map(|v| v != "false")
@@ -176,12 +213,21 @@ pub fn run() {
 
             tray::splash_status(&handle, "config");
 
+            let is_dark = initial_theme.as_deref().map(|theme| match theme {
+                "dark" => true,
+                "light" => false,
+                "system" => is_system_dark_mode(),
+                _ => false,
+            }).unwrap_or(false);
+
             if let Some(theme) = &initial_theme {
                 if let Some(splash) = handle.get_webview_window("splash") {
-                    if let Err(e) = splash.eval(&format!("window.__setTheme('{}')", theme)) {
+                    let safe_theme: String = theme.chars().filter(|c| c.is_alphanumeric() || *c == '_' || *c == '-').collect();
+                    if let Err(e) = splash.eval(&format!("window.__setTheme('{}')", safe_theme)) {
                         tracing::warn!(error = %e, theme, "Failed to set theme on splash via eval");
                     }
                 }
+                set_window_icon_for_theme(&handle, is_dark);
             }
 
             tray::splash_status(&handle, "plugins");
@@ -214,7 +260,7 @@ pub fn run() {
 
             tray::splash_status(&handle, "tray");
 
-            tray::setup_tray(app)?;
+            tray::setup_tray(app, is_dark)?;
             tray::hide_tray_if_disabled(app, minimize_to_tray);
 
             if let Some(main_window) = app.get_webview_window("main") {
@@ -304,6 +350,58 @@ fn set_mica_theme(app: tauri::AppHandle, dark: bool) {
             tracing::warn!("set_mica_theme: main window not found");
         }
     }
+    set_window_icon_for_theme(&app, dark);
+    tray::update_tray_icon(&app, dark);
+}
+
+pub(crate) const ICON_DARK: &[u8] = include_bytes!("../assets/icon-dark.png");
+pub(crate) const ICON_LIGHT: &[u8] = include_bytes!("../assets/icon-light.png");
+
+pub(crate) fn decode_png_to_rgba(data: &[u8]) -> Result<(Vec<u8>, u32, u32), String> {
+    let decoder = png::Decoder::new(std::io::Cursor::new(data));
+    let mut reader = decoder.read_info().map_err(|e| e.to_string())?;
+    let mut buf = vec![0; reader.output_buffer_size().unwrap_or(0)];
+    let info = reader.next_frame(&mut buf).map_err(|e| e.to_string())?;
+    buf.truncate(info.buffer_size());
+    Ok((buf, info.width, info.height))
+}
+
+fn set_window_icon_for_theme(app: &tauri::AppHandle, dark: bool) {
+    let icon_bytes = if dark { ICON_DARK } else { ICON_LIGHT };
+    let (rgba, width, height) = match decode_png_to_rgba(icon_bytes) {
+        Ok(v) => v,
+        Err(e) => {
+            tracing::warn!(error = %e, dark, "Failed to decode window icon PNG");
+            return;
+        }
+    };
+    let icon = tauri::image::Image::new_owned(rgba, width, height);
+    if let Some(window) = app.get_webview_window("main") {
+        if let Err(e) = window.set_icon(icon) {
+            tracing::warn!(error = %e, dark, "Failed to set window icon");
+        } else {
+            tracing::debug!(dark, "Window icon updated");
+        }
+    }
+}
+
+#[cfg(target_os = "windows")]
+fn is_system_dark_mode() -> bool {
+    use winreg::enums::HKEY_CURRENT_USER;
+    use winreg::RegKey;
+    RegKey::predef(HKEY_CURRENT_USER)
+        .open_subkey_with_flags(
+            r"SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize",
+            winreg::enums::KEY_READ,
+        )
+        .and_then(|key| key.get_value::<String, _>("AppsUseLightTheme"))
+        .map(|v| v == "0")
+        .unwrap_or(false)
+}
+
+#[cfg(not(target_os = "windows"))]
+fn is_system_dark_mode() -> bool {
+    false
 }
 
 #[tauri::command]

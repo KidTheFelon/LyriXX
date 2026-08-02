@@ -12,6 +12,7 @@ import { countLineSyllables } from "@/utils/syllables";
 import { logger } from "@/services/logger";
 import { useTranslation } from "@/i18n";
 import { MusicQuotes } from "./MusicQuotes";
+import { AnimatedText } from "./AnimatedText";
 import { invoke } from "@tauri-apps/api/core";
 import { save } from "@tauri-apps/plugin-dialog";
 
@@ -40,6 +41,7 @@ interface SongEditorProps {
   addToast?: (message: string, type?: "error" | "success" | "info") => void;
 }
 
+/** Главный редактор: title/artist/category + lyrics + SectionOutline + rhymes + tag toolbar. */
 export function SongEditor({
   song,
   onUpdate,
@@ -226,13 +228,13 @@ export function SongEditor({
 
   const handleExportFile = useCallback(async () => {
     if (!song) return;
-    logger.info("Editor", `export ${exportFormat}: ${song.title || "Untitled"}`);
+    logger.info("Editor", `export ${exportFormat}: ${song.title || t("untitled")}`);
 
     let content: string;
     let ext: string;
 
-    const title = song.title || "Untitled";
-    const artist = song.artist || "Unknown";
+    const title = song.title || t("untitled");
+    const artist = song.artist || t("unknown");
 
     if (exportFormat === "lrc") {
       const lines: string[] = [];
@@ -270,12 +272,12 @@ export function SongEditor({
       logger.debug("Editor", `export: writing ${content.length} bytes to ${dest}`);
       await invoke("write_text_file", { path: dest, content });
       logger.info("Editor", `export: done ${dest}`);
-      addToast?.(`Exported to ${dest.split(/[/\\]/).pop()}`, "success");
+      addToast?.(t("exportedTo").replace("{file}", String(dest.split(/[/\\]/).pop())), "success");
     } catch (err) {
       logger.error("Editor", "export: write_text_file failed:", err);
-      addToast?.("Export failed", "error");
+      addToast?.(t("exportFailed"), "error");
     }
-  }, [song, exportFormat, addToast]);
+  }, [song, exportFormat, addToast, t]);
 
   if (!song) {
     return <MusicQuotes />;
@@ -312,7 +314,7 @@ export function SongEditor({
         <div className="editor-divider" />
 
         <div className="editor-category-row">
-          <label className="editor-cat-label">{t("category")}</label>
+          <label className="editor-cat-label"><AnimatedText translationKey="category" /></label>
           <WinDropdown
             value={dropdownValue}
             options={dropdownOptions}

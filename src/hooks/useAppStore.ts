@@ -12,6 +12,10 @@ import { useSongSelection } from "./store/useSongSelection";
 import { useMultiSelect } from "./store/useMultiSelect";
 import { useModalState } from "./store/useModalState";
 
+/**
+ * Главный store-хук приложения.
+ * Композирует все domain-хуки и возвращает полное состояние + обработчики для App.tsx.
+ */
 export function useAppStore() {
   const { t } = useTranslation();
   const { settings, updateSettings, settingsReady } = useSettings();
@@ -26,9 +30,11 @@ export function useAppStore() {
     ready: songsReady,
     addSong,
     updateSong,
+    updateSongsCategory,
     togglePin,
     deleteSong,
     deleteSongs,
+    duplicateSong,
     addCategory,
     renameCategory,
     updateCategoryIcon,
@@ -54,6 +60,13 @@ export function useAppStore() {
     handleDeleteBackup,
     dismissRecovery,
   } = useDbOperations(addToast, t);
+
+  const announceRef = useRef<HTMLDivElement>(null);
+  const announce = useCallback((msg: string) => {
+    if (announceRef.current) {
+      announceRef.current.textContent = msg;
+    }
+  }, []);
 
   const {
     activeCategory,
@@ -84,16 +97,9 @@ export function useAppStore() {
     sortCategoriesBy: settings.sortCategoriesBy,
     confirmDelete: settings.confirmDelete,
     defaultSongTemplate: settings.defaultSongTemplate,
-    announce: useCallback(() => {}, []),
+    announce,
     t,
   });
-
-  const announceRef = useRef<HTMLDivElement>(null);
-  const announce = useCallback((msg: string) => {
-    if (announceRef.current) {
-      announceRef.current.textContent = msg;
-    }
-  }, []);
 
   const {
     selectedIds,
@@ -116,6 +122,33 @@ export function useAppStore() {
 
   const { settingsOpen, setSettingsOpen, debugOpen, setDebugOpen } = useModalState();
 
+  const handleDuplicateSong = useCallback(
+    async (id: string) => {
+      const newId = await duplicateSong(id);
+      if (newId) {
+        setActiveId(newId);
+        addToast(t("songDuplicated"), "success");
+      }
+    },
+    [duplicateSong, setActiveId, addToast, t],
+  );
+
+  const handleRenameSong = useCallback(
+    (id: string, title: string) => {
+      updateSong(id, { title });
+      addToast(t("songRenamed"), "success");
+    },
+    [updateSong, addToast, t],
+  );
+
+  const handleMoveToCategory = useCallback(
+    (id: string, categoryId: string) => {
+      updateSong(id, { category: categoryId });
+      addToast(t("songMoved"), "success");
+    },
+    [updateSong, addToast, t],
+  );
+
   useEffect(() => {
     if (settingsOpen) {
       refreshBackups();
@@ -127,18 +160,22 @@ export function useAppStore() {
       try {
         const id = await addCategory(label);
         setActiveCategory(id);
-      } catch {}
+      } catch {
+        addToast(t("clearError"), "error");
+      }
     },
-    [addCategory, setActiveCategory],
+    [addCategory, setActiveCategory, addToast, t],
   );
 
   const handleRenameCategory = useCallback(
     async (id: string, label: string) => {
       try {
         await renameCategory(id, label);
-      } catch {}
+      } catch {
+        addToast(t("clearError"), "error");
+      }
     },
-    [renameCategory],
+    [renameCategory, addToast, t],
   );
 
   const handleDeleteCategory = useCallback(
@@ -149,9 +186,11 @@ export function useAppStore() {
         }
         await deleteCategory(id);
         announce(t("categoryDeleted"));
-      } catch {}
+      } catch {
+        addToast(t("clearError"), "error");
+      }
     },
-    [activeCategory, deleteCategory, setActiveCategory, announce, t],
+    [activeCategory, deleteCategory, setActiveCategory, announce, addToast, t],
   );
 
   useKeyboardShortcuts({
@@ -201,6 +240,7 @@ export function useAppStore() {
     handleConfirmDelete,
     handleRequestDelete,
     handleUpdate,
+    updateSongsCategory,
     handleAddCategory,
     handleRenameCategory,
     handleDeleteCategory,
@@ -222,5 +262,9 @@ export function useAppStore() {
     handleRequestDeleteSelected,
     handleConfirmDeleteSelected,
     dismissRecovery,
+    handleDuplicateSong,
+    handleRenameSong,
+    handleMoveToCategory,
+    duplicateSong,
   };
 }

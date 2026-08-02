@@ -1,36 +1,35 @@
 import type { SettingsSectionProps } from "./shared";
 import { ToggleSetting } from "./shared";
-import { useTranslation } from "@/i18n";
+import { AnimatedText } from "../AnimatedText";
 
+/** Вкладка настроек уведомлений: включение/отключение, длительность, позиция. */
 export function NotificationsSection({ settings, onUpdate }: SettingsSectionProps) {
-  const { t } = useTranslation();
-
   return (
     <div className="settings-section">
-      <div className="settings-section-title">{t("notifications")}</div>
+      <div className="settings-section-title"><AnimatedText translationKey="notifications" /></div>
 
       <ToggleSetting
-        label={t("toastAutosave")}
+        label={<AnimatedText translationKey="toastAutosave" />}
         checked={settings.toastAutosave}
         onChange={(v) => onUpdate({ toastAutosave: v })}
-        onLabel={t("on")}
-        offLabel={t("off")}
+        onLabel={<AnimatedText translationKey="on" />}
+        offLabel={<AnimatedText translationKey="off" />}
       />
 
       <ToggleSetting
-        label={t("toastErrors")}
+        label={<AnimatedText translationKey="toastErrors" />}
         checked={settings.toastErrors}
         onChange={(v) => onUpdate({ toastErrors: v })}
-        onLabel={t("on")}
-        offLabel={t("off")}
+        onLabel={<AnimatedText translationKey="on" />}
+        offLabel={<AnimatedText translationKey="off" />}
       />
 
       <ToggleSetting
-        label={t("toastSuccess")}
+        label={<AnimatedText translationKey="toastSuccess" />}
         checked={settings.toastSuccess}
         onChange={(v) => onUpdate({ toastSuccess: v })}
-        onLabel={t("on")}
-        offLabel={t("off")}
+        onLabel={<AnimatedText translationKey="on" />}
+        offLabel={<AnimatedText translationKey="off" />}
       />
     </div>
   );

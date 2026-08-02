@@ -1,20 +1,29 @@
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { logger } from "@/services/logger";
 import { RHYME_DEBOUNCE_MS } from "@/constants";
 
+/** Результат рифмы. */
 export interface RhymeWord {
+  /** Слово-рифма. */
   word: string;
+  /** Оценка качества (0–1). */
   score: number;
+  /** Слоги (опционально). */
   syllables?: string;
+  /** Части речи (опционально). */
   part_of_speech?: string[];
 }
 
+/** Ответ API рифмовки. */
 export interface RhymeResponse {
+  /** Список найденных рифм. */
   rhymes: RhymeWord[];
+  /** Количество слогов в исходном слове. */
   input_syllables: number | null;
 }
 
+/** Хук для поиска рифм через Tauri backend. */
 export function useRhymes(maxResults?: number) {
   const [rhymes, setRhymes] = useState<RhymeWord[]>([]);
   const [inputSyllables, setInputSyllables] = useState<number | null>(null);
@@ -74,7 +83,7 @@ export function useRhymes(maxResults?: number) {
         }
       }, RHYME_DEBOUNCE_MS);
     },
-    [detectLang],
+    [detectLang, maxResults],
   );
 
   const clearRhymes = useCallback(() => {
@@ -83,6 +92,10 @@ export function useRhymes(maxResults?: number) {
     setInputSyllables(null);
     setQueryWord("");
     setError(null);
+  }, []);
+
+  useEffect(() => {
+    return () => clearTimeout(timerRef.current);
   }, []);
 
   return { rhymes, inputSyllables, loading, queryWord, error, fetchRhymes, clearRhymes };

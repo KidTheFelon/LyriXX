@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "@/i18n";
+import { AnimatedText } from "../AnimatedText";
 import type { AppSettings } from "@/types/settings";
 import { ToggleSetting, ButtonGroupSetting, ConfirmAction } from "./shared";
 
@@ -34,6 +35,7 @@ function formatSize(kb: number): string {
   return `${kb} KB`;
 }
 
+/** Вкладка управления базой данных: экспорт, импорт, очистка, бэкапы, восстановление. */
 export function DatabaseSection({
   onExportDb,
   onImportDb,
@@ -51,22 +53,22 @@ export function DatabaseSection({
 
   return (
     <div className="settings-section">
-      <div className="settings-section-title">{t("database")}</div>
+      <div className="settings-section-title"><AnimatedText translationKey="database" /></div>
 
       {dbStats && (
         <div className="settings-group">
           <div className="settings-db-stats">
             <div className="settings-db-stat">
               <span className="settings-db-stat-value">{dbStats.songs}</span>
-              <span className="settings-db-stat-label">{t("songs")}</span>
+              <span className="settings-db-stat-label"><AnimatedText translationKey="songs" /></span>
             </div>
             <div className="settings-db-stat">
               <span className="settings-db-stat-value">{dbStats.categories}</span>
-              <span className="settings-db-stat-label">{t("categories")}</span>
+              <span className="settings-db-stat-label"><AnimatedText translationKey="categories" /></span>
             </div>
             <div className="settings-db-stat">
               <span className="settings-db-stat-value">{dbStats.sizeKb}</span>
-              <span className="settings-db-stat-label">{t("kb")}</span>
+              <span className="settings-db-stat-label"><AnimatedText translationKey="kb" /></span>
             </div>
           </div>
         </div>
@@ -74,24 +76,24 @@ export function DatabaseSection({
 
       <div className="settings-group settings-db-actions">
         <button className="modal-btn modal-btn-confirm" onClick={onExportDb} type="button">
-          {t("exportDb")}
+          <AnimatedText translationKey="exportDb" />
         </button>
         <button className="modal-btn" onClick={onImportDb} type="button">
-          {t("importDb")}
+          <AnimatedText translationKey="importDb" />
         </button>
       </div>
 
       <ToggleSetting
-        label={t("autoBackup")}
+        label={<AnimatedText translationKey="autoBackup" />}
         checked={settings.autoBackup}
         onChange={(v) => onUpdate({ autoBackup: v })}
-        onLabel={t("autoBackupDesc")}
-        offLabel={t("off")}
+        onLabel={<AnimatedText translationKey="autoBackupDesc" />}
+        offLabel={<AnimatedText translationKey="off" />}
       />
 
       {settings.autoBackup && (
         <ButtonGroupSetting
-          label={t("maxBackups")}
+          label={<AnimatedText translationKey="maxBackups" />}
           value={settings.maxBackups}
           options={[3, 5, 10, 15, 20, 30].map((n) => ({ value: n, label: String(n) }))}
           onChange={(v) => onUpdate({ maxBackups: v })}
@@ -101,7 +103,7 @@ export function DatabaseSection({
       <div className="settings-group">
         <div className="settings-backup-header">
           <label className="settings-label" style={{ marginBottom: 0 }}>
-            {t("backups")} ({backups.length})
+            <AnimatedText translationKey="backups" /> ({backups.length})
           </label>
           <button
             className="settings-backup-refresh"
@@ -123,7 +125,7 @@ export function DatabaseSection({
                 </div>
                 {restoreConfirm === b.filename ? (
                   <div className="settings-backup-confirm">
-                    <span className="settings-confirm-text">{t("restoreConfirm")}</span>
+                    <span className="settings-confirm-text"><AnimatedText translationKey="restoreConfirm" /></span>
                     <button
                       className="modal-btn modal-btn-confirm modal-btn--sm"
                       onClick={() => {
@@ -132,14 +134,14 @@ export function DatabaseSection({
                       }}
                       type="button"
                     >
-                      {t("yesDelete").split(",")[0]}
+                      <AnimatedText translationKey="yesDelete" />
                     </button>
                     <button
                       className="modal-btn modal-btn--sm"
                       onClick={() => setRestoreConfirm(null)}
                       type="button"
                     >
-                      {t("cancel")}
+                      <AnimatedText translationKey="cancel" />
                     </button>
                   </div>
                 ) : (
@@ -149,14 +151,14 @@ export function DatabaseSection({
                       onClick={() => setRestoreConfirm(b.filename)}
                       type="button"
                     >
-                      {t("restoreBackup")}
+                      <AnimatedText translationKey="restoreBackup" />
                     </button>
                     <button
                       className="modal-btn modal-btn-danger modal-btn--sm"
                       onClick={() => onDeleteBackup(b.filename)}
                       type="button"
                     >
-                      {t("delete")}
+                      <AnimatedText translationKey="delete" />
                     </button>
                   </div>
                 )}
@@ -164,16 +166,16 @@ export function DatabaseSection({
             ))}
           </div>
         ) : (
-          <div className="settings-backup-empty">{t("noBackups")}</div>
+          <div className="settings-backup-empty"><AnimatedText translationKey="noBackups" /></div>
         )}
       </div>
 
       <div className="settings-group">
         <ConfirmAction
-          label={t("clearDb")}
-          confirmMsg={t("deleteAllSongs?")}
-          confirmYes={t("yesDelete")}
-          confirmNo={t("cancel")}
+          label={<AnimatedText translationKey="clearDb" />}
+          confirmMsg={<AnimatedText translationKey="deleteAllSongs?" />}
+          confirmYes={<AnimatedText translationKey="yesDelete" />}
+          confirmNo={<AnimatedText translationKey="cancel" />}
           onConfirm={onClearDb}
           danger
         />

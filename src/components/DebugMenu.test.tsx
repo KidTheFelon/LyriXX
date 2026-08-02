@@ -98,7 +98,7 @@ describe("DebugMenu", () => {
     render(<DebugMenu {...baseProps} />);
     const modal = getDebugModal();
     expect(modal).not.toBeNull();
-    expect(modal.getAttribute("aria-label")).toBe("Debug Menu");
+    expect(modal.getAttribute("aria-label")).toBe("debugMenu");
   });
 
   it("has tab buttons for Info, Settings, Logs, etc", () => {
@@ -106,13 +106,13 @@ describe("DebugMenu", () => {
     const modal = getDebugModal();
     const tabs = modal.querySelectorAll(".debug-tab");
     const tabTexts = Array.from(tabs).map((t) => t.textContent);
-    expect(tabTexts).toContain("Info");
-    expect(tabTexts).toContain("Settings");
-    expect(tabTexts).toContain("Logs");
-    expect(tabTexts).toContain("Perf");
+    expect(tabTexts).toContain("debugInfo");
+    expect(tabTexts).toContain("settings");
+    expect(tabTexts).toContain("debugLogs");
+    expect(tabTexts).toContain("debugPerf");
     expect(tabTexts).toContain("SQL");
-    expect(tabTexts).toContain("Anims");
-    expect(tabTexts).toContain("Actions");
+    expect(tabTexts).toContain("debugAnims");
+    expect(tabTexts).toContain("debugActions");
   });
 
   it("click Close calls onClose", () => {

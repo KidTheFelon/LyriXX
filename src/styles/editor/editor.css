@@ -33,6 +33,15 @@
   justify-content: center;
   gap: 16px;
   color: var(--text-tertiary);
+  transition: background 0.2s, border 0.2s;
+  border: 2px dashed transparent;
+  border-radius: 8px;
+  margin: 8px;
+}
+
+.editor-empty--drop-target {
+  background: var(--accent-light);
+  border-color: var(--accent-default);
 }
 
 .editor-empty-icon svg {
@@ -871,7 +880,7 @@
   overflow-y: auto;
   min-width: 160px;
   padding: 4px;
-  animation: win-dropdown-fade-in 0.15s ease-out;
+  animation: win-dropdown-flyout-in 0.18s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .tag-autocomplete-item {
@@ -940,7 +949,7 @@
   overflow-x: hidden;
   min-width: 180px;
   padding: 0;
-  animation: win-dropdown-fade-in 0.15s ease-out;
+  animation: win-dropdown-flyout-in 0.18s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .rhyme-popup__loading,

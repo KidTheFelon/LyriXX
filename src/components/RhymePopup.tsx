@@ -1,6 +1,7 @@
-import { useRef, useEffect, useState, useMemo } from "react";
+import { useRef, useEffect, useState, useMemo, type ReactNode } from "react";
 import type { RhymeWord } from "@/hooks/useRhymes";
 import { useTranslation } from "@/i18n";
+import { AnimatedText } from "./AnimatedText";
 import {
   RHYME_SCORE_NORMALIZER,
   RHYME_QUALITY_GOOD,
@@ -58,6 +59,7 @@ interface RhymePopupProps {
   onHover: (index: number) => void;
 }
 
+/** Popup предложений рифм с полосами оценки, фильтрами POS, кнопкой вставки. */
 export function RhymePopup({
   rhymes,
   loading,
@@ -105,18 +107,18 @@ export function RhymePopup({
     return filtered.findIndex((r) => r === activeWord);
   }, [rhymes, filtered, activeIndex, posFilter]);
 
-  const POS_FILTERS: { key: PosFilter; label: string }[] = [
-    { key: "all", label: t("posAll") },
-    { key: "noun", label: t("posNoun") },
-    { key: "adj", label: t("posAdj") },
-    { key: "verb", label: t("posVerb") },
-    { key: "adv", label: t("posAdv") },
-    { key: "pronoun", label: t("posPronoun") },
-    { key: "preposition", label: t("posPreposition") },
-    { key: "conjunction", label: t("posConjunction") },
-    { key: "article", label: t("posArticle") },
-    { key: "interjection", label: t("posInterjection") },
-    { key: "other", label: t("posOther") },
+  const POS_FILTERS: { key: PosFilter; label: ReactNode }[] = [
+    { key: "all", label: <AnimatedText translationKey="posAll" /> },
+    { key: "noun", label: <AnimatedText translationKey="posNoun" /> },
+    { key: "adj", label: <AnimatedText translationKey="posAdj" /> },
+    { key: "verb", label: <AnimatedText translationKey="posVerb" /> },
+    { key: "adv", label: <AnimatedText translationKey="posAdv" /> },
+    { key: "pronoun", label: <AnimatedText translationKey="posPronoun" /> },
+    { key: "preposition", label: <AnimatedText translationKey="posPreposition" /> },
+    { key: "conjunction", label: <AnimatedText translationKey="posConjunction" /> },
+    { key: "article", label: <AnimatedText translationKey="posArticle" /> },
+    { key: "interjection", label: <AnimatedText translationKey="posInterjection" /> },
+    { key: "other", label: <AnimatedText translationKey="posOther" /> },
   ];
 
   const visibleFilters = POS_FILTERS.filter(
@@ -129,11 +131,11 @@ export function RhymePopup({
       style={{ position: "fixed", top: position.top, left: position.left }}
     >
       {loading && rhymes.length === 0 && (
-        <div className="rhyme-popup__loading">{t("searching")}</div>
+        <div className="rhyme-popup__loading"><AnimatedText translationKey="searching" /></div>
       )}
       {!loading && error && <div className="rhyme-popup__empty">{error}</div>}
       {!loading && !error && rhymes.length === 0 && (
-        <div className="rhyme-popup__empty">{t("noRhymes")}</div>
+        <div className="rhyme-popup__empty"><AnimatedText translationKey="noRhymes" /></div>
       )}
       {!loading && !error && rhymes.length > 0 && (
         <div className="rhyme-popup__filters">
@@ -171,12 +173,12 @@ export function RhymePopup({
             onMouseEnter={() => onHover(i)}
           >
             <span className="rhyme-popup__word">
-              {isCopied ? <span className="rhyme-popup__copied">{t("copied")}</span> : rhyme.word}
+              {isCopied ? <span className="rhyme-popup__copied"><AnimatedText translationKey="copied" /></span> : rhyme.word}
             </span>
             <span className="rhyme-popup__meta">
               {rhyme.syllables && (
                 <span className="rhyme-popup__syllables">
-                  {rhyme.syllables} {t("syl")}
+                  {rhyme.syllables} <AnimatedText translationKey="syl" />
                 </span>
               )}
               <span

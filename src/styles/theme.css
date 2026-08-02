@@ -246,3 +246,20 @@
     color-scheme: dark;
   }
 }
+
+.logo-theme-light { display: none; }
+.logo-theme-dark { display: inline; }
+
+@media (prefers-color-scheme: light) {
+  .logo-theme-light { display: inline; }
+  .logo-theme-dark { display: none; }
+}
+@media (prefers-color-scheme: dark) {
+  .logo-theme-light { display: none; }
+  .logo-theme-dark { display: inline; }
+}
+
+:root[data-theme="light"] .logo-theme-light { display: inline; }
+:root[data-theme="light"] .logo-theme-dark { display: none; }
+:root[data-theme="dark"] .logo-theme-light { display: none; }
+:root[data-theme="dark"] .logo-theme-dark { display: inline; }

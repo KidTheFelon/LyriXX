@@ -1,16 +1,25 @@
 import { useState, useCallback } from "react";
 import { logger } from "@/services/logger";
 
+/** Параметры хука мульти-выбора. */
 interface UseMultiSelectParams {
+  /** Текущий список песен (отфильтрованный). */
   songs: { id: string }[];
+  /** Подтверждать удаление. */
   confirmDelete: boolean;
+  /** Массовое удаление песен. */
   deleteSongs: (ids: string[]) => Promise<void>;
+  /** Установить активную песню. */
   setActiveId: (id: string | null) => void;
+  /** ID активной песни. */
   activeId: string | null;
+  /** Колбэк для screen reader. */
   announce: (msg: string) => void;
+  /** Функция перевода. */
   t: (key: string) => string;
 }
 
+/** Хук состояния мульти-выбора: toggle, selectAll, deselectAll, массовое удаление. */
 export function useMultiSelect({
   songs,
   confirmDelete,

@@ -1,9 +1,14 @@
+/** Пресет акцентного цвета. */
 export interface AccentPreset {
+  /** Уникальный id. */
   id: string;
+  /** Отображаемое название. */
   label: string;
+  /** Hex цвет. */
   color: string;
 }
 
+/** 12 пресетов акцентных цветов. */
 export const ACCENT_PRESETS: AccentPreset[] = [
   { id: "blue", label: "Синий", color: "#005fb8" },
   { id: "teal", label: "Бирюзовый", color: "#038387" },
@@ -77,14 +82,21 @@ function adjustOpacity(hex: string, opacity: number): string {
   return `rgba(${r}, ${g}, ${b}, ${opacity})`;
 }
 
+/** Варианты акцентного цвета для CSS-переменных. */
 export interface AccentVariants {
+  /** Базовый цвет. */
   default: string;
+  /** Цвет при наведении. */
   hover: string;
+  /** Цвет при нажатии. */
   pressed: string;
+  /** Полупрозрачный для фона (8%). */
   light: string;
+  /** Полупрозрачный для фона (4%). */
   lighter: string;
 }
 
+/** Генерирует варианты hover/pressed/light/lighter из базового hex-цвета. */
 export function generateAccentVariants(hex: string): AccentVariants {
   const [, s] = hexToHsl(hex);
   const isDark = s < 10 || adjustLightness(hex, 0) === hex;
@@ -101,6 +113,7 @@ export function generateAccentVariants(hex: string): AccentVariants {
   };
 }
 
+/** Определяет, является ли акцентный цвет светлым (lightness > 55%). */
 export function isAccentLight(hex: string): boolean {
   const [, , l] = hexToHsl(hex);
   return l > 55;

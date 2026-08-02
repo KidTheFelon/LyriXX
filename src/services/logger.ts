@@ -1,16 +1,23 @@
 import { invoke } from "@tauri-apps/api/core";
 
+/** Уровень логирования. */
 type Level = "debug" | "info" | "warn" | "error";
 
 const LEVELS: Record<Level, number> = { debug: 0, info: 1, warn: 2, error: 3 };
 
 const minLevel: number = import.meta.env.DEV ? 0 : 2;
 
+/** Запись лога. */
 export interface LogEntry {
+  /** Время (HH:MM:SS.mmm). */
   time: string;
+  /** Уровень. */
   level: Level;
+  /** Тег модуля (DB, App, Rhymes и т.д.). */
   tag: string;
+  /** Текст сообщения. */
   message: string;
+  /** Источник: frontend или backend. */
   source: "frontend" | "backend";
 }
 
@@ -61,6 +68,7 @@ function log(level: Level, tag: string, message: string, ...args: unknown[]) {
   con(`[${time}] [${level.toUpperCase()}] [${tag}] ${message}`, ...args);
 }
 
+/** Синглтон логгера: debug/info/warn/error + subscribe/getBuffer/flushNow. */
 export const logger = {
   debug: (tag: string, msg: string, ...args: unknown[]) => log("debug", tag, msg, ...args),
   info: (tag: string, msg: string, ...args: unknown[]) => log("info", tag, msg, ...args),

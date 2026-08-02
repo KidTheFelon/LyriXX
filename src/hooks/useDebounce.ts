@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 
+/** Возвращает debounced значение после указанной задержки (ms). */
 export function useDebounce<T>(value: T, delay: number): T {
   const [debounced, setDebounced] = useState(value);
 

@@ -1,27 +1,27 @@
 .context-menu {
   position: fixed;
-  z-index: 300;
+  z-index: 10000;
   background: var(--bg-card-solid);
   border: 1px solid var(--stroke-card);
   border-radius: var(--radius-card);
   box-shadow: var(--shadow-flyout);
-  padding: 4px;
-  min-width: 180px;
-  max-width: 260px;
-  animation: win-dropdown-fade-in 0.12s ease-out;
+  padding: clamp(2px, 0.3vw, 4px);
+  min-width: clamp(140px, 12vw, 220px);
+  max-width: clamp(200px, 18vw, 320px);
+  animation: win-dropdown-flyout-in 0.18s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .context-menu-item {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: clamp(5px, 0.5vw, 8px);
   width: 100%;
-  padding: 5px 8px;
+  padding: clamp(3px, 0.35vw, 6px) clamp(5px, 0.5vw, 8px);
   border: none;
   border-radius: var(--radius-control);
   background: transparent;
   font-family: var(--font-family-text);
-  font-size: 12px;
+  font-size: clamp(10px, 0.9vw, 14px);
   color: var(--text-primary);
   cursor: pointer;
   text-align: left;
@@ -55,8 +55,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 16px;
-  height: 16px;
+  width: clamp(12px, 1.1vw, 18px);
+  height: clamp(12px, 1.1vw, 18px);
   flex-shrink: 0;
   color: var(--text-tertiary);
 }
@@ -75,5 +75,5 @@
 .context-menu-separator {
   height: 1px;
   background: var(--stroke-divider);
-  margin: 4px 8px;
+  margin: clamp(2px, 0.3vw, 4px) clamp(5px, 0.5vw, 8px);
 }

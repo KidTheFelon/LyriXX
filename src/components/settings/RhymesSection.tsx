@@ -1,7 +1,7 @@
 import type { RhymeLang } from "@/types/settings";
 import type { SettingsSectionProps } from "./shared";
 import { ButtonGroupSetting } from "./shared";
-import { useTranslation } from "@/i18n";
+import { AnimatedText } from "../AnimatedText";
 
 const DEPTHS = [
   { value: 1, label: "1" },
@@ -16,35 +16,34 @@ const MAX_RESULTS = [
   { value: 100, label: "100" },
 ];
 
+/** Вкладка настроек рифмовки: язык, алгоритм, пороги, кеширование. */
 export function RhymesSection({ settings, onUpdate }: SettingsSectionProps) {
-  const { t } = useTranslation();
-
-  const LANGS: { value: RhymeLang; label: string }[] = [
-    { value: "auto", label: t("autoDetect") },
-    { value: "ru", label: t("russian") },
-    { value: "en", label: t("english") },
+  const LANGS: { value: RhymeLang; label: string | React.ReactNode }[] = [
+    { value: "auto", label: <AnimatedText translationKey="autoDetect" /> },
+    { value: "ru", label: <AnimatedText translationKey="russian" /> },
+    { value: "en", label: <AnimatedText translationKey="english" /> },
   ];
 
   return (
     <div className="settings-section">
-      <div className="settings-section-title">{t("rhymeDict")}</div>
+      <div className="settings-section-title"><AnimatedText translationKey="rhymeDict" /></div>
 
       <ButtonGroupSetting
-        label={t("rhymeLanguage")}
+        label={<AnimatedText translationKey="rhymeLanguage" />}
         value={settings.rhymeLang}
         options={LANGS}
         onChange={(v) => onUpdate({ rhymeLang: v })}
       />
 
       <ButtonGroupSetting
-        label={t("rhymeSearchDepth")}
+        label={<AnimatedText translationKey="rhymeSearchDepth" />}
         value={settings.rhymeDepth}
         options={DEPTHS}
         onChange={(v) => onUpdate({ rhymeDepth: v })}
       />
 
       <ButtonGroupSetting
-        label={t("maxRhymeResults")}
+        label={<AnimatedText translationKey="maxRhymeResults" />}
         value={settings.maxRhymeResults}
         options={MAX_RESULTS}
         onChange={(v) => onUpdate({ maxRhymeResults: v })}

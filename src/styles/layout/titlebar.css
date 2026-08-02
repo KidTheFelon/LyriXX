@@ -1,7 +1,7 @@
 .titlebar {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   height: var(--titlebar-h);
   padding: 0;
   background: var(--bg-chrome);
@@ -14,18 +14,34 @@
 }
 
 .titlebar-title {
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 500;
   color: var(--text-secondary);
   letter-spacing: 0.02em;
   pointer-events: none;
-  padding-left: 12px;
   text-transform: uppercase;
+}
+
+.titlebar-left {
+  display: flex;
+  align-items: center;
+  padding-left: 12px;
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+}
+
+.titlebar-icon {
+  pointer-events: none;
 }
 
 .titlebar-controls {
   display: flex;
   height: 100%;
+  position: absolute;
+  right: 0;
+  top: 0;
 }
 
 .titlebar-btn {

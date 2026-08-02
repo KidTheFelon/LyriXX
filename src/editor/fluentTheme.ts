@@ -8,6 +8,7 @@ const fluentHighlightStyle = HighlightStyle.define([
   { tag: parenthesized, color: "var(--text-tertiary)", fontStyle: "italic" },
 ]);
 
+/** CodeMirror EditorView.theme с Fluent Design стилями (прозрачный фон, акцентные цвета). */
 export const fluentTheme = EditorView.theme({
   "&": {
     height: "100%",
@@ -88,4 +89,5 @@ export const fluentTheme = EditorView.theme({
   },
 });
 
+/** CodeMirror синтаксис-хайлайтинг для Fluent темы. */
 export const fluentSyntax = syntaxHighlighting(fluentHighlightStyle);

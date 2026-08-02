@@ -1,80 +1,79 @@
-import { useTranslation } from "@/i18n";
+import { AnimatedText } from "../AnimatedText";
 
 interface Shortcut {
   keys: string;
-  description: string;
+  description: React.ReactNode;
 }
 
 interface ShortcutGroup {
-  title: string;
+  title: React.ReactNode;
   shortcuts: Shortcut[];
 }
 
+/** Вкладка отображения горячих клавиш. */
 export function ShortcutsSection() {
-  const { t } = useTranslation();
-
   const groups: ShortcutGroup[] = [
     {
-      title: t("shortcutsGeneral"),
+      title: <AnimatedText translationKey="shortcutsGeneral" />,
       shortcuts: [
-        { keys: "Ctrl + N", description: t("shortcutsNewSong") },
-        { keys: "Ctrl + F", description: t("shortcutsFocusSearch") },
-        { keys: "Delete", description: t("shortcutsDeleteSong") },
-        { keys: "Ctrl + B", description: t("shortcutsToggleSidebar") },
+        { keys: "Ctrl + N", description: <AnimatedText translationKey="shortcutsNewSong" /> },
+        { keys: "Ctrl + F", description: <AnimatedText translationKey="shortcutsFocusSearch" /> },
+        { keys: "Delete", description: <AnimatedText translationKey="shortcutsDeleteSong" /> },
+        { keys: "Ctrl + B", description: <AnimatedText translationKey="shortcutsToggleSidebar" /> },
       ],
     },
     {
-      title: t("shortcutsEditor"),
+      title: <AnimatedText translationKey="shortcutsEditor" />,
       shortcuts: [
-        { keys: "Ctrl + Z", description: t("shortcutsUndo") },
-        { keys: "Ctrl + Y", description: t("shortcutsRedo") },
-        { keys: "Ctrl + Shift + Z", description: t("shortcutsRedo") },
-        { keys: "Tab", description: t("shortcutsIndent") },
-        { keys: "Shift + Tab", description: t("shortcutsOutdent") },
-        { keys: "Ctrl + Shift + ↑", description: t("shortcutsPrevSection") },
-        { keys: "Ctrl + Shift + ↓", description: t("shortcutsNextSection") },
+        { keys: "Ctrl + Z", description: <AnimatedText translationKey="shortcutsUndo" /> },
+        { keys: "Ctrl + Y", description: <AnimatedText translationKey="shortcutsRedo" /> },
+        { keys: "Ctrl + Shift + Z", description: <AnimatedText translationKey="shortcutsRedo" /> },
+        { keys: "Tab", description: <AnimatedText translationKey="shortcutsIndent" /> },
+        { keys: "Shift + Tab", description: <AnimatedText translationKey="shortcutsOutdent" /> },
+        { keys: "Ctrl + Shift + ↑", description: <AnimatedText translationKey="shortcutsPrevSection" /> },
+        { keys: "Ctrl + Shift + ↓", description: <AnimatedText translationKey="shortcutsNextSection" /> },
       ],
     },
     {
-      title: t("shortcutsEditorNavigation"),
+      title: <AnimatedText translationKey="shortcutsEditorNavigation" />,
       shortcuts: [
-        { keys: "Home", description: t("shortcutsLineStart") },
-        { keys: "End", description: t("shortcutsLineEnd") },
-        { keys: "Ctrl + Home", description: t("shortcutsDocStart") },
-        { keys: "Ctrl + End", description: t("shortcutsDocEnd") },
-        { keys: "Ctrl + A", description: t("shortcutsSelectAll") },
+        { keys: "Home", description: <AnimatedText translationKey="shortcutsLineStart" /> },
+        { keys: "End", description: <AnimatedText translationKey="shortcutsLineEnd" /> },
+        { keys: "Ctrl + Home", description: <AnimatedText translationKey="shortcutsDocStart" /> },
+        { keys: "Ctrl + End", description: <AnimatedText translationKey="shortcutsDocEnd" /> },
+        { keys: "Ctrl + A", description: <AnimatedText translationKey="shortcutsSelectAll" /> },
       ],
     },
     {
-      title: t("shortcutsEditorSelection"),
+      title: <AnimatedText translationKey="shortcutsEditorSelection" />,
       shortcuts: [
-        { keys: "Shift + Arrow", description: t("shortcutsExtendSelection") },
-        { keys: "Ctrl + Shift + Arrow", description: t("shortcutsSelectWord") },
-        { keys: "Alt + Shift + Arrow", description: t("shortcutsMoveLine") },
+        { keys: "Shift + Arrow", description: <AnimatedText translationKey="shortcutsExtendSelection" /> },
+        { keys: "Ctrl + Shift + Arrow", description: <AnimatedText translationKey="shortcutsSelectWord" /> },
+        { keys: "Alt + Shift + Arrow", description: <AnimatedText translationKey="shortcutsMoveLine" /> },
       ],
     },
     {
-      title: t("shortcutsRhymes"),
+      title: <AnimatedText translationKey="shortcutsRhymes" />,
       shortcuts: [
-        { keys: "Double click", description: t("shortcutsRhymePopup") },
-        { keys: "↑ / ↓", description: t("shortcutsRhymeNavigate") },
-        { keys: "Enter", description: t("shortcutsRhymeCopy") },
-        { keys: "Click + icon", description: t("shortcutsRhymeInsert") },
-        { keys: "Escape", description: t("shortcutsRhymeDismiss") },
+        { keys: "Double click", description: <AnimatedText translationKey="shortcutsRhymePopup" /> },
+        { keys: "↑ / ↓", description: <AnimatedText translationKey="shortcutsRhymeNavigate" /> },
+        { keys: "Enter", description: <AnimatedText translationKey="shortcutsRhymeCopy" /> },
+        { keys: "Click + icon", description: <AnimatedText translationKey="shortcutsRhymeInsert" /> },
+        { keys: "Escape", description: <AnimatedText translationKey="shortcutsRhymeDismiss" /> },
       ],
     },
   ];
 
   return (
     <div className="settings-section">
-      <div className="settings-section-title">{t("shortcuts")}</div>
+      <div className="settings-section-title"><AnimatedText translationKey="shortcuts" /></div>
 
-      {groups.map((group) => (
-        <div key={group.title} className="shortcuts-group">
+      {groups.map((group, groupIndex) => (
+        <div key={String(groupIndex)} className="shortcuts-group">
           <div className="shortcuts-group-title">{group.title}</div>
           <div className="shortcuts-list">
             {group.shortcuts.map((shortcut) => (
-              <div key={shortcut.keys + shortcut.description} className="shortcuts-row">
+              <div key={shortcut.keys + groupIndex} className="shortcuts-row">
                 <kbd className="shortcuts-keys">{shortcut.keys}</kbd>
                 <span className="shortcuts-desc">{shortcut.description}</span>
               </div>

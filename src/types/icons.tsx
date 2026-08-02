@@ -1,8 +1,12 @@
 import type { ReactNode } from "react";
 
+/** Определение иконки категории. */
 export interface CategoryIconDef {
+  /** Уникальный id (note, mic, guitar и т.д.). */
   id: string;
+  /** Отображаемое название. */
   label: string;
+  /** SVG-компонент иконки. */
   svg: ReactNode;
 }
 
@@ -39,10 +43,11 @@ function wrap(id: string, label: string, children: ReactNode): CategoryIconDef {
   };
 }
 
+/** 28 иконок категорий (нота, микрофон, гитара и т.д.). */
 export const CATEGORY_ICONS: CategoryIconDef[] = [
   wrap(
     "note",
-    "Нота",
+    "icon_note",
     <>
       <S d="M9 18V5l12-2v13" />
       <C cx={6} cy={18} r={3} />
@@ -51,7 +56,7 @@ export const CATEGORY_ICONS: CategoryIconDef[] = [
   ),
   wrap(
     "notes",
-    "Ноты",
+    "icon_notes",
     <>
       <S d="M17 20V5L9 7v11" />
       <C cx={6} cy={18} r={3} />
@@ -61,7 +66,7 @@ export const CATEGORY_ICONS: CategoryIconDef[] = [
   ),
   wrap(
     "mic",
-    "Микрофон",
+    "icon_mic",
     <>
       <S d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
       <S d="M19 10v2a7 7 0 0 1-14 0v-2" />
@@ -71,7 +76,7 @@ export const CATEGORY_ICONS: CategoryIconDef[] = [
   ),
   wrap(
     "headphones",
-    "Наушники",
+    "icon_headphones",
     <>
       <S d="M3 18v-6a9 9 0 0 1 18 0v6" />
       <S d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z" />
@@ -79,7 +84,7 @@ export const CATEGORY_ICONS: CategoryIconDef[] = [
   ),
   wrap(
     "guitar",
-    "Гитара",
+    "icon_guitar",
     <>
       <S d="M11 3h2v12" />
       <C cx={11} cy={17} r={3} />
@@ -89,7 +94,7 @@ export const CATEGORY_ICONS: CategoryIconDef[] = [
   ),
   wrap(
     "piano",
-    "Пианино",
+    "icon_piano",
     <>
       <R x={2} y={4} w={20} h={16} rx={2} />
       <L x1={6} y1={4} x2={6} y2={20} />
@@ -101,7 +106,7 @@ export const CATEGORY_ICONS: CategoryIconDef[] = [
   ),
   wrap(
     "radio",
-    "Радио",
+    "icon_radio",
     <>
       <S d="M4 6h16" />
       <S d="M4 10h16" />
@@ -112,7 +117,7 @@ export const CATEGORY_ICONS: CategoryIconDef[] = [
   ),
   wrap(
     "speaker",
-    "Колонка",
+    "icon_speaker",
     <>
       <R x={8} y={2} w={8} h={20} rx={2} />
       <C cx={12} cy={15} r={3} />
@@ -121,7 +126,7 @@ export const CATEGORY_ICONS: CategoryIconDef[] = [
   ),
   wrap(
     "album",
-    "Альбом",
+    "icon_album",
     <>
       <C cx={12} cy={12} r={10} />
       <C cx={12} cy={12} r={3} />
@@ -130,7 +135,7 @@ export const CATEGORY_ICONS: CategoryIconDef[] = [
   ),
   wrap(
     "disc",
-    "Диск",
+    "icon_disc",
     <>
       <C cx={12} cy={12} r={10} />
       <C cx={12} cy={12} r={4} />
@@ -139,28 +144,28 @@ export const CATEGORY_ICONS: CategoryIconDef[] = [
   ),
   wrap(
     "star",
-    "Звезда",
+    "icon_star",
     <>
       <PG points="12 2 15.5 9 22 9.5 17 14.5 18.5 22 12 18.5 5.5 22 7 14.5 2 9.5 8.5 9" />
     </>,
   ),
   wrap(
     "heart",
-    "Сердце",
+    "icon_heart",
     <>
       <S d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
     </>,
   ),
   wrap(
     "folder",
-    "Папка",
+    "icon_folder",
     <>
       <S d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
     </>,
   ),
   wrap(
     "file",
-    "Файл",
+    "icon_file",
     <>
       <S d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
       <PL points="14 2 14 8 20 8" />
@@ -168,14 +173,14 @@ export const CATEGORY_ICONS: CategoryIconDef[] = [
   ),
   wrap(
     "pencil",
-    "Карандаш",
+    "icon_pencil",
     <>
       <S d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
     </>,
   ),
   wrap(
     "pen",
-    "Перо",
+    "icon_pen",
     <>
       <S d="M12 19l7-7 3 3-7 7-3-3z" />
       <S d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z" />
@@ -185,7 +190,7 @@ export const CATEGORY_ICONS: CategoryIconDef[] = [
   ),
   wrap(
     "book",
-    "Книга",
+    "icon_book",
     <>
       <S d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
       <S d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
@@ -193,7 +198,7 @@ export const CATEGORY_ICONS: CategoryIconDef[] = [
   ),
   wrap(
     "tag",
-    "Тег",
+    "icon_tag",
     <>
       <S d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" />
       <L x1={7} y1={7} x2={7.01} y2={7} />
@@ -201,7 +206,7 @@ export const CATEGORY_ICONS: CategoryIconDef[] = [
   ),
   wrap(
     "flag",
-    "Флаг",
+    "icon_flag",
     <>
       <S d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" />
       <L x1={4} y1={22} x2={4} y2={15} />
@@ -209,14 +214,14 @@ export const CATEGORY_ICONS: CategoryIconDef[] = [
   ),
   wrap(
     "bookmark",
-    "Закладка",
+    "icon_bookmark",
     <>
       <S d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
     </>,
   ),
   wrap(
     "camera",
-    "Камера",
+    "icon_camera",
     <>
       <S d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
       <C cx={12} cy={13} r={4} />
@@ -224,7 +229,7 @@ export const CATEGORY_ICONS: CategoryIconDef[] = [
   ),
   wrap(
     "film",
-    "Фильм",
+    "icon_film",
     <>
       <R x={2} y={2} w={20} h={20} rx={2} />
       <S d="M7 2v20M17 2v20M2 12h20M2 7h5M2 17h5M17 7h5M17 17h5" />
@@ -232,7 +237,7 @@ export const CATEGORY_ICONS: CategoryIconDef[] = [
   ),
   wrap(
     "image",
-    "Картинка",
+    "icon_image",
     <>
       <R x={3} y={3} w={18} h={18} rx={2} />
       <C cx={8.5} cy={8.5} r={1.5} />
@@ -241,7 +246,7 @@ export const CATEGORY_ICONS: CategoryIconDef[] = [
   ),
   wrap(
     "gear",
-    "Шестерня",
+    "icon_gear",
     <>
       <C cx={12} cy={12} r={3} />
       <S d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1.51-1 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
@@ -249,7 +254,7 @@ export const CATEGORY_ICONS: CategoryIconDef[] = [
   ),
   wrap(
     "lock",
-    "Замок",
+    "icon_lock",
     <>
       <R x={5} y={11} w={14} h={10} rx={2} />
       <S d="M8 11V7a4 4 0 0 1 8 0v4" />
@@ -259,7 +264,7 @@ export const CATEGORY_ICONS: CategoryIconDef[] = [
   ),
   wrap(
     "key",
-    "Ключ",
+    "icon_key",
     <>
       <C cx={8} cy={15} r={5} />
       <L x1={12} y1={11} x2={20} y2={3} />
@@ -269,7 +274,7 @@ export const CATEGORY_ICONS: CategoryIconDef[] = [
   ),
   wrap(
     "bulb",
-    "Лампочка",
+    "icon_bulb",
     <>
       <S d="M9 18h6" />
       <S d="M10 22h4" />
@@ -278,14 +283,14 @@ export const CATEGORY_ICONS: CategoryIconDef[] = [
   ),
   wrap(
     "cloud",
-    "Облако",
+    "icon_cloud",
     <>
       <S d="M17.5 19a4.5 4.5 0 0 0 .5-8.97 6 6 0 0 0-11.85-1.65A4.5 4.5 0 0 0 6 19h11.5z" />
     </>,
   ),
   wrap(
     "globe",
-    "Глобус",
+    "icon_globe",
     <>
       <C cx={12} cy={12} r={10} />
       <S d="M2 12h20" />
@@ -294,7 +299,7 @@ export const CATEGORY_ICONS: CategoryIconDef[] = [
   ),
   wrap(
     "bell",
-    "Колокольчик",
+    "icon_bell",
     <>
       <S d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
       <S d="M13.73 21a2 2 0 0 1-3.46 0" />
@@ -302,7 +307,7 @@ export const CATEGORY_ICONS: CategoryIconDef[] = [
   ),
   wrap(
     "smile",
-    "Смайлик",
+    "icon_smile",
     <>
       <C cx={12} cy={12} r={10} />
       <S d="M8 14s1.5 2 4 2 4-2 4-2" />
@@ -312,15 +317,17 @@ export const CATEGORY_ICONS: CategoryIconDef[] = [
   ),
   wrap(
     "diamond",
-    "Ромб",
+    "icon_diamond",
     <>
       <PG points="12 2 22 12 12 22 2 12" />
     </>,
   ),
 ];
 
+/** Возвращает SVG иконки по id или null если не найдена. */
 export function getIconSvg(id: string): ReactNode {
   return CATEGORY_ICONS.find((i) => i.id === id)?.svg ?? null;
 }
 
+/** ID иконки по умолчанию для новых категорий. */
 export const DEFAULT_ICON_ID = "note";

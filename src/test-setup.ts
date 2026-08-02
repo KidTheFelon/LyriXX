@@ -6,6 +6,18 @@ afterEach(cleanup);
 
 Element.prototype.scrollIntoView = vi.fn();
 
+if (typeof globalThis.ResizeObserver === "undefined") {
+  globalThis.ResizeObserver = class ResizeObserver {
+    callback: ResizeObserverCallback;
+    constructor(callback: ResizeObserverCallback) {
+      this.callback = callback;
+    }
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+  } as unknown as typeof ResizeObserver;
+}
+
 if (typeof globalThis.requestAnimationFrame === "undefined") {
   globalThis.requestAnimationFrame = (cb: FrameRequestCallback) =>
     setTimeout(() => cb(performance.now()), 0) as unknown as number;

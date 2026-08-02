@@ -8,6 +8,7 @@ import { invoke } from "@tauri-apps/api/core";
 
 const KEY = "lyrixx_settings";
 
+/** Хук загрузки/сохранения настроек приложения с debounce-персистентностью в SQLite. */
 export function useSettings(db: SongsDb = new TauriDbService()) {
   const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
   const [ready, setReady] = useState(false);
@@ -34,23 +35,26 @@ export function useSettings(db: SongsDb = new TauriDbService()) {
 
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const save = useCallback(async (patch: Partial<AppSettings>) => {
+  const latestRef = useRef<AppSettings>(settings);
+
+  const save = useCallback((patch: Partial<AppSettings>) => {
     setSettings((prev) => {
       const next = { ...prev, ...patch };
-
-      if (debounceRef.current) clearTimeout(debounceRef.current);
-      debounceRef.current = setTimeout(() => {
-        const changes = Object.entries(patch)
-          .map(([k, v]) => `${k}=${JSON.stringify(v)}`)
-          .join(", ");
-        logger.debug("Settings", `saving: {${changes}}`);
-        dbRef.current
-          .saveSetting(KEY, next)
-          .catch((err) => logger.error("DB", "Failed to save setting:", err));
-      }, 400);
-
+      latestRef.current = next;
       return next;
     });
+
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      const next = latestRef.current;
+      const changes = Object.entries(patch)
+        .map(([k, v]) => `${k}=${JSON.stringify(v)}`)
+        .join(", ");
+      logger.debug("Settings", `saving: {${changes}}`);
+      dbRef.current
+        .saveSetting(KEY, next)
+        .catch((err) => logger.error("DB", "Failed to save setting:", err));
+    }, 400);
   }, []);
 
   useEffect(() => {

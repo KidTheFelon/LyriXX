@@ -34,6 +34,7 @@ const songParser: StreamParser<SongState> = {
   blankLine(_state, _indent) {},
 };
 
+/** Создаёт CodeMirror StreamLanguage для текста песен (теги [tag] + скобки). */
 export function songLanguage() {
   return StreamLanguage.define({
     tokenTable: { parenthesized },

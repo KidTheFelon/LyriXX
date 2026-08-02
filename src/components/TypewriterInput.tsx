@@ -13,10 +13,13 @@ interface TypewriterInputProps {
   ariaLabel?: string;
 }
 
+/** Imperative handle: insertText. */
 export interface TypewriterInputHandle {
+  /** Вставить текст в позицию курсора. */
   insertText: (text: string) => void;
 }
 
+/** Кастомный input с per-character typewriter fade-in анимацией. */
 export const TypewriterInput = forwardRef<TypewriterInputHandle, TypewriterInputProps>(
   function TypewriterInput(
     { value, onChange, placeholder, spellCheck, className, style, ariaLabel },
