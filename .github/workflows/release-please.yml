@@ -18,6 +18,13 @@ jobs:
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
 
+      - if: steps.release.outputs.release_created
+        name: Trigger Release Build
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ steps.release.outputs.tag_name }}
+        run: gh workflow run release.yml --ref main -f tag_name=$TAG
+
       - if: steps.release.outputs.pr_number
         uses: actions/checkout@v4
         with:
