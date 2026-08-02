@@ -1,5 +1,4 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { DROPDOWN_ITEM_HEIGHT, DROPDOWN_PADDING } from "@/constants";
 
 interface WinDropdownOption {
   value: string;
@@ -17,6 +16,7 @@ interface WinDropdownProps {
   missing?: boolean;
 }
 
+/** WinUI-styled dropdown с навигацией клавиатурой и flyout позиционированием. */
 export function WinDropdown({
   value,
   options,
@@ -37,21 +37,25 @@ export function WinDropdown({
   useEffect(() => {
     if (!open || !triggerRef.current || !flyoutRef.current) return;
     const rect = triggerRef.current.getBoundingClientRect();
-    const estimatedHeight = options.length * DROPDOWN_ITEM_HEIGHT + DROPDOWN_PADDING;
-    const bottomSpace = window.innerHeight - rect.bottom;
-    const topSpace = rect.top;
     setPosStyle({
       left: `${rect.left}px`,
-      top:
-        bottomSpace < estimatedHeight && topSpace > estimatedHeight
-          ? `${rect.top - estimatedHeight - 4}px`
-          : `${rect.bottom + 4}px`,
+      top: `${rect.bottom + 4}px`,
       minWidth: `${rect.width}px`,
+    });
+    const raf = requestAnimationFrame(() => {
+      if (!flyoutRef.current) return;
+      const flyoutRect = flyoutRef.current.getBoundingClientRect();
+      const bottomSpace = window.innerHeight - rect.bottom;
+      const topSpace = rect.top;
+      if (bottomSpace < flyoutRect.height + 4 && topSpace > flyoutRect.height + 4) {
+        flyoutRef.current.style.top = `${rect.top - flyoutRect.height - 4}px`;
+      }
     });
     const selected = flyoutRef.current.querySelector<HTMLButtonElement>(
       ".win-dropdown-item-selected",
     );
     (selected ?? flyoutRef.current.querySelector<HTMLButtonElement>(".win-dropdown-item"))?.focus();
+    return () => cancelAnimationFrame(raf);
   }, [open]);
 
   useEffect(() => {

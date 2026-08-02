@@ -1,12 +1,19 @@
 import { useEffect, useRef, useCallback } from "react";
 import { createPortal } from "react-dom";
 
+/** Элемент контекстного меню. */
 export interface ContextMenuItem {
+  /** Уникальный идентификатор элемента. */
   id: string;
+  /** Отображаемый текст. */
   label?: string;
+  /** Иконка элемента. */
   icon?: React.ReactNode;
+  /** Стиль danger (красный цвет). */
   danger?: boolean;
+  /** Отключён ли элемент. */
   disabled?: boolean;
+  /** Обработчик клика. */
   onClick?: () => void;
 }
 
@@ -17,6 +24,7 @@ interface ContextMenuProps {
   onClose: () => void;
 }
 
+/** Portal-based right-click меню с навигацией клавиатурой. */
 export function ContextMenu({ items, x, y, onClose }: ContextMenuProps) {
   const ref = useRef<HTMLDivElement>(null);
 
@@ -82,7 +90,7 @@ export function ContextMenu({ items, x, y, onClose }: ContextMenuProps) {
     <div ref={ref} className="context-menu" role="menu" onKeyDown={handleKeyDown}>
       {items.map((item, i) => {
         if (item.id === "separator") {
-          return <div key={i} className="context-menu-separator" role="separator" />;
+          return <div key={`${item.id}-${i}`} className="context-menu-separator" role="separator" />;
         }
         return (
           <button

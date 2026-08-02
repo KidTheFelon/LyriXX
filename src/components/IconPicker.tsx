@@ -10,6 +10,7 @@ interface IconPickerProps {
   anchorEl: HTMLElement | null;
 }
 
+/** Grid-popup для выбора иконки категории из CATEGORY_ICONS. */
 export function IconPicker({ selected, onSelect, onClose, anchorEl }: IconPickerProps) {
   const ref = useRef<HTMLDivElement>(null);
   const { t } = useTranslation();
@@ -48,7 +49,7 @@ export function IconPicker({ selected, onSelect, onClose, anchorEl }: IconPicker
               onSelect(icon.id);
               onClose();
             }}
-            title={icon.label}
+            title={t(icon.label)}
             type="button"
           >
             {icon.svg}
