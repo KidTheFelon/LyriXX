@@ -3,6 +3,11 @@ name: Release Build
 on:
   release:
     types: [published]
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 'Release tag name (e.g. v1.2.0)'
+        required: true
 
 permissions:
   contents: write
@@ -11,7 +16,7 @@ jobs:
   build:
     runs-on: windows-latest
     env:
-      TAG: ${{ github.event.release.tag_name }}
+      TAG: ${{ github.event.release.tag_name || github.event.inputs.tag_name }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -34,7 +39,7 @@ jobs:
       - name: Set version from tag
         shell: pwsh
         run: |
-          $tag = "${{ env.TAG }}" -replace '^v', ''
+          $tag = "${{ env.TAG }}" -replace '^lyrixx-v', '' -replace '^v', ''
 
           # Cargo.toml — only [package] version, not dependency versions
           $cargo = Get-Content "src-tauri/Cargo.toml" -Raw
@@ -51,11 +56,19 @@ jobs:
 
           echo "Set version to $tag in Cargo.toml, tauri.conf.json, package.json"
 
+      - name: Resolve release ID
+        if: ${{ !github.event.release.id }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          RELEASE_ID=$(gh api repos/${{ github.repository }}/releases/tags/${{ env.TAG }} --jq '.id')
+          echo "RELEASE_ID=$RELEASE_ID" >> $env:GITHUB_ENV
+
       - uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          releaseId: ${{ github.event.release.id }}
+          releaseId: ${{ github.event.release.id || env.RELEASE_ID }}
 
       - name: Zip portable exe
         shell: pwsh
@@ -76,7 +89,7 @@ jobs:
           REPO="${{ github.repository }}"
 
           # Get previous tag
-          PREV_TAG=$(git tag --sort=-v:refname | grep -E '^v[0-9]' | sed -n '2p')
+          PREV_TAG=$(git tag --sort=-v:refname | grep -E '^(lyrixx-v|v)[0-9]' | sed -n '2p')
 
           if [ -z "$PREV_TAG" ]; then
             RANGE="HEAD"
