@@ -7,6 +7,7 @@ import { logger } from "@/services/logger";
 import { generateId } from "@/utils/id";
 import { DEFAULT_ICON_ID } from "@/types/icons";
 
+/** Хук CRUD-операций для песен и категорий через TauriDbService. */
 export function useSongs(
   db: SongsDb = new TauriDbService(),
   autoSaveDelay = 300,
@@ -38,6 +39,8 @@ export function useSongs(
 
   const pendingSaveRef = useRef<{ id: string; song: Song } | null>(null);
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const songsRef = useRef<Song[]>(songs);
+  songsRef.current = songs;
 
   useEffect(() => {
     return () => {
@@ -94,7 +97,31 @@ export function useSongs(
         onError?.("errSaveData");
       }
     }, delayRef.current);
-  }, []);
+  }, [onError]);
+
+  const updateSongsCategory = useCallback(
+    (ids: string[], categoryId: string) => {
+      const now = Date.now();
+      const idSet = new Set(ids);
+      setSongs((prev) =>
+        prev.map((s) => (idSet.has(s.id) ? { ...s, category: categoryId, updatedAt: now } : s)),
+      );
+      (async () => {
+        try {
+          const currentSongs = songsRef.current;
+          const toSave = currentSongs.filter((s) => idSet.has(s.id)).map((s) => ({ ...s, category: categoryId, updatedAt: now }));
+          for (const song of toSave) {
+            await dbRef.current.saveSong(song);
+          }
+          logger.debug("DB", `updateSongsCategory done: ${toSave.length} songs -> ${categoryId}`);
+        } catch (err) {
+          logger.error("DB", "Failed to batch update category:", err);
+          onError?.("errSaveData");
+        }
+      })();
+    },
+    [onError],
+  );
 
   const togglePin = useCallback(
     (id: string) => {
@@ -135,6 +162,32 @@ export function useSongs(
       }
     },
     [onError],
+  );
+
+  const duplicateSong = useCallback(
+    async (id: string) => {
+      const song = songs.find((s) => s.id === id);
+      if (!song) return;
+      const now = Date.now();
+      const dup: Song = {
+        ...song,
+        id: generateId(),
+        title: song.title ? `${song.title} (копия)` : "",
+        createdAt: now,
+        updatedAt: now,
+      };
+      try {
+        await dbRef.current.saveSong(dup);
+        setSongs((prev) => [dup, ...prev]);
+        logger.debug("DB", `duplicateSong done: ${id} -> ${dup.id}`);
+        return dup.id;
+      } catch (err) {
+        logger.error("DB", "Failed to duplicate song:", err);
+        onError?.("errSaveData");
+        return "";
+      }
+    },
+    [songs, onError],
   );
 
   const addCategory = useCallback(
@@ -219,9 +272,11 @@ export function useSongs(
     ready,
     addSong,
     updateSong,
+    updateSongsCategory,
     togglePin,
     deleteSong,
     deleteSongs,
+    duplicateSong,
     addCategory,
     renameCategory,
     updateCategoryIcon,
